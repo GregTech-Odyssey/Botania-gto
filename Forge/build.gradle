@@ -2,12 +2,10 @@ plugins {
     id 'java'
     id 'java-library'
     id 'net.neoforged.moddev.legacyforge' version '2.0.142'
+    id 'com.gto.gtopublishgradleplugin' version '1.0.25'
 }
 
-version = "${minecraft_version}-${build_number}-FORGE"
-if (System.getenv().RELEASE_MODE != "1") {
-    version += '-SNAPSHOT'
-}
+version = gto_version
 
 mixin {
     add sourceSets.main, "botania.refmap.json"
@@ -169,7 +167,7 @@ publishing {
             groupId project.group
             artifactId project.archivesBaseName
             version project.version
-            artifact jar
+            artifact reobfJar
             artifact sourcesJar
             artifact apiJar
             pom.withXml {
@@ -181,7 +179,25 @@ publishing {
     }
     repositories {
         maven {
-            url "file://" + System.getenv("local_maven")
+            name = 'gtodysseyRepository'
+            url = 'https://gtodyssey.com/maven/releases'
+            credentials {
+                username = findProperty('gtodysseyRepositoryUsername') ?: ''
+                password = findProperty('gtodysseyRepositoryPassword') ?: ''
+            }
         }
     }
+}
+
+gtoPublish {
+    publishMaven      = true
+    publishGithub     = false
+    publishCurseforge = true
+    mavenRepoName     = 'gtodysseyRepository'
+    mavenRepoUrl      = 'releases'
+    minecraftVersion  = '1.20.1'
+    modLoader         = 'Forge'
+    curseforgeProjectId   = '1754410'
+    curseforgeJavaVersion = 'Java 17'
+    curseforgeEnvironment = 'both'
 }

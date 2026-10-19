@@ -388,10 +388,6 @@ public class FabricCommonInitializer implements ModInitializer {
 					+ " \"Do not Override\". Whoever had the brilliant idea of overriding it needs to go"
 					+ " back to elementary school and learn to read. (Actual classname: " + clname + ")");
 		}
-
-		if (server.isDedicatedServer()) {
-			ContributorList.firstStart();
-		}
 	}
 
 	private void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext ctx, Commands.CommandSelection environment) {

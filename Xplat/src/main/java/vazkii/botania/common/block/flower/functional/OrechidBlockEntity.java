@@ -31,19 +31,17 @@ import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 import vazkii.botania.common.handler.BotaniaSounds;
 import vazkii.botania.common.handler.OrechidManager;
 import vazkii.botania.xplat.BotaniaConfig;
-import vazkii.botania.xplat.XplatAbstractions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class OrechidBlockEntity extends FunctionalFlowerBlockEntity {
-	private static final int COST = 17500;
-	private static final int COST_GOG = 700;
+	private static final int COST = 100;
 	private static final int DELAY = 100;
-	private static final int DELAY_GOG = 2;
-	private static final int RANGE = 5;
-	private static final int RANGE_Y = 3;
+	private static final int RANGE = 3;
+	private static final int RANGE_Y = 1;
+	private static final int MAX_MANA = 500;
 
 	protected OrechidBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -146,11 +144,11 @@ public class OrechidBlockEntity extends FunctionalFlowerBlockEntity {
 	}
 
 	public int getCost() {
-		return XplatAbstractions.INSTANCE.gogLoaded() ? COST_GOG : COST;
+		return COST;
 	}
 
 	public int getDelay() {
-		return XplatAbstractions.INSTANCE.gogLoaded() ? DELAY_GOG : DELAY;
+		return DELAY;
 	}
 
 	@Override
@@ -178,7 +176,7 @@ public class OrechidBlockEntity extends FunctionalFlowerBlockEntity {
 
 	@Override
 	public int getMaxMana() {
-		return getCost();
+		return MAX_MANA;
 	}
 
 }

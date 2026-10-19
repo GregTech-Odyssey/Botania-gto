@@ -1,15 +1,15 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="Botania License"
-issueTrackerURL="https://github.com/Vazkii/Botania/issues"
+issueTrackerURL="https://github.com/GregTech-Odyssey/GregTech-Odyssey/issues"
 logoFile="logo.png"
 
 [[mods]]
 modId="botania"
 version="${file.jarVersion}"
-displayName="Botania"
-displayURL="https://botaniamod.net"
-description="Botania is a mod that adds nature magic to Minecraft."
+displayName="Botania GTO Edition"
+displayURL="https://github.com/GregTech-Odyssey/Botania-gto"
+description="A build of Botania maintained for the GregTech Odyssey modpack, based on the original Botania by Vazkii and contributors."
 authors="Vazkii, wiiv, williewillus, dylan4ever, Hubry, Alwinfy, artemisSystem, Falkory220, Wormbo"
 credits="Azanor, Flaxbeard, Futureazoo, Rorax, Lorc, Adubbz, WTFG33ks, Auric245524, MegaManki, Kain Vinosec, Kihira, mDiyo, Mikeemoo, ChickenBones, PowerCrystals, cpw, quat1024, ToMe25, Eutro and others"
 

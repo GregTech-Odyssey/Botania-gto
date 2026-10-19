@@ -36,10 +36,12 @@ public class RunicAltarEmiRecipe extends BotaniaEmiRecipe {
 		this.ingredients = recipe.getIngredients().stream().map(EmiIngredient::of).toList();
 		this.input = Stream.concat(ingredients.stream(), Stream.of(LIVINGROCK)).toList();
 		// TODO classify these as catalysts instead?
-		for (EmiIngredient ing : input) {
-			for (EmiStack stack : ing.getEmiStacks()) {
-				if (stack.getItemStack().getItem() instanceof RuneItem) {
-					stack.setRemainder(stack.copy());
+		if (recipe.returnsRunes()) {
+			for (EmiIngredient ing : input) {
+				for (EmiStack stack : ing.getEmiStacks()) {
+					if (stack.getItemStack().getItem() instanceof RuneItem) {
+						stack.setRemainder(stack.copy());
+					}
 				}
 			}
 		}

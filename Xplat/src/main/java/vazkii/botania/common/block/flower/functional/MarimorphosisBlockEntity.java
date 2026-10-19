@@ -18,9 +18,11 @@ import vazkii.botania.common.block.BotaniaFlowerBlocks;
 import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 
 public class MarimorphosisBlockEntity extends OrechidBlockEntity {
-	private static final int COST = 12;
-	private static final int RANGE = 8;
-	private static final int RANGE_Y = 5;
+	private static final int COST = 25;
+	private static final int DELAY = 10;
+	private static final int RANGE = 4;
+	private static final int RANGE_Y = 2;
+	private static final int MAX_MANA = 500;
 
 	private static final int RANGE_MINI = 2;
 	private static final int RANGE_Y_MINI = 1;
@@ -45,7 +47,7 @@ public class MarimorphosisBlockEntity extends OrechidBlockEntity {
 
 	@Override
 	public int getDelay() {
-		return 2;
+		return DELAY;
 	}
 
 	@Override
@@ -70,7 +72,7 @@ public class MarimorphosisBlockEntity extends OrechidBlockEntity {
 
 	@Override
 	public int getMaxMana() {
-		return 1000;
+		return MAX_MANA;
 	}
 
 	public static class Mini extends MarimorphosisBlockEntity {

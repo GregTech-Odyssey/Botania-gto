@@ -16,6 +16,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -37,12 +38,21 @@ import vazkii.botania.common.block.block_entity.red_string.RedStringSpooferBlock
 import vazkii.botania.common.block.decor.FloatingFlowerBlock;
 import vazkii.botania.common.lib.BotaniaTags;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
+
 /**
  * Common superclass of all magical flower block entities
  */
 public abstract class SpecialFlowerBlockEntity extends BlockEntity implements FloatingFlowerProvider {
 	public static final int PODZOL_DELAY = 5;
 	public static final int MYCELIUM_DELAY = 10;
+	public static final int SLOW_TICK_INTERVAL = 20;
+	public static final int SYNC_INTERVAL = 200;
+	public static final int OBSERVED_SYNC_INTERVAL = 5;
+
+	private static final List<Predicate<SpecialFlowerBlockEntity>> SLOW_TICK_CONDITIONS = new CopyOnWriteArrayList<>();
 
 	private final FloatingFlower floatingData = new FloatingFlowerImpl() {
 		@Override
@@ -60,6 +70,9 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 	public boolean overgrowthBoost = false;
 	private BlockPos positionOverride;
 	private boolean isFloating;
+	private boolean slowTicking;
+	private boolean observed;
+	private int lastSync;
 
 	public static final String TAG_TICKS_EXISTED = "ticksExisted";
 	private static final String TAG_FLOATING_DATA = "floating";
@@ -68,7 +81,18 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 		super(type, pos, state);
 	}
 
+	public static void registerSlowTickCondition(Predicate<SpecialFlowerBlockEntity> condition) {
+		SLOW_TICK_CONDITIONS.add(condition);
+	}
+
 	public static void commonTick(Level level, BlockPos worldPosition, BlockState state, SpecialFlowerBlockEntity self) {
+		if (!level.isClientSide) {
+			if (level.getGameTime() % SLOW_TICK_INTERVAL == 9) {
+				self.slowTicking = self.matchesSlowTickCondition();
+			} else if (self.slowTicking) {
+				return;
+			}
+		}
 		if (self.isFloating != state.is(BotaniaTags.Blocks.FLOATING_FLOWERS)) {
 			BotaniaAPI.LOGGER.error("Special flower changed floating state, this is not supported!", new Throwable());
 			self.isFloating = !self.isFloating;
@@ -99,6 +123,15 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 		self.tickFlower();
 		self.overgrowth = false;
 		self.overgrowthBoost = false;
+	}
+
+	private boolean matchesSlowTickCondition() {
+		for (var condition : SLOW_TICK_CONDITIONS) {
+			if (condition.test(this)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Nullable
@@ -203,7 +236,18 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 	}
 
 	public void sync() {
-		VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
+		if (level instanceof ServerLevel serverLevel) {
+			int tick = serverLevel.getServer().getTickCount();
+			if (tick - lastSync > (observed ? OBSERVED_SYNC_INTERVAL : SYNC_INTERVAL)) {
+				observed = false;
+				lastSync = tick;
+				VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
+			}
+		}
+	}
+
+	public void markObserved() {
+		observed = true;
 	}
 
 	/**

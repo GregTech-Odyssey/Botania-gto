@@ -38,13 +38,19 @@ public class RunicAltarRecipe implements vazkii.botania.api.recipe.RunicAltarRec
 	private final ItemStack output;
 	private final NonNullList<Ingredient> inputs;
 	private final int mana;
+	private final boolean returnRunes;
 
 	public RunicAltarRecipe(ResourceLocation id, ItemStack output, int mana, Ingredient... inputs) {
+		this(id, output, mana, true, inputs);
+	}
+
+	public RunicAltarRecipe(ResourceLocation id, ItemStack output, int mana, boolean returnRunes, Ingredient... inputs) {
 		Preconditions.checkArgument(inputs.length <= 16, "Cannot have more than 16 ingredients");
 		this.id = id;
 		this.output = output;
 		this.inputs = NonNullList.of(Ingredient.EMPTY, inputs);
 		this.mana = mana;
+		this.returnRunes = returnRunes;
 	}
 
 	@Override
@@ -93,18 +99,24 @@ public class RunicAltarRecipe implements vazkii.botania.api.recipe.RunicAltarRec
 		return mana;
 	}
 
+	@Override
+	public boolean returnsRunes() {
+		return returnRunes;
+	}
+
 	public static class Serializer implements RecipeSerializer<RunicAltarRecipe> {
 		@NotNull
 		@Override
 		public RunicAltarRecipe fromJson(@NotNull ResourceLocation id, @NotNull JsonObject json) {
 			ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "output"));
 			int mana = GsonHelper.getAsInt(json, "mana");
+			boolean returnRunes = GsonHelper.getAsBoolean(json, "return_runes", true);
 			JsonArray ingrs = GsonHelper.getAsJsonArray(json, "ingredients");
 			List<Ingredient> inputs = new ArrayList<>();
 			for (JsonElement e : ingrs) {
 				inputs.add(Ingredient.fromJson(e));
 			}
-			return new RunicAltarRecipe(id, output, mana, inputs.toArray(new Ingredient[0]));
+			return new RunicAltarRecipe(id, output, mana, returnRunes, inputs.toArray(new Ingredient[0]));
 		}
 
 		@Override
@@ -115,7 +127,8 @@ public class RunicAltarRecipe implements vazkii.botania.api.recipe.RunicAltarRec
 			}
 			ItemStack output = buf.readItem();
 			int mana = buf.readVarInt();
-			return new RunicAltarRecipe(id, output, mana, inputs);
+			boolean returnRunes = buf.readBoolean();
+			return new RunicAltarRecipe(id, output, mana, returnRunes, inputs);
 		}
 
 		@Override
@@ -126,6 +139,7 @@ public class RunicAltarRecipe implements vazkii.botania.api.recipe.RunicAltarRec
 			}
 			buf.writeItem(recipe.output);
 			buf.writeVarInt(recipe.getManaUsage());
+			buf.writeBoolean(recipe.returnsRunes());
 		}
 	}
 

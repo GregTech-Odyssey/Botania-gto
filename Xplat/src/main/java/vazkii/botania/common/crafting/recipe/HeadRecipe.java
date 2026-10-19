@@ -82,6 +82,10 @@ public class HeadRecipe extends RunicAltarRecipe {
 		super(id, output, mana, inputs);
 	}
 
+	public HeadRecipe(ResourceLocation id, ItemStack output, int mana, boolean returnRunes, Ingredient... inputs) {
+		super(id, output, mana, returnRunes, inputs);
+	}
+
 	@Override
 	public boolean matches(Container inv, @NotNull Level world) {
 		boolean matches = super.matches(inv, world);
@@ -213,12 +217,13 @@ public class HeadRecipe extends RunicAltarRecipe {
 		public HeadRecipe fromJson(@NotNull ResourceLocation id, @NotNull JsonObject json) {
 			ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "output"));
 			int mana = GsonHelper.getAsInt(json, "mana");
+			boolean returnRunes = GsonHelper.getAsBoolean(json, "return_runes", true);
 			JsonArray ingrs = GsonHelper.getAsJsonArray(json, "ingredients");
 			List<Ingredient> inputs = new ArrayList<>();
 			for (JsonElement e : ingrs) {
 				inputs.add(Ingredient.fromJson(e));
 			}
-			return new HeadRecipe(id, output, mana, inputs.toArray(new Ingredient[0]));
+			return new HeadRecipe(id, output, mana, returnRunes, inputs.toArray(new Ingredient[0]));
 		}
 
 		@Override
@@ -229,7 +234,8 @@ public class HeadRecipe extends RunicAltarRecipe {
 			}
 			ItemStack output = buf.readItem();
 			int mana = buf.readVarInt();
-			return new HeadRecipe(id, output, mana, inputs);
+			boolean returnRunes = buf.readBoolean();
+			return new HeadRecipe(id, output, mana, returnRunes, inputs);
 		}
 
 		@Override

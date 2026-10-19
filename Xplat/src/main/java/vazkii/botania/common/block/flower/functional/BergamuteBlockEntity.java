@@ -26,9 +26,11 @@ import java.util.*;
 
 public class BergamuteBlockEntity extends SpecialFlowerBlockEntity {
 	private static final int RANGE = 4;
+	private static final int UPDATE_INTERVAL = 40;
 	private static final Set<BergamuteBlockEntity> clientFlowers = Collections.newSetFromMap(new WeakHashMap<>());
 	private static final Set<BergamuteBlockEntity> serverFlowers = Collections.newSetFromMap(new WeakHashMap<>());
 	private boolean disabled = false;
+	private long lastUpdate = -UPDATE_INTERVAL;
 
 	public BergamuteBlockEntity(BlockPos pos, BlockState state) {
 		super(BotaniaFlowerBlocks.BERGAMUTE, pos, state);
@@ -37,6 +39,11 @@ public class BergamuteBlockEntity extends SpecialFlowerBlockEntity {
 	@Override
 	public void tickFlower() {
 		super.tickFlower();
+
+		if (getLevel().getGameTime() - lastUpdate < UPDATE_INTERVAL) {
+			return;
+		}
+		lastUpdate = getLevel().getGameTime();
 
 		disabled = getLevel().hasNeighborSignal(getBlockPos());
 		if (getLevel().isClientSide) {

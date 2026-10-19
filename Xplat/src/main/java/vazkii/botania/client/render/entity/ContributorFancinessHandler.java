@@ -38,8 +38,6 @@ public final class ContributorFancinessHandler extends RenderLayer<AbstractClien
 
 	@Override
 	public void render(PoseStack ms, MultiBufferSource buffers, int light, @NotNull AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-		ContributorList.firstStart();
-
 		if (player.isInvisible()) {
 			return;
 		}

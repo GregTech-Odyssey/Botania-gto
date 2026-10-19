@@ -54,7 +54,8 @@ import vazkii.botania.xplat.XplatAbstractions;
 import java.util.*;
 
 public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
-	private static final int TRANSFER_RATE = 1000;
+	private static final int TRANSFER_INTERVAL = 20;
+	private static final int TRANSFER_RATE = 1000 * TRANSFER_INTERVAL;
 	private static final String TAG_UPGRADE = "upgrade";
 	private static final EntityDataAccessor<Integer> UPGRADE = SynchedEntityData.defineId(ManaSparkEntity.class, EntityDataSerializers.INT);
 
@@ -95,6 +96,10 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		// When loaded, initialize transfers
 		if (firstTick) {
 			updateTransfers();
+		}
+
+		if (!firstTick && level().getGameTime() % TRANSFER_INTERVAL != 8) {
+			return;
 		}
 
 		SparkAttachable tile = getAttachedTile();

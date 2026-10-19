@@ -303,8 +303,6 @@ public class TinyPotatoBlockEntityRenderer implements BlockEntityRenderer<TinyPo
 
 		ms.pushPose();
 		if (!name.isEmpty()) {
-			ContributorList.firstStart();
-
 			float scale = 1F / 4F;
 			ms.translate(0F, 1F, 0F);
 			ms.scale(scale, scale, scale);

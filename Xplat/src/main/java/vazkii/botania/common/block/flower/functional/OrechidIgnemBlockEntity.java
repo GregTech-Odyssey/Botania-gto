@@ -17,15 +17,10 @@ import vazkii.botania.common.block.BotaniaFlowerBlocks;
 import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 
 public class OrechidIgnemBlockEntity extends OrechidBlockEntity {
-	private static final int COST = 20000;
+	private static final int COST = 120;
 
 	public OrechidIgnemBlockEntity(BlockPos pos, BlockState state) {
 		super(BotaniaFlowerBlocks.ORECHID_IGNEM, pos, state);
-	}
-
-	@Override
-	public boolean canOperate() {
-		return getLevel().dimensionType().hasCeiling();
 	}
 
 	@Override

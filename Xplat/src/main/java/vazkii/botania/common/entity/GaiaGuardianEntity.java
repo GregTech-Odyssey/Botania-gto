@@ -151,7 +151,7 @@ public class GaiaGuardianEntity extends Mob {
 	private static final int MOB_SPAWN_TICKS = MOB_SPAWN_BASE_TICKS + MOB_SPAWN_START_TICKS + MOB_SPAWN_END_TICKS;
 	private static final int MOB_SPAWN_WAVES = 10;
 	private static final int MOB_SPAWN_WAVE_TIME = MOB_SPAWN_BASE_TICKS / MOB_SPAWN_WAVES;
-	private static final int DAMAGE_CAP = 32;
+	private static final int DAMAGE_CAP = 10000;
 
 	private static final String TAG_INVUL_TIME = "invulTime";
 	private static final String TAG_AGGRO = "aggro";

@@ -3,8 +3,8 @@
   "id": "botania",
   "version": "${version}",
 
-  "name": "Botania",
-  "description": "Botania is a tech mod themed around natural magic",
+  "name": "Botania GTO Edition",
+  "description": "A build of Botania maintained for the GregTech Odyssey modpack, based on the original Botania by Vazkii and contributors.",
   "authors": [
     "Vazkii",
     "wiiv",
@@ -19,9 +19,9 @@
   "contact": {
     "irc": "ircs://irc.esper.net:6697/#vazkii",
     "email": "~williewillus/violet-moon@lists.sr.ht",
-    "homepage": "https://botaniamod.net",
-    "sources": "https://github.com/VazkiiMods/Botania",
-    "issues": "https://github.com/VazkiiMods/Botania/issues"
+    "homepage": "https://github.com/GregTech-Odyssey/Botania-gto",
+    "sources": "https://github.com/GregTech-Odyssey/Botania-gto",
+    "issues": "https://github.com/GregTech-Odyssey/GregTech-Odyssey/issues"
   },
 
   "license": "Botania license",

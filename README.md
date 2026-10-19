@@ -1,41 +1,85 @@
-![](web/assets/img/logo.png)  
-Welcome to the Botania repository.  
+# Botania GTO Edition
 
-Botania is a [Minecraft](https://minecraft.net/) tech mod themed around natural magic. It's inspired by other magic mods, such as [Thaumcraft](https://www.curseforge.com/minecraft/mc-mods/thaumcraft) or [Blood Magic](https://www.curseforge.com/minecraft/mc-mods/blood-magic).  
+本项目是为 [GregTech Odyssey](https://github.com/GregTech-Odyssey) 整合包专门维护的植物魔法（Botania）版本，在原版基础上针对整合包的玩法与运行环境做了相应的适配与调整。
 
-Botania is licensed under the [Botania License](http://botaniamod.net/license.php)
+植物魔法的原作者为 Vazkii 及各位贡献者，原项目地址：<https://github.com/VazkiiMods/Botania>。本版本的改动均由 GregTech Odyssey 团队维护，并非原作者发布的版本；如在使用中遇到问题，烦请反馈至 [GregTech Odyssey 整合包仓库](https://github.com/GregTech-Odyssey/GregTech-Odyssey/issues)，以免给原项目带来不便。
 
-For information on contributing, please read `CONTRIBUTING.md`.
+本版本与原版在游戏设计上的差异，详见 [GTO_CHANGES.md](GTO_CHANGES.md)。
 
-## Maven info
+## 许可证
 
-Maven artifacts are located [here](https://maven.blamejared.com/vazkii/botania/Botania/), each folder representing a version.
+本项目依据 [Botania License](https://github.com/VazkiiMods/Botania/blob/1.20.x/LICENSE.txt) 开源，许可证原文如下：
 
-Note: As of 1.16, intermediate (non-release) Maven builds are no longer persisted.
-That is, you must either depend on a *released* version of Botania, e.g. `1.16.2-407`, or specifically opt in to the bleeding-edge
-build of the next version. For example, `1.16.2-408-SNAPSHOT` would be the current bleeding edge version of future version `1.16.2-408`. 
+```text
+Botania is distributed under a reasonably open license. You probably want to have a read
+through this if you want to do something with it other than just play.
 
-Note that `-SNAPSHOT` versions can be broken from time to time, and you are strongly discouraged from using them unless you are helping dogfood, test, or contribute to Botania. They may also be pruned from time to time to save disk space on the server. Do *not* rely on `-SNAPSHOT` versions for anything important!
+You are completely free and have the right to Use, Share and Adapt the mod. These rights
+can not be removed from you as long as follow the license terms.  If you simply wish to
+play with the mod and do nothing else, go for it, this license is of no use to you.
 
-In Forge, add the following to your `build.gradle`
-```gradle
-repositories {
-    maven { url 'https://maven.blamejared.com' }
-}
+General Clauses
+Clauses that apply in general to any of the uses that follow.
 
-dependencies {
-    // 1.14+
-    compileOnly fg.deobf("vazkii.botania:Botania:[VERSION]:api")
-    runtimeOnly fg.deobf("vazkii.botania:Botania:[VERSION]")
-}
+- Personal Permission Clause
+  I will not give personal permission unless I know the person asking or there's a really
+  good reason for it, as giving personal permission implies endorsement. Asking for
+  personal permission will likely just end up having you ignored or redirected back to
+  this license.
+- Waive Clause
+  All restrictive clauses in this license can be ignored with personal permission. Read the
+  above clause.
+- Extensive Clause
+  This license applies to Botania, the Botania website, the legacy Botania website and all
+  other code, assets or binaries found on this website or the github repository unless
+  otherwise indicated.
+- Informal Clause
+  This license will not hold up in court. I have no intention of suing anyone for breaking
+  it, the worst that can happen to you if you do is that I'll get annoyed and ask you to
+  rectify your mistake. If you use a public distribution platform (such as CurseForge) it's
+  also possible your project will get taken down. Breaking the license also makes you a
+  jerk, and you don't want to be a jerk, do you?
+
+If you want to Distribute Botania
+"Distribution" refers to making available binaries, assets, or source of the mod available
+from the original sources as part of your modpack or otherwise.
+
+- Attribution Clause
+  You must give appropriate credit to Vazkii as the creator of Botania or the parts of it
+  you're using. If you do any alterations the fact that you do so should also be
+  indicated. A link back is optional but it would be cool if you would do so.
+
+- Non-Monetary Clause
+  You may not charge for access to the distribution itself or gain money through it, this
+  includes any type of inline advertisement, such as url shorteners (adf.ly or otherwise)
+  or ads in your service slowing the download down. This includes restricting any amount
+  of access behind a paywall. Charging for ingame goods such as mod items or cosmetic
+  features on a server does not count as distribution and falls purely under the Mojang
+  Terms of Service.
+
+If you want to Feature Botania
+"Featuring" refers to using Botania in an environment where you do not distribute
+binaries, assets, or source. An example would be a YouTube Let's Play.
+
+- Thief Clause
+  You must not claim that you made Botania. Giving appropriate credit to Vazkii as the
+  creator of Botania makes you cooler, but you don't have to do it if you don't want to.
+
+If you want to Use Botania Code or Assets
+Usage of code or assets falls under the Extensive Clause.
+
+- External Clause
+  Certain parts of the codebase are indicated to be licensed under alternative licenses. You
+  must obey those licenses.
+- Attribution Clause
+  You must give appropriate credit to Vazkii as the creator of Botania or the parts of it
+  you're using. If you do any alterations the fact that you do so should also be
+  indicated. A link back is optional but it would be cool if you would do so.
+- Copyleft Clause
+  Your project must be open source (have its source visible and allow for redistribution
+  and modification) and include a clause similar to this one in its license.
+- API Clause
+  Any of the other clauses under this section do not apply to any Botania API
+  code (the subdirectory src/main/java/vazkii/botania/api). However, if Botania API code
+  is used, it must be included verbatim as it was obtained.
 ```
-## Mixin Troubleshooting
-
-Read this if you get crashes when depending on Botania and trying to launch in-dev.
-Botania uses Mixins to implement various features.
-This may cause issues when depending on Botania in-dev, since ForgeGradle/MixinGradle
-do not yet properly support this in-dev like Fabric does.
-As a workaround, disable refmaps by defining the `mixin.env.disableRefMap`
-JVM argument to `true`.
-
-

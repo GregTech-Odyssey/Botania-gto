@@ -79,6 +79,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	public static final float PARTICLE_COLOR_RED = (PARTICLE_COLOR >> 16 & 0xFF) / 255F;
 	public static final int MAX_MANA = 1000000;
 	private static final int MAX_MANA_DILLUTED = 10000;
+	private static final int MAX_MANA_FABULOUS = 100_000_000;
 
 	private static final String TAG_MANA = "mana";
 	private static final String TAG_OUTPUTTING = "outputting";
@@ -250,8 +251,12 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	}
 
 	private void initManaCapAndNetwork() {
-		if (getMaxMana() == -1) {
-			manaCap = ((ManaPoolBlock) getBlockState().getBlock()).variant == ManaPoolBlock.Variant.DILUTED ? MAX_MANA_DILLUTED : MAX_MANA;
+		if (manaCap == -1) {
+			manaCap = switch (((ManaPoolBlock) getBlockState().getBlock()).variant) {
+				case DILUTED -> MAX_MANA_DILLUTED;
+				case FABULOUS -> MAX_MANA_FABULOUS;
+				default -> MAX_MANA;
+			};
 		}
 		if (!ManaNetworkHandler.instance.isPoolIn(level, this) && !isRemoved()) {
 			BotaniaAPI.instance().getManaNetworkInstance().fireManaNetworkEvent(this, ManaBlockType.POOL, ManaNetworkAction.ADD);

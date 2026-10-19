@@ -31,17 +31,19 @@ public abstract class FunctionalFlowerBlockEntity extends BindableSpecialFlowerB
 	private static final ResourceLocation POOL_ID = new ResourceLocation(BotaniaAPI.MODID, "mana_pool");
 
 	public static final int LINK_RANGE = 10;
+	public static final int REDSTONE_CHECK_INTERVAL = 20;
 	private static final String TAG_MANA = "mana";
 
 	private int mana;
 	public int redstoneSignal = 0;
+	private long lastRedstoneCheck = -REDSTONE_CHECK_INTERVAL;
 
 	public FunctionalFlowerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state, ManaPool.class);
 	}
 
 	/**
-	 * If set to true, redstoneSignal will be updated every tick.
+	 * If set to true, redstoneSignal will be updated every REDSTONE_CHECK_INTERVAL ticks.
 	 */
 	public boolean acceptsRedstone() {
 		return false;
@@ -53,11 +55,15 @@ public abstract class FunctionalFlowerBlockEntity extends BindableSpecialFlowerB
 
 		drawManaFromPool();
 
-		redstoneSignal = 0;
-		if (acceptsRedstone()) {
-			for (Direction dir : Direction.values()) {
-				int redstoneSide = getLevel().getSignal(getBlockPos().relative(dir), dir);
-				redstoneSignal = Math.max(redstoneSignal, redstoneSide);
+		long time = getLevel().getGameTime();
+		if (time - lastRedstoneCheck >= REDSTONE_CHECK_INTERVAL) {
+			lastRedstoneCheck = time;
+			redstoneSignal = 0;
+			if (acceptsRedstone()) {
+				for (Direction dir : Direction.values()) {
+					int redstoneSide = getLevel().getSignal(getBlockPos().relative(dir), dir);
+					redstoneSignal = Math.max(redstoneSignal, redstoneSide);
+				}
 			}
 		}
 

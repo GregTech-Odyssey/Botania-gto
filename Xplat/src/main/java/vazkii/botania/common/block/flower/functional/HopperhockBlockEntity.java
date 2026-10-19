@@ -43,11 +43,13 @@ public class HopperhockBlockEntity extends FunctionalFlowerBlockEntity implement
 	private static final String TAG_FILTER_TYPE = "filterType";
 	private static final int RANGE_MANA = 10;
 	private static final int RANGE = 6;
+	private static final int WORK_INTERVAL = 40;
 
 	private static final int RANGE_MANA_MINI = 2;
 	private static final int RANGE_MINI = 1;
 
 	private int filterType = 0;
+	private long lastWork = -WORK_INTERVAL;
 
 	protected HopperhockBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -61,9 +63,10 @@ public class HopperhockBlockEntity extends FunctionalFlowerBlockEntity implement
 	public void tickFlower() {
 		super.tickFlower();
 
-		if (getLevel().isClientSide || redstoneSignal > 0) {
+		if (getLevel().isClientSide || redstoneSignal > 0 || getLevel().getGameTime() - lastWork < WORK_INTERVAL) {
 			return;
 		}
+		lastWork = getLevel().getGameTime();
 
 		boolean pulledAny = false;
 		int range = getRange();

@@ -10,6 +10,7 @@ package vazkii.botania.common.block.flower.generating;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,6 +30,9 @@ public class EntropinnyumBlockEntity extends GeneratingFlowerBlockEntity {
 	private static final int RANGE = 12;
 	private static final int EXPLODE_EFFECT_EVENT = 0;
 	private static final int ANGRY_EFFECT_EVENT = 1;
+	private static final int MAX_MANA = 6500;
+
+	private int maxMana = MAX_MANA;
 
 	public EntropinnyumBlockEntity(BlockPos pos, BlockState state) {
 		super(BotaniaFlowerBlocks.ENTROPINNYUM, pos, state);
@@ -54,6 +58,24 @@ public class EntropinnyumBlockEntity extends GeneratingFlowerBlockEntity {
 				}
 			}
 		}
+
+		if (getMana() <= maxMana) {
+			maxMana = Math.max(MAX_MANA, getMana());
+		}
+	}
+
+	public void fillExceedingMaxMana(int amount) {
+		if (amount > MAX_MANA) {
+			maxMana = amount;
+		}
+		addMana(amount);
+		sync();
+	}
+
+	@Override
+	public void readFromPacketNBT(CompoundTag cmp) {
+		super.readFromPacketNBT(cmp);
+		maxMana = Math.max(MAX_MANA, getMana());
 	}
 
 	@Override
@@ -92,7 +114,7 @@ public class EntropinnyumBlockEntity extends GeneratingFlowerBlockEntity {
 
 	@Override
 	public int getMaxMana() {
-		return 6500;
+		return maxMana;
 	}
 
 	@Override
