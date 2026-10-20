@@ -98,7 +98,7 @@ public class TerrestrialAgglomerationPlateBlock extends BotaniaWaterloggedBlock 
 		if (!level.isClientSide) {
 			return createTickerHelper(type, BotaniaBlockEntities.TERRA_PLATE, TerrestrialAgglomerationPlateBlockEntity::serverTick);
 		}
-		return null;
+		return createTickerHelper(type, BotaniaBlockEntities.TERRA_PLATE, TerrestrialAgglomerationPlateBlockEntity::clientTick);
 	}
 
 	@Override

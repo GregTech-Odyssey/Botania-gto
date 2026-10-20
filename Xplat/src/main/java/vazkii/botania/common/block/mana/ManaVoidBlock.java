@@ -37,14 +37,18 @@ public class ManaVoidBlock extends BotaniaBlock implements PoolOverlayProvider {
 	public boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int payload) {
 		if (id == SPARKLE_EVENT) {
 			if (level.isClientSide) {
-				for (int i = 0; i < 10; i++) {
-					SparkleParticleData data = SparkleParticleData.sparkle(0.7F + 0.5F * (float) Math.random(), 0.2F, 0.2F, 0.2F, 5);
-					level.addParticle(data, pos.getX() + Math.random(), pos.getY() + Math.random(), pos.getZ() + Math.random(), 0, 0, 0);
-				}
+				spawnSparkles(level, pos);
 			}
 			return true;
 		}
 		return super.triggerEvent(state, level, pos, id, payload);
+	}
+
+	public static void spawnSparkles(Level level, BlockPos pos) {
+		for (int i = 0; i < 10; i++) {
+			SparkleParticleData data = SparkleParticleData.sparkle(0.7F + 0.5F * (float) Math.random(), 0.2F, 0.2F, 0.2F, 5);
+			level.addParticle(data, pos.getX() + Math.random(), pos.getY() + Math.random(), pos.getZ() + Math.random(), 0, 0, 0);
+		}
 	}
 
 	public static class ManaReceiverImpl implements ManaReceiver {
@@ -79,11 +83,7 @@ public class ManaVoidBlock extends BotaniaBlock implements PoolOverlayProvider {
 		}
 
 		@Override
-		public void receiveMana(int mana) {
-			if (mana > 0) {
-				level.blockEvent(pos, state.getBlock(), SPARKLE_EVENT, 0);
-			}
-		}
+		public void receiveMana(int mana) {}
 
 		@Override
 		public boolean canReceiveManaFromBursts() {

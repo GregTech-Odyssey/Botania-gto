@@ -114,6 +114,7 @@ public class IncensePlateBlockEntity extends ExposedSimpleInventoryBlockEntity i
 			self.comparatorOutput = newComparator;
 			level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
 			self.setChanged();
+			self.syncToClients();
 		}
 	}
 
@@ -179,11 +180,9 @@ public class IncensePlateBlockEntity extends ExposedSimpleInventoryBlockEntity i
 	}
 
 	@Override
-	public void setChanged() {
-		super.setChanged();
-		if (level != null && !level.isClientSide) {
-			VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
-		}
+	protected void onInventoryChanged() {
+		super.onInventoryChanged();
+		syncToClients();
 	}
 
 	@Override

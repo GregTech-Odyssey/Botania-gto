@@ -1,0 +1,7 @@
+// 1.20.1	2026-10-20T11:50:20.2931998	Tags for minecraft:worldgen/biome mod id vanilla
+cee7a21a6dfca7353a8948421447e3f9d265a0bc data/botania/tags/worldgen/biome/mystical_flower_blocklist.json
+b020f6cdcd2d955793278b2f89a178a1d31e599a data/botania/tags/worldgen/biome/mystical_flower_spawnlist.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/botania/tags/worldgen/biome/mystical_mushroom_blocklist.json
+7cb64d5b31e1fa4a32cc12ce8f5aa7f2f251d479 data/botania/tags/worldgen/biome/mystical_mushroom_spawnlist.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/minecraft/tags/worldgen/biome/is_nether.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/minecraft/tags/worldgen/biome/is_overworld.json

@@ -8,7 +8,6 @@
  */
 package vazkii.botania.common.block.block_entity;
 
-import com.google.common.base.Predicates;
 import com.google.common.base.Suppliers;
 
 import net.minecraft.ResourceLocationException;
@@ -23,7 +22,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Clearable;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -488,13 +486,7 @@ public class ManaEnchanterBlockEntity extends BotaniaBlockEntity implements Mana
 
 	@Override
 	public ManaSpark getAttachedSpark() {
-		List<Entity> sparks = level.getEntitiesOfClass(Entity.class, new AABB(worldPosition.getX(), worldPosition.getY() + 1, worldPosition.getZ(), worldPosition.getX() + 1, worldPosition.getY() + 2, worldPosition.getZ() + 1), Predicates.instanceOf(ManaSpark.class));
-		if (sparks.size() == 1) {
-			Entity e = sparks.get(0);
-			return (ManaSpark) e;
-		}
-
-		return null;
+		return SparkHelper.getAttachedSpark(level, worldPosition);
 	}
 
 	@Override

@@ -69,6 +69,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import vazkii.botania.api.internal.ManaBurst;
+import vazkii.botania.client.fx.SparkleParticleData;
 import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.advancements.GaiaGuardianNoArmorTrigger;
 import vazkii.botania.common.block.BotaniaBlocks;
@@ -80,8 +81,6 @@ import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.lib.BotaniaTags;
 import vazkii.botania.common.proxy.Proxy;
 import vazkii.botania.integration.speedrunigt.BotaniaSpeedrunCategories;
-import vazkii.botania.network.EffectType;
-import vazkii.botania.network.clientbound.BotaniaEffectPacket;
 import vazkii.botania.network.clientbound.SpawnGaiaGuardianPacket;
 import vazkii.botania.xplat.XplatAbstractions;
 import vazkii.patchouli.api.IMultiblock;
@@ -232,8 +231,8 @@ public class GaiaGuardianEntity extends Mob {
 		if (!invalidArenaBlocks.isEmpty()) {
 			if (world.isClientSide) {
 				warnInvalidBlocks(world, invalidArenaBlocks);
+				showArenaRange(world, pos);
 			} else {
-				XplatAbstractions.INSTANCE.sendToPlayer(player, new BotaniaEffectPacket(EffectType.ARENA_INDICATOR, pos.getX(), pos.getY(), pos.getZ()));
 
 				player.sendSystemMessage(Component.translatable("botaniamisc.badArena").withStyle(ChatFormatting.RED));
 			}
@@ -341,6 +340,17 @@ public class GaiaGuardianEntity extends Mob {
 		}
 
 		return trippedPositions;
+	}
+
+	private static void showArenaRange(Level world, BlockPos pos) {
+		SparkleParticleData data = SparkleParticleData.sparkle(5F, 1, 0, 1, 120);
+		for (int i = 0; i < 360; i += 8) {
+			float rad = i * (float) Math.PI / 180F;
+			double wx = pos.getX() + 0.5 - Math.cos(rad) * ARENA_RANGE;
+			double wy = pos.getY() + 0.5;
+			double wz = pos.getZ() + 0.5 - Math.sin(rad) * ARENA_RANGE;
+			Proxy.INSTANCE.addParticleForceNear(world, data, wx, wy, wz, 0, 0, 0);
+		}
 	}
 
 	private static void warnInvalidBlocks(Level world, Iterable<BlockPos> invalidPositions) {

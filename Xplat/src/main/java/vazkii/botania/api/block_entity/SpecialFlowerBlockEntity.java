@@ -8,10 +8,13 @@
  */
 package vazkii.botania.api.block_entity;
 
+import com.gto.datasynclib.FieldDataManager;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -34,6 +37,7 @@ import vazkii.botania.api.block.*;
 import vazkii.botania.api.internal.VanillaPacketDispatcher;
 import vazkii.botania.common.annotations.SoftImplement;
 import vazkii.botania.common.block.BotaniaBlocks;
+import vazkii.botania.common.block.block_entity.BlockEntitySync;
 import vazkii.botania.common.block.block_entity.red_string.RedStringSpooferBlockEntity;
 import vazkii.botania.common.block.decor.FloatingFlowerBlock;
 import vazkii.botania.common.lib.BotaniaTags;
@@ -45,7 +49,7 @@ import java.util.function.Predicate;
 /**
  * Common superclass of all magical flower block entities
  */
-public abstract class SpecialFlowerBlockEntity extends BlockEntity implements FloatingFlowerProvider {
+public abstract class SpecialFlowerBlockEntity extends BlockEntity implements FloatingFlowerProvider, BlockEntitySync.Holder {
 	public static final int PODZOL_DELAY = 5;
 	public static final int MYCELIUM_DELAY = 10;
 	public static final int SLOW_TICK_INTERVAL = 20;
@@ -73,6 +77,7 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 	private boolean slowTicking;
 	private boolean observed;
 	private int lastSync;
+	private BlockEntitySync blockEntitySync;
 
 	public static final String TAG_TICKS_EXISTED = "ticksExisted";
 	private static final String TAG_FLOATING_DATA = "floating";
@@ -186,6 +191,14 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 			setFloating(true);
 		}
 
+		if (BlockEntitySync.isFullSync(cmp)) {
+			botania$sync().readFull(cmp);
+		} else {
+			applyPacketNBT(cmp);
+		}
+	}
+
+	private void applyPacketNBT(CompoundTag cmp) {
 		FloatingFlower.IslandType oldType = floatingData.getIslandType();
 		readFromPacketNBT(cmp);
 		if (isFloating() && oldType != floatingData.getIslandType() && level != null) {
@@ -202,10 +215,37 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 
 	@NotNull
 	@Override
-	public CompoundTag getUpdateTag() {
-		var tag = new CompoundTag();
-		writeToPacketNBT(tag);
-		return tag;
+	public final CompoundTag getUpdateTag() {
+		return botania$sync().writeFull();
+	}
+
+	protected boolean syncsByFields() {
+		return false;
+	}
+
+	@Override
+	public BlockEntitySync botania$sync() {
+		var s = blockEntitySync;
+		if (s == null) {
+			boolean byFields = syncsByFields();
+			blockEntitySync = s = new BlockEntitySync(this, byFields ? null : this::writeToPacketNBT, byFields ? null : this::applyPacketNBT);
+		}
+		return s;
+	}
+
+	@Override
+	public FieldDataManager getFieldDataManager() {
+		return botania$sync().manager().get();
+	}
+
+	@Override
+	public void writeCustomSyncData(FriendlyByteBuf buf, boolean writeAll) {
+		botania$sync().writeCustom(buf, writeAll);
+	}
+
+	@Override
+	public void readCustomSyncData(FriendlyByteBuf buf) {
+		botania$sync().readCustom(buf);
 	}
 
 	/**

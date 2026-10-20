@@ -30,7 +30,6 @@ import vazkii.botania.common.helper.VecHelper;
 import vazkii.botania.xplat.ClientXplatAbstractions;
 
 import java.util.Objects;
-import java.util.Random;
 
 import static vazkii.botania.common.lib.ResourceLocationHelper.prefix;
 
@@ -57,7 +56,7 @@ public abstract class BaseSparkRenderer<T extends SparkBaseEntity> extends Entit
 
 		ms.pushPose();
 
-		double time = (tEntity.level().getGameTime() % 24000) + partialTicks + new Random(tEntity.getId()).nextInt(200);
+		double time = (tEntity.level().getGameTime() % 24000) + partialTicks + timeOffset(tEntity.getId());
 		float a = 0.1F + (tEntity.isInvisible() ? 0 : 1) * 0.8F;
 
 		int alpha = (int) ((0.7 + 0.3 * (Math.sin(time / 5.0) + 0.5) * 2) * a * 255.0);
@@ -88,6 +87,18 @@ public abstract class BaseSparkRenderer<T extends SparkBaseEntity> extends Entit
 		ms.popPose();
 
 		ms.popPose();
+	}
+
+	private static int timeOffset(int id) {
+		long seed = (id ^ 0x5DEECE66DL) & ((1L << 48) - 1);
+		int bits;
+		int value;
+		do {
+			seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+			bits = (int) (seed >>> 17);
+			value = bits % 200;
+		} while (bits - value + 199 < 0);
+		return value;
 	}
 
 	protected TextureAtlasSprite getBaseIcon(T entity) {

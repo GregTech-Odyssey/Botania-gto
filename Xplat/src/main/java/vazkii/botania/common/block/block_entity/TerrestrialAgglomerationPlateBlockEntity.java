@@ -8,8 +8,8 @@
  */
 package vazkii.botania.common.block.block_entity;
 
-import com.google.common.base.Predicates;
 import com.google.common.base.Suppliers;
+import com.gto.datasynclib.annotations.SyncToClient;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -18,7 +18,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -37,12 +36,12 @@ import vazkii.botania.api.mana.spark.ManaSpark;
 import vazkii.botania.api.mana.spark.SparkAttachable;
 import vazkii.botania.api.mana.spark.SparkHelper;
 import vazkii.botania.api.recipe.TerrestrialAgglomerationRecipe;
+import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.block.BotaniaBlocks;
 import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 import vazkii.botania.common.handler.BotaniaSounds;
 import vazkii.botania.common.lib.BotaniaTags;
-import vazkii.botania.network.EffectType;
-import vazkii.botania.network.clientbound.BotaniaEffectPacket;
+import vazkii.botania.common.proxy.Proxy;
 import vazkii.botania.xplat.XplatAbstractions;
 import vazkii.patchouli.api.IMultiblock;
 import vazkii.patchouli.api.PatchouliAPI;
@@ -76,6 +75,7 @@ public class TerrestrialAgglomerationPlateBlockEntity extends BotaniaBlockEntity
 
 	private static final String TAG_MANA = "mana";
 
+	@SyncToClient
 	private int mana;
 
 	public TerrestrialAgglomerationPlateBlockEntity(BlockPos pos, BlockState state) {
@@ -104,9 +104,6 @@ public class TerrestrialAgglomerationPlateBlockEntity extends BotaniaBlockEntity
 				}
 				if (self.mana > 0) {
 					VanillaPacketDispatcher.dispatchTEToNearbyPlayers(self);
-					int proportion = Float.floatToIntBits(self.getCompletion());
-					XplatAbstractions.INSTANCE.sendToNear(level, worldPosition,
-							new BotaniaEffectPacket(EffectType.TERRA_PLATE, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), proportion));
 				}
 
 				if (self.mana >= recipe.getMana()) {
@@ -132,6 +129,54 @@ public class TerrestrialAgglomerationPlateBlockEntity extends BotaniaBlockEntity
 
 		if (removeMana) {
 			self.receiveMana(-1000);
+		}
+	}
+
+	public static void clientTick(Level level, BlockPos worldPosition, BlockState state, TerrestrialAgglomerationPlateBlockEntity self) {
+		if (self.mana <= 0 || !self.hasValidPlatform()) {
+			return;
+		}
+		TerrestrialAgglomerationRecipe recipe = self.getCurrentRecipe(self.getInventory(self.getItemEntities()));
+		if (recipe != null) {
+			spawnProgressParticles(level, worldPosition, (float) self.mana / recipe.getMana());
+		}
+	}
+
+	private static void spawnProgressParticles(Level world, BlockPos pos, float percentage) {
+		double x = pos.getX();
+		double y = pos.getY();
+		double z = pos.getZ();
+		int ticks = (int) (100.0 * percentage);
+
+		int totalSpiritCount = 3;
+		double tickIncrement = 360D / totalSpiritCount;
+
+		int speed = 5;
+		double wticks = ticks * speed - tickIncrement;
+
+		double r = Math.sin((ticks - 100) / 10D) * 2;
+		double g = Math.sin(wticks * Math.PI / 180 * 0.55);
+
+		for (int i = 0; i < totalSpiritCount; i++) {
+			double wx = x + Math.sin(wticks * Math.PI / 180) * r + 0.5;
+			double wy = y + 0.25 + Math.abs(r) * 0.7;
+			double wz = z + Math.cos(wticks * Math.PI / 180) * r + 0.5;
+
+			wticks += tickIncrement;
+			float[] colorsfx = new float[] {
+					0F, (float) ticks / (float) 100, 1F - (float) ticks / (float) 100
+			};
+			WispParticleData data = WispParticleData.wisp(0.85F, colorsfx[0], colorsfx[1], colorsfx[2], 0.25F);
+			Proxy.INSTANCE.addParticleForceNear(world, data, wx, wy, wz, 0, (float) (-g * 0.05), 0);
+			data = WispParticleData.wisp((float) Math.random() * 0.1F + 0.1F, colorsfx[0], colorsfx[1], colorsfx[2], 0.9F);
+			world.addParticle(data, wx, wy, wz, (float) (Math.random() - 0.5) * 0.05F, (float) (Math.random() - 0.5) * 0.05F, (float) (Math.random() - 0.5) * 0.05F);
+
+			if (ticks == 100) {
+				for (int j = 0; j < 15; j++) {
+					data = WispParticleData.wisp((float) Math.random() * 0.15F + 0.15F, colorsfx[0], colorsfx[1], colorsfx[2]);
+					world.addParticle(data, x + 0.5, y + 0.5, z + 0.5, (float) (Math.random() - 0.5F) * 0.125F, (float) (Math.random() - 0.5F) * 0.125F, (float) (Math.random() - 0.5F) * 0.125F);
+				}
+			}
 		}
 	}
 
@@ -215,6 +260,11 @@ public class TerrestrialAgglomerationPlateBlockEntity extends BotaniaBlockEntity
 	}
 
 	@Override
+	protected boolean syncsByFields() {
+		return true;
+	}
+
+	@Override
 	public void writePacketNBT(CompoundTag cmp) {
 		cmp.putInt(TAG_MANA, mana);
 	}
@@ -263,13 +313,7 @@ public class TerrestrialAgglomerationPlateBlockEntity extends BotaniaBlockEntity
 
 	@Override
 	public ManaSpark getAttachedSpark() {
-		List<Entity> sparks = level.getEntitiesOfClass(Entity.class, new AABB(worldPosition.above(), worldPosition.above().offset(1, 1, 1)), Predicates.instanceOf(ManaSpark.class));
-		if (sparks.size() == 1) {
-			Entity e = sparks.get(0);
-			return (ManaSpark) e;
-		}
-
-		return null;
+		return SparkHelper.getAttachedSpark(level, worldPosition);
 	}
 
 	@Override

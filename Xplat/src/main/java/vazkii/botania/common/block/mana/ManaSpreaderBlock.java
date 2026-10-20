@@ -188,7 +188,7 @@ public class ManaSpreaderBlock extends BotaniaWaterloggedBlock implements Entity
 				}
 
 				spreader.paddingColor = ColorHelper.getWoolColor(woolBlock);
-				spreader.setChanged();
+				spreader.onPaddingChanged();
 				world.playSound(player, pos, BotaniaSounds.spreaderCover, SoundSource.BLOCKS, 1F, 1F);
 			} else { // playerHasScaffolding
 				world.setBlockAndUpdate(pos, state.setValue(BotaniaStateProperties.HAS_SCAFFOLDING, true));
@@ -226,7 +226,7 @@ public class ManaSpreaderBlock extends BotaniaWaterloggedBlock implements Entity
 		if (spreader.paddingColor != null && (mainHandEmpty || woolIsSame)) {
 			player.getInventory().placeItemBackInInventory(wool);
 			spreader.paddingColor = null;
-			spreader.setChanged();
+			spreader.onPaddingChanged();
 
 			world.playSound(player, pos, BotaniaSounds.spreaderUncover, SoundSource.BLOCKS, 1F, 1F);
 

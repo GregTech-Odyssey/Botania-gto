@@ -51,6 +51,8 @@ public class ForgePacketHandler {
 				makeClientBoundHandler(SpawnGaiaGuardianPacket.Handler::handle));
 		CHANNEL.registerMessage(i++, UpdateItemsRemainingPacket.class, UpdateItemsRemainingPacket::encode, UpdateItemsRemainingPacket::decode,
 				makeClientBoundHandler(UpdateItemsRemainingPacket.Handler::handle));
+		CHANNEL.registerMessage(i++, SparkFlowPacket.class, SparkFlowPacket::encode, SparkFlowPacket::decode,
+				makeClientBoundHandler(SparkFlowPacket.Handler::handle));
 	}
 
 	private static <T> BiConsumer<T, Supplier<NetworkEvent.Context>> makeServerBoundHandler(TriConsumer<T, MinecraftServer, ServerPlayer> handler) {

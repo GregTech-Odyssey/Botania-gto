@@ -11,7 +11,7 @@ jobs:
       uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '21'
     - name: Validate gradlew integrity
       uses: gradle/actions/wrapper-validation@v5
     - name: Cache
@@ -20,7 +20,6 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-          ./.gradle/loom-cache/remapped-mods
           ./Forge/build/moddev
           ./Xplat/build/moddev
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', './gradle.properties', './settings.gradle', '**/gradle-wrapper.properties') }}
@@ -34,7 +33,6 @@ jobs:
         MC=$(awk -F '=' '/minecraft_version/ { print $2; }' gradle.properties)
         BUILD=$(awk -F '=' '/build_number/ { print $2; }' gradle.properties)
         echo "forge=Forge/build/libs/Botania-${MC}-${BUILD}-FORGE${SNAPSHOT_SUFFIX}.jar" >> "$GITHUB_OUTPUT"
-        echo "fabric=Fabric/build/libs/Botania-${MC}-${BUILD}-FABRIC${SNAPSHOT_SUFFIX}.jar" >> "$GITHUB_OUTPUT"
         
         GOG_VER=$(awk -F '=' '/VERSION/ { print $2; }' garden_of_glass/Makefile)
         echo "gog=garden_of_glass/gardenofglass-${GOG_VER}.jar" >> "$GITHUB_OUTPUT"
@@ -54,12 +52,10 @@ jobs:
       if: failure()
       with:
         rulesets: 'spotless/pmd-ruleset.xml'
-        version: '6.55.0' # TODO: we should switch to 7.x, eventually
+        version: '7.7.0'
         analyzeModifiedFilesOnly: 'false'
     - name: Check generated files up to date
       run: ./scripts/check_datagen.sh
-    - name: Run GameTests (Fabric)
-      run: ./gradlew :Fabric:runGameTest
     - name: Stop Gradle
       run: ./gradlew --stop
     - name: Sign jars
@@ -71,16 +67,7 @@ jobs:
         gpg --local-user "Violet Moon Signing Key" --armor \
           --detach-sign ${{ steps.calculate_artifact_names.outputs.forge }}
         gpg --local-user "Violet Moon Signing Key" --armor \
-          --detach-sign ${{ steps.calculate_artifact_names.outputs.fabric }}
-        gpg --local-user "Violet Moon Signing Key" --armor \
           --detach-sign ${{ steps.calculate_artifact_names.outputs.gog }}
-    - name: Archive Fabric Artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: Fabric
-        path: |
-          ${{ steps.calculate_artifact_names.outputs.fabric }}
-          ${{ steps.calculate_artifact_names.outputs.fabric }}.asc
     - name: Archive Forge Artifacts
       uses: actions/upload-artifact@v7
       with:
@@ -100,7 +87,6 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
         GIT_REF: ${{ github.ref }}
-        FABRIC_JAR: ${{ steps.calculate_artifact_names.outputs.fabric }}
         FORGE_JAR: ${{ steps.calculate_artifact_names.outputs.forge }}
         GOG_JAR: ${{ steps.calculate_artifact_names.outputs.gog }}
         CURSEFORGE_TOKEN: ${{ secrets.VAZKII_CURSEFORGE_TOKEN }}

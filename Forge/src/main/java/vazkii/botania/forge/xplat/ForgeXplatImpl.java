@@ -1,5 +1,7 @@
 package vazkii.botania.forge.xplat;
 
+import com.gto.datasynclib.network.BlockEntitySyncPacket;
+import com.gto.datasynclib.network.DataSyncNetwork;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.core.BlockPos;
@@ -10,6 +12,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -489,6 +492,14 @@ public class ForgeXplatImpl implements XplatAbstractions {
 	public void sendToTracking(Entity e, BotaniaPacket packet) {
 		if (!e.level().isClientSide) {
 			ForgePacketHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> e), packet);
+		}
+	}
+
+	@Override
+	public void sendBlockEntitySync(BlockEntity be, byte[] data) {
+		if (be.getLevel() instanceof ServerLevel level) {
+			var chunk = level.getChunkAt(be.getBlockPos());
+			DataSyncNetwork.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), new BlockEntitySyncPacket(be.getBlockPos(), data));
 		}
 	}
 

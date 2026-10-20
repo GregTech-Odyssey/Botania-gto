@@ -176,12 +176,12 @@ public class HoveringHourglassBlockEntity extends ExposedSimpleInventoryBlockEnt
 	}
 
 	@Override
-	public void setChanged() {
-		super.setChanged();
+	protected void onInventoryChanged() {
+		super.onInventoryChanged();
 		if (level != null && !level.isClientSide) {
 			time = 0;
 			timeFraction = 0F;
-			VanillaPacketDispatcher.dispatchTEToNearbyPlayers(HoveringHourglassBlockEntity.this);
+			syncToClients();
 		}
 	}
 

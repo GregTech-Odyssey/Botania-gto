@@ -164,6 +164,8 @@ public interface XplatAbstractions {
 	void sendToNear(Level level, BlockPos pos, BotaniaPacket packet);
 	void sendToTracking(Entity e, BotaniaPacket packet);
 
+	void sendBlockEntitySync(BlockEntity be, byte[] data);
+
 	// Registrations
 	boolean isSpecialFlowerBlock(Block b);
 

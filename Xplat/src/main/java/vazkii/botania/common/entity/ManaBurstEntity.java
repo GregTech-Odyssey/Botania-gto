@@ -28,6 +28,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
@@ -49,6 +50,7 @@ import vazkii.botania.api.mana.*;
 import vazkii.botania.client.fx.SparkleParticleData;
 import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.block.block_entity.mana.ThrottledPacket;
+import vazkii.botania.common.block.mana.ManaVoidBlock;
 import vazkii.botania.common.item.equipment.bauble.ManaseerMonocleItem;
 import vazkii.botania.common.proxy.Proxy;
 import vazkii.botania.mixin.ProjectileAccessor;
@@ -100,6 +102,7 @@ public class ManaBurstEntity extends ThrowableProjectile implements ManaBurst {
 	private int _ticksExisted = 0;
 	private boolean scanBeam = false;
 	private BlockPos lastCollision;
+	private BlockHitResult clientHit;
 	private boolean warped = false;
 	private int orbitTime = 0;
 	private boolean tripped = false;
@@ -455,26 +458,57 @@ public class ManaBurstEntity extends ThrowableProjectile implements ManaBurst {
 	@Override
 	public void handleEntityEvent(byte event) {
 		if (event == EntityEvent.DEATH) {
-			int color = getColor();
-			float r = (color >> 16 & 0xFF) / 255F;
-			float g = (color >> 8 & 0xFF) / 255F;
-			float b = (color & 0xFF) / 255F;
-
-			int mana = getMana();
-			int maxMana = getStartingMana();
-			float size = (float) mana / (float) maxMana;
-
-			if (!BotaniaConfig.client().subtlePowerSystem()) {
-				for (int i = 0; i < 4; i++) {
-					WispParticleData data = WispParticleData.wisp(0.15F * size, r, g, b);
-					level().addParticle(data, getX(), getY(), getZ(), (float) (Math.random() - 0.5F) * 0.04F, (float) (Math.random() - 0.5F) * 0.04F, (float) (Math.random() - 0.5F) * 0.04F);
-				}
-			}
-			SparkleParticleData data = SparkleParticleData.sparkle((float) 4, r, g, b, 2);
-			level().addParticle(data, getX(), getY(), getZ(), 0, 0, 0);
+			spawnDeathParticles();
 		} else {
 			super.handleEntityEvent(event);
 		}
+	}
+
+	@Override
+	public void onClientRemoval() {
+		super.onClientRemoval();
+		if (fake || getMana() <= getManaLossPerTick()) {
+			return;
+		}
+		spawnDeathParticles();
+		LensEffectItem lens = getLensInstance();
+		if (lens != null) {
+			BlockHitResult hit = clientHit;
+			if (hit == null) {
+				Vec3 from = position();
+				hit = level().clip(new ClipContext(from, from.add(getDeltaMovement().scale(2)), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+			}
+			if (hit.getType() == HitResult.Type.BLOCK) {
+				lens.onClientBurstEnd(this, hit, getSourceLens());
+			}
+		}
+		BlockPos ahead = BlockPos.containing(position().add(getDeltaMovement()));
+		for (BlockPos pos : new BlockPos[] { blockPosition(), ahead }) {
+			if (level().getBlockState(pos).getBlock() instanceof ManaVoidBlock) {
+				ManaVoidBlock.spawnSparkles(level(), pos);
+				break;
+			}
+		}
+	}
+
+	private void spawnDeathParticles() {
+		int color = getColor();
+		float r = (color >> 16 & 0xFF) / 255F;
+		float g = (color >> 8 & 0xFF) / 255F;
+		float b = (color & 0xFF) / 255F;
+
+		int mana = getMana();
+		int maxMana = getStartingMana();
+		float size = (float) mana / (float) maxMana;
+
+		if (!BotaniaConfig.client().subtlePowerSystem()) {
+			for (int i = 0; i < 4; i++) {
+				WispParticleData data = WispParticleData.wisp(0.15F * size, r, g, b);
+				level().addParticle(data, getX(), getY(), getZ(), (float) (Math.random() - 0.5F) * 0.04F, (float) (Math.random() - 0.5F) * 0.04F, (float) (Math.random() - 0.5F) * 0.04F);
+			}
+		}
+		SparkleParticleData data = SparkleParticleData.sparkle((float) 4, r, g, b, 2);
+		level().addParticle(data, getX(), getY(), getZ(), 0, 0, 0);
 	}
 
 	public float getParticleSize() {
@@ -506,6 +540,9 @@ public class ManaBurstEntity extends ThrowableProjectile implements ManaBurst {
 			return;
 		}
 		lastCollision = collidePos.immutable();
+		if (level().isClientSide && clientHit == null) {
+			clientHit = hit;
+		}
 		BlockEntity tile = level().getBlockEntity(collidePos);
 		BlockState state = level().getBlockState(collidePos);
 		Block block = state.getBlock();
@@ -579,7 +616,6 @@ public class ManaBurstEntity extends ThrowableProjectile implements ManaBurst {
 			if (fake) {
 				discard();
 			} else if (!this.level().isClientSide) {
-				this.level().broadcastEntityEvent(this, EntityEvent.DEATH);
 				discard();
 			}
 		}

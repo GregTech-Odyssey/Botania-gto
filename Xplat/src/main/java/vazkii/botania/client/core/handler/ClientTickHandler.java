@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 
+import vazkii.botania.client.fx.SparkFlowEffects;
 import vazkii.botania.client.gui.ItemsRemainingRenderHandler;
 import vazkii.botania.client.render.block_entity.RedStringBlockEntityRenderer;
 import vazkii.botania.common.block.flower.functional.VinculotusBlockEntity;
@@ -41,6 +42,7 @@ public final class ClientTickHandler {
 	public static void clientTickEnd(Minecraft mc) {
 		RedStringBlockEntityRenderer.tick();
 		ItemsRemainingRenderHandler.tick();
+		SparkFlowEffects.tick(mc);
 
 		if (mc.level == null) {
 			ManaNetworkHandler.instance.clear();

@@ -146,7 +146,8 @@ public class ManaSpreaderBlockEntity extends ExposedSimpleInventoryBlockEntity i
 	@Override
 	public void receiveMana(int mana) {
 		this.mana = Math.min(this.mana + mana, getMaxMana());
-		this.setChanged();
+		setChanged();
+		syncToClients();
 	}
 
 	@Override
@@ -407,7 +408,7 @@ public class ManaSpreaderBlockEntity extends ExposedSimpleInventoryBlockEntity i
 				double angle = y * 180;
 				rotationY = -(float) angle;
 
-				setChanged();
+				onAimChanged();
 				requestsClientUpdate = true;
 			}
 		}
@@ -599,14 +600,22 @@ public class ManaSpreaderBlockEntity extends ExposedSimpleInventoryBlockEntity i
 	}
 
 	@Override
-	public void setChanged() {
-		super.setChanged();
-		if (level != null) {
-			if (!level.isClientSide) {
-				checkForReceiver();
-				VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
-			}
+	protected void onInventoryChanged() {
+		super.onInventoryChanged();
+		onAimChanged();
+	}
+
+	private void onAimChanged() {
+		setChanged();
+		if (level != null && !level.isClientSide) {
+			checkForReceiver();
+			syncToClients();
 		}
+	}
+
+	public void onPaddingChanged() {
+		setChanged();
+		syncToClients();
 	}
 
 	@Override
@@ -664,7 +673,7 @@ public class ManaSpreaderBlockEntity extends ExposedSimpleInventoryBlockEntity i
 		}
 		rotationY = (float) angle;
 
-		setChanged();
+		onAimChanged();
 		return true;
 	}
 
@@ -718,7 +727,7 @@ public class ManaSpreaderBlockEntity extends ExposedSimpleInventoryBlockEntity i
 
 	@Override
 	public void commitRedirection() {
-		setChanged();
+		onAimChanged();
 	}
 
 	@Override

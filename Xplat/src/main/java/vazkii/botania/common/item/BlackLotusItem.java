@@ -19,11 +19,9 @@ import net.minecraft.world.level.Level;
 
 import vazkii.botania.api.item.ManaDissolvable;
 import vazkii.botania.api.mana.ManaPool;
+import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.handler.BotaniaSounds;
 import vazkii.botania.common.helper.EntityHelper;
-import vazkii.botania.network.EffectType;
-import vazkii.botania.network.clientbound.BotaniaEffectPacket;
-import vazkii.botania.xplat.XplatAbstractions;
 
 import java.util.List;
 
@@ -47,16 +45,34 @@ public class BlackLotusItem extends Item implements ManaDissolvable {
 			return;
 		}
 
-		BlockPos pos = pool.getManaReceiverPos();
 		boolean t2 = item.getItem().is(BotaniaItems.blackerLotus);
 
-		if (!item.level().isClientSide) {
-			pool.receiveMana(t2 ? MANA_PER_T2 : MANA_PER);
-			EntityHelper.shrinkItem(item);
-			XplatAbstractions.INSTANCE.sendToTracking(item, new BotaniaEffectPacket(EffectType.BLACK_LOTUS_DISSOLVE, pos.getX(), pos.getY() + 0.5, pos.getZ()));
+		if (item.level().isClientSide) {
+			BlockPos pos = pool.getManaReceiverPos();
+			spawnDissolveParticles(item.level(), pos.getX(), pos.getY() + 0.5, pos.getZ());
+			return;
 		}
 
+		pool.receiveMana(t2 ? MANA_PER_T2 : MANA_PER);
+		EntityHelper.shrinkItem(item);
 		item.playSound(BotaniaSounds.blackLotus, 1F, t2 ? 0.1F : 1F);
+	}
+
+	private static void spawnDissolveParticles(Level world, double x, double y, double z) {
+		for (int i = 0; i < 50; i++) {
+			float r = (float) Math.random() * 0.35F;
+			float g = 0F;
+			float b = (float) Math.random() * 0.35F;
+			float s = 0.45F * (float) Math.random() * 0.25F;
+
+			float m = 0.045F;
+			float mx = ((float) Math.random() - 0.5F) * m;
+			float my = (float) Math.random() * m;
+			float mz = ((float) Math.random() - 0.5F) * m;
+
+			WispParticleData data = WispParticleData.wisp(s, r, g, b);
+			world.addParticle(data, x, y, z, mx, my, mz);
+		}
 	}
 
 	@Override

@@ -4,7 +4,7 @@ public enum EffectType {
 	PAINT_LENS(1), // Arg: EnumDyeColor
 	ARENA_INDICATOR(0),
 	ITEM_SMOKE(2), // Arg: Entity ID, number of particles
-	SPARK_NET_INDICATOR(2), // Arg: Entity ID from, Entity ID towards
+	SPARK_NET_INDICATOR(-1), // Arg: Entity ID from, then every Entity ID towards
 	SPARK_MANA_FLOW(3), // Arg: Entity ID from, Entity ID towards, color
 	ENCHANTER_DESTROY(0),
 	BLACK_LOTUS_DISSOLVE(0),

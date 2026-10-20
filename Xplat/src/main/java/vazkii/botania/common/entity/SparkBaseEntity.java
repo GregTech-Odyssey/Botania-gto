@@ -30,6 +30,8 @@ public abstract class SparkBaseEntity extends Entity implements SparkEntity, Man
 	private static final String TAG_NETWORK = "network";
 	private static final EntityDataAccessor<Integer> NETWORK = SynchedEntityData.defineId(SparkBaseEntity.class, EntityDataSerializers.INT);
 
+	private DyeColor network = DyeColor.WHITE;
+
 	public SparkBaseEntity(EntityType<?> type, Level world) {
 		super(type, world);
 	}
@@ -49,7 +51,15 @@ public abstract class SparkBaseEntity extends Entity implements SparkEntity, Man
 
 	@Override
 	public DyeColor getNetwork() {
-		return DyeColor.byId(entityData.get(NETWORK));
+		return network;
+	}
+
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+		super.onSyncedDataUpdated(key);
+		if (NETWORK.equals(key)) {
+			network = DyeColor.byId(entityData.get(NETWORK));
+		}
 	}
 
 	@Override

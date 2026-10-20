@@ -9,6 +9,7 @@
 package vazkii.botania.common.item.lens;
 
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import vazkii.botania.api.internal.ManaBurst;
@@ -25,6 +26,8 @@ public class Lens {
 	}
 
 	public void updateBurst(ManaBurst burst, ItemStack stack) {}
+
+	public void onClientBurstEnd(ManaBurst burst, BlockHitResult hit, ItemStack stack) {}
 
 	public boolean allowBurstShooting(ItemStack stack, ManaSpreader spreader, boolean redstone) {
 		return true;

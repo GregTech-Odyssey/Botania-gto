@@ -27,7 +27,7 @@ public abstract class SimpleInventoryBlockEntity extends BotaniaBlockEntity impl
 
 	protected SimpleInventoryBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		itemHandler.addListener(i -> setChanged());
+		itemHandler.addListener(i -> onInventoryChanged());
 	}
 
 	private static void copyToInv(NonNullList<ItemStack> src, Container dest) {
@@ -55,6 +55,10 @@ public abstract class SimpleInventoryBlockEntity extends BotaniaBlockEntity impl
 	@Override
 	public void writePacketNBT(CompoundTag tag) {
 		ContainerHelper.saveAllItems(tag, copyFromInv(itemHandler));
+	}
+
+	protected void onInventoryChanged() {
+		setChanged();
 	}
 
 	// NB: Cannot be named the same as the corresponding method in vanilla's interface -- causes obf issues with MCP

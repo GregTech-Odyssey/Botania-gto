@@ -15,9 +15,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import vazkii.botania.common.block.block_entity.BlockEntitySync;
+
 public final class VanillaPacketDispatcher {
 
 	public static void dispatchTEToNearbyPlayers(BlockEntity tile) {
+		if (tile instanceof BlockEntitySync.Holder) {
+			BlockEntitySync.request(tile);
+			return;
+		}
 		if (tile.getLevel() instanceof ServerLevel) {
 			Packet<?> packet = tile.getUpdatePacket();
 			if (packet != null) {

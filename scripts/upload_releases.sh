@@ -19,9 +19,6 @@ EOF
 function release_github() {
 	echo >&2 'Creating GitHub Release'
 	gh release create "${TAGNAME}" --verify-tag -t "Botania ${VERSION}" -n "${CHANGELOG_MARKDOWN}"
-	echo >&2 'Uploading Fabric Jar and Signature to GitHub'
-	gh release upload "${TAGNAME}" "${FABRIC_JAR}#Fabric Jar"
-	gh release upload "${TAGNAME}" "${FABRIC_JAR}.asc#Fabric Signature"
 	echo >&2 'Uploading Forge Jar and Signature to GitHub'
 	gh release upload "${TAGNAME}" "${FORGE_JAR}#Forge Jar"
 	gh release upload "${TAGNAME}" "${FORGE_JAR}.asc#Forge Signature"
@@ -31,50 +28,6 @@ function release_github() {
 }
 
 function release_modrinth() {
-	echo >&2 'Uploading Fabric Jar to Modrinth'
-	local MODRINTH_FABRIC_SPEC
-	MODRINTH_FABRIC_SPEC=$(cat <<EOF
-{
-	"dependencies": [
-		{
-			"project_id": "P7dR8mSH",
-			"dependency_type": "required"
-		},
-		{
-			"project_id": "nU0bVIaL",
-			"dependency_type": "required"
-		},
-		{
-			"project_id": "5aaWibi9",
-			"dependency_type": "required"
-		}
-	],
-	"version_type": "release",
-	"loaders": ["fabric", "quilt"],
-	"featured": false,
-	"project_id": "pfjLUfGv",
-	"file_parts": [
-		"jar", "signature"
-	],
-	"primary_file": "jar",
-	"file_types": {
-		"signature": "signature"
-	}
-}
-EOF
-						)
-
-	MODRINTH_FABRIC_SPEC=$(echo "${MODRINTH_FABRIC_SPEC}" | \
-							   jq --arg name "${VERSION}-fabric" \
-								  --arg mcver "${MC_VERSION}" \
-								  --arg changelog "${CHANGELOG_MARKDOWN}" \
-								  '.name=$ARGS.named.name | .version_number=$ARGS.named.name | .game_versions=[$ARGS.named.mcver] | .changelog=$ARGS.named.changelog')
-	curl 'https://api.modrinth.com/v2/version' \
-		 -H "Authorization: ${MODRINTH_TOKEN}" \
-		 -F "data=${MODRINTH_FABRIC_SPEC}" \
-		 -F "jar=@${FABRIC_JAR}" \
-		 -F "signature=@${FABRIC_JAR}.asc"
-
 	echo >&2 'Uploading Forge Jar to Modrinth'
 	local MODRINTH_FORGE_SPEC
 	MODRINTH_FORGE_SPEC=$(cat <<EOF
@@ -118,43 +71,6 @@ EOF
 
 function release_curseforge() {
 	# Java versions, Loaders, and Environment tags are actually "game versions" (lmfao), as are real game versions.
-
-	echo >&2 'Uploading Fabric Jar to CurseForge'
-	local CURSEFORGE_FABRIC_SPEC
-	CURSEFORGE_FABRIC_SPEC=$(cat <<EOF
-{
-  "changelogType": "markdown",
-  "releaseType": "release",
-  "relations": {
-    "projects": [
-      {
-        "slug": "fabric-api",
-        "type": "requiredDependency"
-      },
-      {
-        "slug": "patchouli",
-        "type": "requiredDependency"
-      },
-      {
-        "slug": "trinkets",
-        "type": "requiredDependency"
-      }
-    ]
-  },
-  "gameVersionNames": ["Client", "Server", "Fabric", "Quilt"]
-}
-EOF
-						  )
-
-	CURSEFORGE_FABRIC_SPEC=$(echo "${CURSEFORGE_FABRIC_SPEC}" | \
-								 jq --arg changelog "${CHANGELOG_MARKDOWN}" \
-									--arg mcver "${MC_VERSION}" \
-									'.gameVersionNames += [$ARGS.named.mcver] | .changelog=$ARGS.named.changelog')
-	curl 'https://minecraft.curseforge.com/api/projects/421839/upload-file' \
-		 -H "X-Api-Token: ${CURSEFORGE_TOKEN}" \
-		 -F "metadata=${CURSEFORGE_FABRIC_SPEC}" \
-		 -F "file=@${FABRIC_JAR}"
-	# TODO: Upload the asc as an 'Additional file'
 
 	echo >&2 'Uploading Forge Jar to CurseForge'
 	local CURSEFORGE_FORGE_SPEC

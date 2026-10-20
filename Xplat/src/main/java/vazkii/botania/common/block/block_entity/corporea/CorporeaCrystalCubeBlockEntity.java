@@ -67,7 +67,7 @@ public class CorporeaCrystalCubeBlockEntity extends BaseCorporeaBlockEntity impl
 	public void setRequestTarget(ItemStack stack) {
 		if (!stack.isEmpty() && !locked) {
 			requestTarget = stack.copyWithCount(1);
-			setChanged();
+			onDisplayChanged();
 			updateCount();
 		}
 
@@ -117,7 +117,7 @@ public class CorporeaCrystalCubeBlockEntity extends BaseCorporeaBlockEntity impl
 		this.itemCount = count;
 		if (this.itemCount != oldCount) {
 			this.compValue = CorporeaHelper.instance().signalStrengthForRequestSize(itemCount);
-			setChanged();
+			onDisplayChanged();
 		}
 	}
 
@@ -174,7 +174,7 @@ public class CorporeaCrystalCubeBlockEntity extends BaseCorporeaBlockEntity impl
 	public boolean onUsedByWand(@Nullable Player player, ItemStack stack, Direction side) {
 		if (player == null || player.isShiftKeyDown()) {
 			this.locked = !this.locked;
-			setChanged();
+			onDisplayChanged();
 			return true;
 		}
 		return false;
@@ -190,16 +190,15 @@ public class CorporeaCrystalCubeBlockEntity extends BaseCorporeaBlockEntity impl
 				stack.shrink(1);
 			}
 			hideCount = true;
-			setChanged();
+			onDisplayChanged();
 			level.gameEvent(null, GameEvent.BLOCK_CHANGE, getBlockPos());
 			VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
 		}
 		return true;
 	}
 
-	@Override
-	public void setChanged() {
-		super.setChanged();
+	private void onDisplayChanged() {
+		setChanged();
 		if (level != null) {
 			level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
 		}

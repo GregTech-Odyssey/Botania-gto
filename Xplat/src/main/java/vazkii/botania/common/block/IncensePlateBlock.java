@@ -97,8 +97,8 @@ public class IncensePlateBlock extends BotaniaWaterloggedBlock implements Entity
 		}
 
 		if (did) {
-			VanillaPacketDispatcher.dispatchTEToNearbyPlayers(plate);
 			plate.setChanged();
+			VanillaPacketDispatcher.dispatchTEToNearbyPlayers(plate);
 		}
 
 		return did

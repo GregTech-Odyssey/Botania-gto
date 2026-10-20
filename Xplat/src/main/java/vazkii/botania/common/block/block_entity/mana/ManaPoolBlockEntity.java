@@ -8,7 +8,7 @@
  */
 package vazkii.botania.common.block.block_entity.mana;
 
-import com.google.common.base.Predicates;
+import com.gto.datasynclib.annotations.SyncToClient;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import it.unimi.dsi.fastutil.ints.*;
@@ -20,7 +20,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -46,6 +45,7 @@ import vazkii.botania.api.item.ManaDissolvable;
 import vazkii.botania.api.mana.*;
 import vazkii.botania.api.mana.spark.ManaSpark;
 import vazkii.botania.api.mana.spark.SparkAttachable;
+import vazkii.botania.api.mana.spark.SparkHelper;
 import vazkii.botania.api.recipe.ManaInfusionRecipe;
 import vazkii.botania.api.state.BotaniaStateProperties;
 import vazkii.botania.client.core.helper.RenderHelper;
@@ -60,6 +60,7 @@ import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 import vazkii.botania.common.handler.BotaniaSounds;
 import vazkii.botania.common.handler.ManaNetworkHandler;
 import vazkii.botania.common.helper.EntityHelper;
+import vazkii.botania.common.item.BlackLotusItem;
 import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.ManaTabletItem;
 import vazkii.botania.xplat.BotaniaConfig;
@@ -93,18 +94,24 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	private static final int DRAIN_EFFECT_EVENT = 2;
 	private static final float CHARGING_GRAVITY = 0.003f;
 
+	@SyncToClient
 	private boolean outputting = false;
 
 	private Optional<DyeColor> legacyColor = Optional.empty();
+	@SyncToClient
 	private int mana;
 
+	@SyncToClient
 	private int manaCap = -1;
 	private int soundTicks = 0;
+	@SyncToClient
 	private boolean canAccept = true;
+	@SyncToClient
 	private boolean canSpare = true;
 	boolean isDoingTransfer = false;
 	int ticksDoingTransfer = 0;
 
+	@SyncToClient
 	private String inputKey = "";
 	private final String outputKey = "";
 
@@ -166,7 +173,13 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	}
 
 	public boolean collideEntityItem(ItemEntity item) {
-		if (level.isClientSide || !item.isAlive() || item.getItem().isEmpty()) {
+		if (!item.isAlive() || item.getItem().isEmpty()) {
+			return false;
+		}
+		if (level.isClientSide) {
+			if (item.getItem().getItem() instanceof BlackLotusItem lotus) {
+				lotus.onDissolveTick(this, item);
+			}
 			return false;
 		}
 
@@ -274,12 +287,33 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 					0, (float) Math.random() / 25F, 0);
 		}
 
+		if (BotaniaConfig.common().chargingAnimationEnabled() && ++self.ticks % 10 == 0) {
+			markChargingItems(level, worldPosition, self);
+		}
+
 		if (self.getCurrentMana() == 0) {
 			self.chargingParticles.clear();
 		} else {
 			displayChargingParticles(level, worldPosition, self, self.chargingParticles, true);
 		}
 		displayChargingParticles(level, worldPosition, self, self.drainingParticles, false);
+	}
+
+	private static void markChargingItems(Level level, BlockPos worldPosition, ManaPoolBlockEntity self) {
+		for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, new AABB(worldPosition, worldPosition.offset(1, 1, 1)))) {
+			ItemStack stack = item.getItem();
+			var mana = item.isAlive() && !stack.isEmpty() ? XplatAbstractions.INSTANCE.findManaItem(stack) : null;
+			if (mana == null) {
+				continue;
+			}
+			boolean active = self.outputting
+					? mana.canReceiveManaFromPool(self) && self.canSpare && self.getCurrentMana() > 0 && mana.getMana() < mana.getMaxMana()
+					: mana.canExportManaToPool(self) && self.canAccept && mana.getMana() > 0 && !self.isFull();
+			if (active) {
+				var particles = self.outputting ? self.chargingParticles : self.drainingParticles;
+				particles.computeIfAbsent(encodeRelativeItemPosition(worldPosition, item), i -> new MutableInt(15)).setValue(15);
+			}
+		}
 	}
 
 	private static void displayChargingParticles(Level level, BlockPos worldPosition, ManaPoolBlockEntity self,
@@ -409,12 +443,9 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 					}
 
 					if (didSomething) {
-						if (BotaniaConfig.common().chargingAnimationEnabled() && self.ticks % 10 == 0) {
-							level.blockEvent(worldPosition, state.getBlock(),
-									self.outputting ? CHARGE_EFFECT_EVENT : DRAIN_EFFECT_EVENT,
-									encodeRelativeItemPosition(worldPosition, item));
+						if (self.ticks % 10 == 0) {
+							EntityHelper.syncItem(item);
 						}
-						EntityHelper.syncItem(item);
 						self.isDoingTransfer = self.outputting;
 					}
 				}
@@ -464,6 +495,11 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 		double relZ = compressedZ / 7.0;
 
 		return new Vec3(relX, Math.max(relY, 0.5 * relativeMana), relZ);
+	}
+
+	@Override
+	protected boolean syncsByFields() {
+		return true;
 	}
 
 	@Override
@@ -611,13 +647,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 
 	@Override
 	public ManaSpark getAttachedSpark() {
-		List<Entity> sparks = level.getEntitiesOfClass(Entity.class, new AABB(worldPosition.above(), worldPosition.above().offset(1, 1, 1)), Predicates.instanceOf(ManaSpark.class));
-		if (sparks.size() == 1) {
-			Entity e = sparks.get(0);
-			return (ManaSpark) e;
-		}
-
-		return null;
+		return SparkHelper.getAttachedSpark(level, worldPosition);
 	}
 
 	@Override

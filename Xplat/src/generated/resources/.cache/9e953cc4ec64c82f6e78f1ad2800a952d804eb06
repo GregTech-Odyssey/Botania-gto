@@ -1,0 +1,10 @@
+// 1.20.1	2026-10-20T11:50:20.2974378	Tags for minecraft:entity_type mod id vanilla
+d7fff98ebc6b9626b17cf86f8be00d279d1d3cf3 data/botania/tags/entity_types/cocoon/common.json
+1aaa6d2be4c24ea9186245cd3668e9f4f96d3f4a data/botania/tags/entity_types/cocoon/common_aquatic.json
+04a5d16d8651cdf754b0f51fc6d8b39799edf0a3 data/botania/tags/entity_types/cocoon/rare.json
+92d1c364f275518579675aa8cd7995fbf9976f78 data/botania/tags/entity_types/cocoon/rare_aquatic.json
+efd0b9bc39be573af4c8f7f51f0fcb468f80fb88 data/botania/tags/entity_types/drum/milkable.json
+1ef430c55d1de22917fabe28a7b13acd1ccbc2cc data/botania/tags/entity_types/drum/no_shearing.json
+e9427f5a590551b01ef769c798bf5265d3cfb3c1 data/botania/tags/entity_types/key_immune.json
+73ef15894f78c686bcc4dc5d1d4338a78b49c86a data/botania/tags/entity_types/shaded_mesa_blacklist.json
+7bd899f2c061f0816c64ca3c4363434c38fd3e54 data/c/tags/entity_types/bosses.json

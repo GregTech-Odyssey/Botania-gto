@@ -18,6 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import org.jetbrains.annotations.NotNull;
@@ -102,6 +103,16 @@ public class LensItem extends Item implements ControlLensItem, CompositableLensI
 		}
 
 		return shouldKill;
+	}
+
+	@Override
+	public void onClientBurstEnd(ManaBurst burst, BlockHitResult hit, ItemStack stack) {
+		getLens(stack).onClientBurstEnd(burst, hit, stack);
+
+		ItemStack compositeLens = getCompositeLens(stack);
+		if (!compositeLens.isEmpty() && compositeLens.getItem() instanceof BasicLensItem lens) {
+			lens.onClientBurstEnd(burst, hit, compositeLens);
+		}
 	}
 
 	@Override

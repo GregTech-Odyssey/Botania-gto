@@ -97,7 +97,7 @@
           "functions": [
             {
               "function": "minecraft:set_nbt",
-              "tag": "{CustomPotionColor:2039587,CustomPotionEffects:[{Ambient:0b,Amplifier:0b,Duration:100,Id:15,ShowIcon:1b,ShowParticles:1b}]}"
+              "tag": "{CustomPotionColor:2039587,CustomPotionEffects:[{Ambient:0b,Amplifier:0b,CurativeItems:[{Count:1b,id:\"minecraft:milk_bucket\"}],Duration:100,Id:15,ShowIcon:1b,ShowParticles:1b,\"forge:id\":\"minecraft:blindness\"}]}"
             }
           ],
           "name": "minecraft:tipped_arrow"

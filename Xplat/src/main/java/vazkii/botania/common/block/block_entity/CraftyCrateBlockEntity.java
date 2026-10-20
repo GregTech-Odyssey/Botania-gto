@@ -259,8 +259,8 @@ public class CraftyCrateBlockEntity extends OpenCrateBlockEntity implements Wand
 	}
 
 	@Override
-	public void setChanged() {
-		super.setChanged();
+	protected void onInventoryChanged() {
+		super.onInventoryChanged();
 		if (level != null && !level.isClientSide) {
 			this.dirty = true;
 			this.matchFailed = false;

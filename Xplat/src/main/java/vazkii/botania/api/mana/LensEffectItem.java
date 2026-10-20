@@ -10,6 +10,7 @@ package vazkii.botania.api.mana;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import vazkii.botania.api.internal.ManaBurst;
@@ -52,5 +53,7 @@ public interface LensEffectItem {
 	default int getManaToTransfer(ManaBurst burst, ItemStack stack, ManaReceiver receiver) {
 		return burst.getMana();
 	}
+
+	default void onClientBurstEnd(ManaBurst burst, BlockHitResult hit, ItemStack stack) {}
 
 }

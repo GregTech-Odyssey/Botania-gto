@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import vazkii.botania.api.block.Avatar;
-import vazkii.botania.api.internal.VanillaPacketDispatcher;
 import vazkii.botania.api.mana.ManaReceiver;
 import vazkii.botania.xplat.XplatAbstractions;
 
@@ -105,11 +104,9 @@ public class AvatarBlockEntity extends SimpleInventoryBlockEntity implements Ava
 	}
 
 	@Override
-	public void setChanged() {
-		super.setChanged();
-		if (level != null && !level.isClientSide) {
-			VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
-		}
+	protected void onInventoryChanged() {
+		super.onInventoryChanged();
+		syncToClients();
 	}
 
 	@Override

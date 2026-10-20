@@ -16,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -26,9 +27,8 @@ import net.minecraft.world.phys.HitResult;
 import vazkii.botania.api.BotaniaAPI;
 import vazkii.botania.api.internal.ManaBurst;
 import vazkii.botania.api.item.SparkEntity;
-import vazkii.botania.network.EffectType;
-import vazkii.botania.network.clientbound.BotaniaEffectPacket;
-import vazkii.botania.xplat.XplatAbstractions;
+import vazkii.botania.client.fx.SparkleParticleData;
+import vazkii.botania.common.helper.ColorHelper;
 
 import java.util.*;
 import java.util.function.Function;
@@ -91,7 +91,6 @@ public class PaintslingerLens extends Lens {
 						Block newBlock = f.apply(placeColor);
 						if (newBlock != stateThere.getBlock()) {
 							entity.level().setBlockAndUpdate(coords, newBlock.withPropertiesOf(stateThere));
-							XplatAbstractions.INSTANCE.sendToNear(entity.level(), coords, new BotaniaEffectPacket(EffectType.PAINT_LENS, coords.getX(), coords.getY(), coords.getZ(), placeColor.getId()));
 						}
 					}
 				}
@@ -99,6 +98,53 @@ public class PaintslingerLens extends Lens {
 		}
 
 		return shouldKill;
+	}
+
+	@Override
+	public void onClientBurstEnd(ManaBurst burst, BlockHitResult hit, ItemStack stack) {
+		int storedColor = LensItem.getStoredColor(stack);
+		if (burst.isFake() || storedColor < 0 || storedColor > 16) {
+			return;
+		}
+		Level level = burst.entity().level();
+		BlockPos hitPos = hit.getBlockPos();
+		BlockState hitState = level.getBlockState(hitPos);
+		ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(hitState.getBlock());
+		Function<DyeColor, Block> f = BotaniaAPI.instance().getPaintableBlocks().get(blockId);
+		if (f == null) {
+			return;
+		}
+		Queue<BlockPos> coordsToCheck = new ArrayDeque<>();
+		Set<BlockPos> checkedCoords = new HashSet<>();
+		coordsToCheck.add(hitPos);
+		checkedCoords.add(hitPos);
+		int painted = 0;
+		while (!coordsToCheck.isEmpty() && painted < 1000) {
+			BlockPos coords = coordsToCheck.remove();
+			painted++;
+			DyeColor placeColor = DyeColor.byId(storedColor == 16 ? level.random.nextInt(16) : storedColor);
+			if (f.apply(placeColor) != level.getBlockState(coords).getBlock()) {
+				spawnPaintSparkles(level, coords, placeColor);
+			}
+			for (Direction dir : Direction.values()) {
+				BlockPos candidatePos = coords.relative(dir);
+				if (checkedCoords.add(candidatePos) && level.getBlockState(candidatePos).is(hitState.getBlock())) {
+					coordsToCheck.add(candidatePos);
+				}
+			}
+		}
+	}
+
+	private static void spawnPaintSparkles(Level level, BlockPos at, DyeColor placeColor) {
+		int hex = ColorHelper.getColorValue(placeColor);
+		int r = (hex & 0xFF0000) >> 16;
+		int g = (hex & 0xFF00) >> 8;
+		int b = hex & 0xFF;
+		for (int i = 0; i < 10; i++) {
+			BlockPos pos = at.relative(Direction.getRandom(level.random));
+			SparkleParticleData data = SparkleParticleData.sparkle(0.6F + (float) Math.random() * 0.5F, r / 255F, g / 255F, b / 255F, 5);
+			level.addParticle(data, pos.getX() + (float) Math.random(), pos.getY() + (float) Math.random(), pos.getZ() + (float) Math.random(), 0, 0, 0);
+		}
 	}
 
 }

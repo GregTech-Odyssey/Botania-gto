@@ -7,12 +7,20 @@ subprojects {
     apply plugin: 'pmd'
     apply plugin: "com.diffplug.spotless"
     apply plugin: 'maven-publish'
-    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
     java.withSourcesJar()
     archivesBaseName = "${mod_name}"
 
     repositories {
         mavenCentral()
+
+        maven {
+            name = 'GTOdyssey'
+            url = 'https://gtodyssey.com/maven/releases'
+            content {
+                includeGroup 'com.gto'
+            }
+        }
 
         maven {
             name = 'Sponge / Mixin'
@@ -22,7 +30,7 @@ subprojects {
 
     tasks.withType(JavaCompile).configureEach {
         it.options.encoding = 'UTF-8'
-        it.options.release = 17
+        it.options.release = 21
     }
 
     tasks.withType(GenerateModuleMetadata).configureEach {
@@ -30,7 +38,7 @@ subprojects {
     }
 
     pmd {
-        toolVersion = '6.55.0'
+        toolVersion = '7.7.0'
         incrementalAnalysis = false
         ruleSetFiles = rootProject.files("spotless/pmd-ruleset.xml")
         consoleOutput = true
