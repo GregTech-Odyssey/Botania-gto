@@ -26,12 +26,14 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -80,7 +82,6 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	public static final float PARTICLE_COLOR_RED = (PARTICLE_COLOR >> 16 & 0xFF) / 255F;
 	public static final int MAX_MANA = 1000000;
 	private static final int MAX_MANA_DILLUTED = 10000;
-	private static final int MAX_MANA_FABULOUS = 100_000_000;
 
 	private static final String TAG_MANA = "mana";
 	private static final String TAG_OUTPUTTING = "outputting";
@@ -121,7 +122,11 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	private final Int2ObjectMap<MutableInt> drainingParticles = new Int2ObjectOpenHashMap<>();
 
 	public ManaPoolBlockEntity(BlockPos pos, BlockState state) {
-		super(BotaniaBlockEntities.POOL, pos, state);
+		this(BotaniaBlockEntities.POOL, pos, state);
+	}
+
+	protected ManaPoolBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Override
@@ -133,7 +138,12 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	@Override
 	public void receiveMana(int mana) {
 		int old = this.mana;
-		this.mana = Math.max(0, Math.min(getCurrentMana() + mana, getMaxMana()));
+		int current = getCurrentMana();
+		long next = (long) current + mana;
+		if (mana > 0) {
+			next = Math.min(next, Math.max(current, getMaxMana()));
+		}
+		this.mana = (int) Math.max(0, next);
 		if (old != this.mana) {
 			setChanged();
 			markDispatchable();
@@ -151,10 +161,15 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 		if (mana > 0) {
 			val = Math.max(val, 1);
 		}
-		return val;
+		return Math.min(val, 15);
 	}
 
 	public ManaInfusionRecipe getMatchingRecipe(@NotNull ItemStack stack, @NotNull BlockState state) {
+		return findInfusionRecipe(level, stack, state);
+	}
+
+	@Nullable
+	public static ManaInfusionRecipe findInfusionRecipe(Level level, @NotNull ItemStack stack, @NotNull BlockState state) {
 		List<ManaInfusionRecipe> matchingNonCatRecipes = new ArrayList<>();
 		List<ManaInfusionRecipe> matchingCatRecipes = new ArrayList<>();
 
@@ -264,15 +279,21 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	}
 
 	private void initManaCapAndNetwork() {
+		var variant = ((ManaPoolBlock) getBlockState().getBlock()).variant;
 		if (manaCap == -1) {
-			manaCap = switch (((ManaPoolBlock) getBlockState().getBlock()).variant) {
-				case DILUTED -> MAX_MANA_DILLUTED;
-				case FABULOUS -> MAX_MANA_FABULOUS;
-				default -> MAX_MANA;
-			};
+			manaCap = variant == ManaPoolBlock.Variant.DILUTED ? MAX_MANA_DILLUTED : MAX_MANA;
 		}
+		resetLegacyFabulousCap(variant);
 		if (!ManaNetworkHandler.instance.isPoolIn(level, this) && !isRemoved()) {
 			BotaniaAPI.instance().getManaNetworkInstance().fireManaNetworkEvent(this, ManaBlockType.POOL, ManaNetworkAction.ADD);
+		}
+	}
+
+	@Deprecated(since = "457.2610.7", forRemoval = true)
+	@ApiStatus.ScheduledForRemoval(inVersion = "2027.6.1")
+	private void resetLegacyFabulousCap(ManaPoolBlock.Variant variant) {
+		if (variant == ManaPoolBlock.Variant.FABULOUS && manaCap > MAX_MANA) {
+			manaCap = MAX_MANA;
 		}
 	}
 
@@ -319,7 +340,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	private static void displayChargingParticles(Level level, BlockPos worldPosition, ManaPoolBlockEntity self,
 			Int2ObjectMap<MutableInt> particles, boolean charging) {
 		int bellowCount = charging ? getBellowCount(level, worldPosition, self) : 0;
-		float relativeMana = (float) self.getCurrentMana() / self.getMaxMana();
+		float relativeMana = Math.min(1F, (float) self.getCurrentMana() / self.getMaxMana());
 		var particlesIterator = particles.int2ObjectEntrySet().iterator();
 		while (particlesIterator.hasNext()) {
 			var entry = particlesIterator.next();
@@ -363,7 +384,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 		return bellowCount;
 	}
 
-	private static void addManaFlowParticle(Level level, BlockPos worldPosition, Vec3 startPos, Vec3 endPos) {
+	public static void addManaFlowParticle(Level level, BlockPos worldPosition, Vec3 startPos, Vec3 endPos) {
 		double maxHeight = Math.max(startPos.y, endPos.y) - endPos.y + 0.05 * Math.random();
 		Vec3 horizontalDiff = new Vec3(endPos.x - startPos.x, 0, endPos.z - startPos.z);
 		double horizontalDistance = horizontalDiff.horizontalDistance();
@@ -433,7 +454,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 								didSomething = true;
 							}
 
-							int manaVal = Math.min(transfRate, Math.min(self.getMaxMana() - self.getCurrentMana(), mana.getMana()));
+							int manaVal = Math.min(transfRate, Math.min(Math.max(0, self.getMaxMana() - self.getCurrentMana()), mana.getMana()));
 							if (manaVal == 0 && self.level.getBlockState(worldPosition.below()).is(BotaniaBlocks.manaVoid)) {
 								manaVal = Math.min(transfRate, mana.getMana());
 							}
@@ -577,7 +598,9 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 
 			RenderHelper.renderHUDBox(gui, centerX - width / 2, centerY + 8, centerX + width / 2, centerY + 48);
 
-			BotaniaAPIClient.instance().drawSimpleManaHUD(gui, 0x0095FF, pool.getCurrentMana(), pool.getMaxMana(), name);
+			long max = Math.max(1, pool.getMaxManaLong());
+			int shown = (int) (Math.min(1D, (double) pool.getCurrentManaLong() / max) * 1_000_000);
+			BotaniaAPIClient.instance().drawSimpleManaHUD(gui, 0x0095FF, shown, 1_000_000, name);
 
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

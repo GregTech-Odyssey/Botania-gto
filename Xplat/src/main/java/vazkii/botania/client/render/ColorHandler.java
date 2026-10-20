@@ -31,6 +31,7 @@ import vazkii.botania.client.core.handler.ClientTickHandler;
 import vazkii.botania.common.block.BotaniaBlocks;
 import vazkii.botania.common.block.PlatformBlock;
 import vazkii.botania.common.block.block_entity.PlatformBlockEntity;
+import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
 import vazkii.botania.common.block.block_entity.mana.ManaPoolBlockEntity;
 import vazkii.botania.common.block.decor.PetalBlock;
 import vazkii.botania.common.block.mana.ManaPoolBlock;
@@ -81,6 +82,15 @@ public final class ColorHandler {
 					return color.orElse(-1);
 				},
 				BotaniaBlocks.manaPool, BotaniaBlocks.creativePool, BotaniaBlocks.dilutedPool, BotaniaBlocks.fabulousPool
+		);
+		blocks.register(
+				(state, world, pos, tintIndex) -> {
+					if (tintIndex == 0 && world != null && pos != null && world.getBlockEntity(pos) instanceof LargeManaPoolBlockEntity pool) {
+						return pool.getColor().map(MysticalPetalItem::getPetalLikeColor).orElse(-1);
+					}
+					return -1;
+				},
+				BotaniaBlocks.largeManaPool
 		);
 
 		// Spreader

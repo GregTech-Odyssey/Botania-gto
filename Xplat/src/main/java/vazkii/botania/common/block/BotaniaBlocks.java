@@ -53,6 +53,7 @@ import vazkii.botania.common.entity.VineBallEntity;
 import vazkii.botania.common.helper.ColorHelper;
 import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.item.block.BlockItemWithSpecialRenderer;
+import vazkii.botania.common.item.block.LargeManaPoolItem;
 import vazkii.botania.common.item.block.TinyPotatoBlockItem;
 import vazkii.botania.common.lib.LibBlockNames;
 import vazkii.botania.mixin.DispenserBlockAccessor;
@@ -304,6 +305,7 @@ public final class BotaniaBlocks {
 	public static final Block creativePool = new ManaPoolBlock(ManaPoolBlock.Variant.CREATIVE, BlockBehaviour.Properties.copy(livingrock));
 	public static final Block dilutedPool = new ManaPoolBlock(ManaPoolBlock.Variant.DILUTED, BlockBehaviour.Properties.copy(livingrock));
 	public static final Block fabulousPool = new ManaPoolBlock(ManaPoolBlock.Variant.FABULOUS, BlockBehaviour.Properties.copy(livingrock));
+	public static final Block largeManaPool = new LargeManaPoolBlock(BlockBehaviour.Properties.copy(livingrock).pushReaction(PushReaction.BLOCK));
 	public static final Block alchemyCatalyst = new AlchemyCatalystBlock(BlockBehaviour.Properties.copy(livingrock));
 	public static final Block conjurationCatalyst = new ConjurationCatalystBlock(BlockBehaviour.Properties.copy(livingrock));
 
@@ -784,6 +786,7 @@ public final class BotaniaBlocks {
 		r.accept(creativePool, prefix(LibBlockNames.POOL_CREATIVE));
 		r.accept(dilutedPool, prefix(LibBlockNames.POOL_DILUTED));
 		r.accept(fabulousPool, prefix(LibBlockNames.POOL_FABULOUS));
+		r.accept(largeManaPool, prefix(LibBlockNames.POOL_LARGE));
 		r.accept(alchemyCatalyst, prefix(LibBlockNames.ALCHEMY_CATALYST));
 		r.accept(conjurationCatalyst, prefix(LibBlockNames.CONJURATION_CATALYST));
 		r.accept(manasteelBlock, prefix(LibBlockNames.MANASTEEL_BLOCK));
@@ -1188,6 +1191,7 @@ public final class BotaniaBlocks {
 		r.accept(new BlockItem(creativePool, BotaniaItems.defaultBuilder().rarity(Rarity.EPIC)), BuiltInRegistries.BLOCK.getKey(creativePool));
 		r.accept(new BlockItem(dilutedPool, props), BuiltInRegistries.BLOCK.getKey(dilutedPool));
 		r.accept(new BlockItem(fabulousPool, props), BuiltInRegistries.BLOCK.getKey(fabulousPool));
+		r.accept(new LargeManaPoolItem(largeManaPool, BotaniaItems.defaultBuilder().rarity(Rarity.UNCOMMON)), BuiltInRegistries.BLOCK.getKey(largeManaPool));
 		r.accept(new BlockItem(alchemyCatalyst, props), BuiltInRegistries.BLOCK.getKey(alchemyCatalyst));
 		r.accept(new BlockItem(conjurationCatalyst, props), BuiltInRegistries.BLOCK.getKey(conjurationCatalyst));
 		r.accept(new BlockItem(manasteelBlock, props), BuiltInRegistries.BLOCK.getKey(manasteelBlock));

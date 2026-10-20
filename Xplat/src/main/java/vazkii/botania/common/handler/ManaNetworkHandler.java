@@ -8,6 +8,10 @@
  */
 package vazkii.botania.common.handler;
 
+import com.suried.gtoutils.spatial.BlockIndex;
+import com.suried.gtoutils.spatial.BlockRange;
+import com.suried.gtoutils.spatial.LevelBlockIndex;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -15,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import vazkii.botania.api.internal.ManaNetwork;
 import vazkii.botania.api.mana.*;
-import vazkii.botania.common.helper.MathHelper;
 import vazkii.botania.xplat.XplatAbstractions;
 
 import java.util.*;
@@ -26,21 +29,27 @@ public final class ManaNetworkHandler implements ManaNetwork {
 
 	private final Map<Level, Set<ManaPool>> manaPools = new WeakHashMap<>();
 	private final Map<Level, Set<ManaCollector>> manaCollectors = new WeakHashMap<>();
+	private final LevelBlockIndex<ManaPool> poolIndex = LevelBlockIndex.create();
+	private final LevelBlockIndex<ManaCollector> collectorIndex = LevelBlockIndex.create();
 
 	public void onNetworkEvent(ManaReceiver thing, ManaBlockType type, ManaNetworkAction action) {
 		switch (type) {
 			case COLLECTOR -> {
 				if (action == ManaNetworkAction.ADD) {
 					add(manaCollectors, thing.getManaReceiverLevel(), (ManaCollector) thing);
+					collectorIndex.get(thing.getManaReceiverLevel()).put(thing.getManaReceiverPos(), (ManaCollector) thing);
 				} else {
 					remove(manaCollectors, thing.getManaReceiverLevel(), (ManaCollector) thing);
+					unindex(collectorIndex, thing.getManaReceiverLevel(), thing.getManaReceiverPos(), (ManaCollector) thing);
 				}
 			}
 			case POOL -> {
 				if (action == ManaNetworkAction.ADD) {
 					add(manaPools, thing.getManaReceiverLevel(), (ManaPool) thing);
+					poolIndex.get(thing.getManaReceiverLevel()).put(thing.getManaReceiverPos(), (ManaPool) thing);
 				} else {
 					remove(manaPools, thing.getManaReceiverLevel(), (ManaPool) thing);
+					unindex(poolIndex, thing.getManaReceiverLevel(), thing.getManaReceiverPos(), (ManaPool) thing);
 				}
 			}
 		}
@@ -48,24 +57,24 @@ public final class ManaNetworkHandler implements ManaNetwork {
 
 	@Override
 	public void clear() {
+		for (Level level : manaPools.keySet()) {
+			poolIndex.release(level);
+		}
+		for (Level level : manaCollectors.keySet()) {
+			collectorIndex.release(level);
+		}
 		manaPools.clear();
 		manaCollectors.clear();
 	}
 
 	@Override
 	public ManaPool getClosestPool(BlockPos pos, Level world, int limit) {
-		if (manaPools.containsKey(world)) {
-			return getClosest(manaPools.get(world), pos, limit);
-		}
-		return null;
+		return getClosest(poolIndex.getIfPresent(world), pos, limit);
 	}
 
 	@Override
 	public ManaCollector getClosestCollector(BlockPos pos, Level world, int limit) {
-		if (manaCollectors.containsKey(world)) {
-			return getClosest(manaCollectors.get(world), pos, limit);
-		}
-		return null;
+		return getClosest(collectorIndex.getIfPresent(world), pos, limit);
 	}
 
 	public boolean isCollectorIn(Level level, ManaCollector collector) {
@@ -77,20 +86,15 @@ public final class ManaNetworkHandler implements ManaNetwork {
 	}
 
 	@Nullable
-	private <T extends ManaReceiver> T getClosest(Set<T> receivers, BlockPos pos, int limit) {
-		long minDist = Long.MAX_VALUE;
-		long limitSquared = (long) limit * limit;
-		T closest = null;
+	private static <T extends ManaReceiver> T getClosest(@Nullable BlockIndex<T> index, BlockPos pos, int limit) {
+		return index == null ? null : index.findNearest(pos, BlockRange.sphere(limit), null);
+	}
 
-		for (var receiver : receivers) {
-			long distance = MathHelper.distSqr(receiver.getManaReceiverPos(), pos);
-			if (distance <= limitSquared && distance < minDist) {
-				minDist = distance;
-				closest = receiver;
-			}
+	private static <T> void unindex(LevelBlockIndex<T> index, Level level, BlockPos pos, T thing) {
+		var levelIndex = index.getIfPresent(level);
+		if (levelIndex != null) {
+			levelIndex.remove(pos, thing);
 		}
-
-		return closest;
 	}
 
 	private <T> void remove(Map<Level, Set<T>> map, Level level, T thing) {

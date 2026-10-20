@@ -126,6 +126,9 @@ import java.util.function.Supplier;
 import static vazkii.botania.integration.speedrunigt.BotaniaSpeedrunCategories.BotaniaSpeedrunCategory;
 
 public class ForgeXplatImpl implements XplatAbstractions {
+	@Nullable
+	public static volatile BiFunction<BlockEntity, Direction, ManaReceiver> manaReceiverFallback;
+
 	@Override
 	public boolean isForge() {
 		return true;
@@ -209,7 +212,9 @@ public class ForgeXplatImpl implements XplatAbstractions {
 	@Nullable
 	@Override
 	public ManaReceiver findManaReceiver(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity be, @Nullable Direction direction) {
-		return CapabilityUtil.findCapability(BotaniaForgeCapabilities.MANA_RECEIVER, level, pos, state, be, direction);
+		var receiver = CapabilityUtil.findCapability(BotaniaForgeCapabilities.MANA_RECEIVER, level, pos, state, be, direction);
+		var fallback = manaReceiverFallback;
+		return receiver == null && be != null && fallback != null ? fallback.apply(be, direction) : receiver;
 	}
 
 	@Nullable

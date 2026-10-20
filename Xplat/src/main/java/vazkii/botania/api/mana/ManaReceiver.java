@@ -24,6 +24,10 @@ public interface ManaReceiver {
 	 */
 	int getCurrentMana();
 
+	default long getCurrentManaLong() {
+		return getCurrentMana();
+	}
+
 	/**
 	 * Is this Mana Receiver is full? Being full means no mana bursts will be sent.
 	 */
@@ -33,6 +37,14 @@ public interface ManaReceiver {
 	 * Called when this receiver receives mana.
 	 */
 	void receiveMana(int mana);
+
+	default void receiveManaLong(long mana) {
+		while (mana != 0) {
+			int step = (int) Math.max(-Integer.MAX_VALUE, Math.min(Integer.MAX_VALUE, mana));
+			receiveMana(step);
+			mana -= step;
+		}
+	}
 
 	/**
 	 * Can this tile receive mana from bursts? Generally set to false for

@@ -44,6 +44,7 @@ public final class LibBlockNames {
 	public static final String POOL_CREATIVE = "creative_pool";
 	public static final String POOL_DILUTED = "diluted_pool";
 	public static final String POOL_FABULOUS = "fabulous_pool";
+	public static final String POOL_LARGE = "large_mana_pool";
 	public static final String RUNE_ALTAR = "runic_altar";
 	public static final String PYLON = "mana_pylon";
 	public static final String PYLON_NATURA = "natura_pylon";

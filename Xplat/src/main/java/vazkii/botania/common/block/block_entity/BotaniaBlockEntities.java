@@ -42,6 +42,7 @@ public class BotaniaBlockEntities {
 	);
 	public static final BlockEntityType<ManaSpreaderBlockEntity> SPREADER = type(prefix(LibBlockNames.SPREADER), ManaSpreaderBlockEntity::new, manaSpreader, redstoneSpreader, elvenSpreader, gaiaSpreader);
 	public static final BlockEntityType<ManaPoolBlockEntity> POOL = type(prefix(LibBlockNames.POOL), ManaPoolBlockEntity::new, manaPool, dilutedPool, fabulousPool, creativePool);
+	public static final BlockEntityType<LargeManaPoolBlockEntity> LARGE_POOL = type(prefix(LibBlockNames.POOL_LARGE), LargeManaPoolBlockEntity::new, largeManaPool);
 	public static final BlockEntityType<RunicAltarBlockEntity> RUNE_ALTAR = type(prefix(LibBlockNames.RUNE_ALTAR), RunicAltarBlockEntity::new, runeAltar);
 	public static final BlockEntityType<PylonBlockEntity> PYLON = type(prefix(LibBlockNames.PYLON), PylonBlockEntity::new, manaPylon, naturaPylon, gaiaPylon);
 	public static final BlockEntityType<ManaSplitterBlockEntity> DISTRIBUTOR = type(prefix(LibBlockNames.DISTRIBUTOR), ManaSplitterBlockEntity::new, distributor);
@@ -117,6 +118,7 @@ public class BotaniaBlockEntities {
 		consumer.accept(be -> new ManaEnchanterBlockEntity.WandHud((ManaEnchanterBlockEntity) be), BotaniaBlockEntities.ENCHANTER);
 		consumer.accept(be -> new HoveringHourglassBlockEntity.WandHud((HoveringHourglassBlockEntity) be), BotaniaBlockEntities.HOURGLASS);
 		consumer.accept(be -> new ManaPoolBlockEntity.WandHud((ManaPoolBlockEntity) be), BotaniaBlockEntities.POOL);
+		consumer.accept(be -> new LargeManaPoolBlockEntity.WandHud((LargeManaPoolBlockEntity) be), BotaniaBlockEntities.LARGE_POOL);
 		consumer.accept(be -> new ManaPrismBlockEntity.WandHud((ManaPrismBlockEntity) be), BotaniaBlockEntities.PRISM);
 		consumer.accept(be -> new ManaSpreaderBlockEntity.WandHud((ManaSpreaderBlockEntity) be), BotaniaBlockEntities.SPREADER);
 		consumer.accept(be -> new SpreaderTurntableBlockEntity.WandHud((SpreaderTurntableBlockEntity) be), BotaniaBlockEntities.TURNTABLE);

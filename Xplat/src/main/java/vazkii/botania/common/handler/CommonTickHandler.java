@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 
 import vazkii.botania.api.corporea.CorporeaHelper;
 import vazkii.botania.common.block.block_entity.BlockEntitySync;
+import vazkii.botania.common.block.block_entity.mana.LargeManaPoolNetwork;
 import vazkii.botania.common.impl.corporea.CorporeaHelperImpl;
 
 public final class CommonTickHandler {
@@ -20,6 +21,7 @@ public final class CommonTickHandler {
 
 	public static void onTick(ServerLevel world) {
 		((CorporeaHelperImpl) CorporeaHelper.instance()).clearCache();
+		LargeManaPoolNetwork.processLoadedParts(world);
 		BlockEntitySync.flush(world);
 	}
 

@@ -1,0 +1,21 @@
+{
+  "name": "botania.entry.largePool",
+  "category": "botania:mana",
+  "icon": "botania:large_mana_pool",
+  "advancement": "botania:main/terrasteel_pickup",
+  "pages": [
+    {
+      "type": "text",
+      "text": "botania.page.largePool0"
+    },
+    {
+      "type": "text",
+      "text": "botania.page.largePool1"
+    },
+    {
+      "type": "crafting",
+      "text": "botania.page.largePool2",
+      "recipe": "botania:large_mana_pool"
+    }
+  ]
+}

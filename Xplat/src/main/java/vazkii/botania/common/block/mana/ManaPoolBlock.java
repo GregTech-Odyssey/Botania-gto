@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import vazkii.botania.api.state.BotaniaStateProperties.OptionalDyeColor;
+import vazkii.botania.common.block.BotaniaBlocks;
 import vazkii.botania.common.block.BotaniaWaterloggedBlock;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntities;
 import vazkii.botania.common.block.block_entity.mana.ManaPoolBlockEntity;
@@ -98,6 +99,8 @@ public class ManaPoolBlock extends BotaniaWaterloggedBlock implements EntityBloc
 			for (int i = 0; i < 2; i++) {
 				tooltip.add(Component.translatable("botaniamisc.creativePool" + i).withStyle(ChatFormatting.GRAY));
 			}
+		} else if (this == BotaniaBlocks.fabulousPool) {
+			tooltip.add(Component.translatable("botaniamisc.fabulousPool0").withStyle(ChatFormatting.GRAY));
 		}
 	}
 

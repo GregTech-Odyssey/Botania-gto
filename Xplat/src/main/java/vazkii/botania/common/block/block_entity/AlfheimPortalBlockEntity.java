@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import vazkii.botania.api.block.Wandable;
+import vazkii.botania.api.mana.ManaPool;
 import vazkii.botania.api.recipe.ElvenTradeRecipe;
 import vazkii.botania.api.state.BotaniaStateProperties;
 import vazkii.botania.api.state.enums.AlfheimPortalState;
@@ -43,6 +44,7 @@ import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.advancements.AlfheimPortalBreadTrigger;
 import vazkii.botania.common.advancements.AlfheimPortalTrigger;
 import vazkii.botania.common.block.BotaniaBlocks;
+import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
 import vazkii.botania.common.block.block_entity.mana.ManaPoolBlockEntity;
 import vazkii.botania.common.block.mana.ManaPoolBlock;
 import vazkii.botania.common.crafting.BotaniaRecipeTypes;
@@ -431,7 +433,7 @@ public class AlfheimPortalBlockEntity extends BotaniaBlockEntity implements Wand
 	}
 
 	public boolean consumeMana(List<BlockPos> pylons, int totalCost, boolean close) {
-		List<ManaPoolBlockEntity> consumePools = new ArrayList<>();
+		List<ManaPool> consumePools = new ArrayList<>();
 		int consumed = 0;
 
 		if (pylons.size() < MIN_REQUIRED_PYLONS) {
@@ -450,7 +452,8 @@ public class AlfheimPortalBlockEntity extends BotaniaBlockEntity implements Wand
 			}
 
 			tile = level.getBlockEntity(pos.below());
-			if (tile instanceof ManaPoolBlockEntity pool) {
+			if (tile instanceof ManaPoolBlockEntity || tile instanceof LargeManaPoolBlockEntity) {
+				ManaPool pool = (ManaPool) tile;
 				if (pool.getCurrentMana() < costPer) {
 					closeNow = closeNow || close;
 					return false;
@@ -462,9 +465,13 @@ public class AlfheimPortalBlockEntity extends BotaniaBlockEntity implements Wand
 		}
 
 		if (consumed >= expectedConsumption) {
-			for (ManaPoolBlockEntity pool : consumePools) {
+			for (ManaPool pool : consumePools) {
 				pool.receiveMana(-costPer);
-				pool.craftingEffect(false);
+				if (pool instanceof ManaPoolBlockEntity normal) {
+					normal.craftingEffect(false);
+				} else if (pool instanceof LargeManaPoolBlockEntity large) {
+					large.craftingEffect();
+				}
 			}
 			return true;
 		}

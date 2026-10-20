@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -53,6 +54,7 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -123,6 +125,8 @@ import vazkii.botania.common.world.BotaniaFeatures;
 import vazkii.botania.common.world.SkyblockChunkGenerator;
 import vazkii.botania.common.world.SkyblockWorldEvents;
 import vazkii.botania.forge.integration.InventorySorterIntegration;
+import vazkii.botania.forge.integration.ae2.BotaniaAE2;
+import vazkii.botania.forge.integration.ae2.client.BotaniaAE2Client;
 import vazkii.botania.forge.integration.corporea.ForgeCapCorporeaNodeDetector;
 import vazkii.botania.forge.integration.curios.CurioIntegration;
 import vazkii.botania.forge.internal_caps.RedStringContainerCapProvider;
@@ -145,6 +149,11 @@ public class ForgeCommonInitializer {
 		coreInit();
 		registryInit();
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+		if (ModList.get().isLoaded("ae2")) {
+			var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+			BotaniaAE2.init(modBus);
+			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BotaniaAE2Client.init(modBus));
+		}
 	}
 
 	public void commonSetup(FMLCommonSetupEvent evt) {

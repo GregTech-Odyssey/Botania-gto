@@ -1,0 +1,40 @@
+{
+  "name": "botania.entry.aeMana",
+  "category": "botania:mana",
+  "icon": "botania:fabulous_pool",
+  "flag": "mod:ae2",
+  "advancement": "botania:main/mana_pool_pickup_lexicon",
+  "pages": [
+    {
+      "type": "text",
+      "text": "botania.page.aeMana0"
+    },
+    {
+      "type": "text",
+      "text": "botania.page.aeMana1"
+    },
+    {
+      "type": "text",
+      "text": "botania.page.aeMana2"
+    },
+    {
+      "type": "text",
+      "text": "botania.page.aeMana3"
+    },
+    {
+      "type": "crafting",
+      "text": "botania.page.aeMana4",
+      "recipe": "botania:ae2/fluix_mana_pool"
+    },
+    {
+      "type": "crafting",
+      "text": "botania.page.aeMana5",
+      "recipe": "botania:ae2/mana_cell_housing"
+    },
+    {
+      "type": "crafting",
+      "text": "botania.page.aeMana6",
+      "recipe": "botania:ae2/mana_storage_cell_1k"
+    }
+  ]
+}

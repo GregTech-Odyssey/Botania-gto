@@ -1,4 +1,4 @@
-// 1.20.1	2026-10-20T11:50:20.3300596	Botania block loot tables
+// 1.20.1	2026-10-20T14:20:38.0882992	Botania block loot tables
 35bfbc76b5aa94c1c6604e437a23e799d05d495d data/botania/loot_tables/blocks/abstruse_platform.json
 8bdf380137a7135be8e4aab704de1f963528dadc data/botania/loot_tables/blocks/agricarnation.json
 89bceb2fb451ae019539d56cf640e3ef1c4d5eb3 data/botania/loot_tables/blocks/agricarnation_chibi.json
@@ -266,6 +266,7 @@ ade9c055ad13fd20c0ca49d3caec613de8829306 data/botania/loot_tables/blocks/jiyuuli
 698f62af6bf06cf358290ca97a307862d72afa69 data/botania/loot_tables/blocks/jiyuulia_chibi.json
 f8dc0a94e830adffe7e450d84e3e4fc46fe5bee0 data/botania/loot_tables/blocks/kekimurus.json
 2e287a59f30638c1920c35921b9db57443c6dbfe data/botania/loot_tables/blocks/labellia.json
+78b6f2ed9fe34a70fe6070448ff80e929e5a8592 data/botania/loot_tables/blocks/large_mana_pool.json
 33fbc5b48d33ecb01e660c1c98e8e5b4f5a00379 data/botania/loot_tables/blocks/lavender_quartz.json
 194ac0d1cc35014605d7b6176ffe6546aae36402 data/botania/loot_tables/blocks/lavender_quartz_pillar.json
 c560d97367509aa82cb97599e71766272e88f2e5 data/botania/loot_tables/blocks/lavender_quartz_slab.json

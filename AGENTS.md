@@ -5,7 +5,8 @@
 - 任何改变游戏设计的修改（数值、机制、配方规则、物品与方块行为、显示与反馈等），必须在同一次提交中更新根目录的 [GTO_CHANGES.md](GTO_CHANGES.md)，记录方式见该文档的"维护约定"。
 - GTO_CHANGES.md 只记录游戏设计层面的差异，不记录实现方式。
 - 模组 ID 保持 `botania`，不得改动资源命名空间与 Java 包名，以免破坏存档与附属模组兼容。
-- 植物魔法本体不得依赖 GregTech、GTOCore、GTOLib 等整合包模组；需要整合包参与的行为，通过通用接口或配方字段开放，由整合包侧注册或声明。唯一例外是 DataSyncLib：方块实体向客户端的同步统一走它（存盘仍用原版 NBT）。
+- 植物魔法本体不得依赖 GregTech、GTOCore、GTOLib 等整合包模组；需要整合包参与的行为，通过通用接口或配方字段开放，由整合包侧注册或声明。例外只有 DataSyncLib 与 GTOUtils：方块实体向客户端的同步统一走 DataSyncLib（存盘仍用原版 NBT）；按范围找方块实体或实体一律用 GTOUtils 的八叉树索引（`LevelBlockIndex`/`BlockIndex`，查询范围用 `BlockRange` 选球形或立方体），不要逐格扫描或遍历全维度，现有用法见 `ManaNetworkHandler`、`ManaSparkIndex`。
+- 应用能源 2（AE2）是可选联动：只在 `Forge/.../forge/integration/ae2` 里引用 AE 类（compileOnly），入口由 `ModList.isLoaded("ae2")` 守住；没装 AE 时不得加载这个包里的任何类。联动的配方带 `forge:mod_loaded` 条件，方块掉落写在代码里（掉落表不支持条件），改完要在不装 AE 的情况下跑一次 `:Forge:runServer` 确认无报错。该联动取代了 Applied Botanics，`appbot` 命名空间的注册名通过别名和缺失映射自动转到 `botania`。
 - 只维护 Forge 版，Fabric 子项目已删除；构建与运行都用 JDK 21（DataSyncLib 是 Java 21 字节码）。Xplat 的数据生成用 `./gradlew :Forge:runXplatData`，输出到 `Xplat/src/generated/resources`。
 - 持续性或高频的视觉特效（每 tick、每秒反复出现的）由客户端根据已同步的状态或本地事件生成，不从服务端发包；低频的一次性事件特效（合成完成、使用物品、实体被处理等，服务端才知道何时发生）可以由服务端发包。
 

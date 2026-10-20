@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import vazkii.botania.common.block.*;
 import vazkii.botania.common.block.decor.FloatingFlowerBlock;
 import vazkii.botania.common.block.mana.DrumBlock;
+import vazkii.botania.common.block.mana.LargeManaPoolBlock;
 import vazkii.botania.common.block.mana.ManaPoolBlock;
 import vazkii.botania.common.block.mana.ManaSpreaderBlock;
 import vazkii.botania.common.block.red_string.RedStringBlock;
@@ -50,6 +51,7 @@ import static vazkii.botania.common.block.BotaniaFlowerBlocks.jiyuuliaFloating;
 import static vazkii.botania.common.block.BotaniaFlowerBlocks.labelliaFloating;
 import static vazkii.botania.common.block.BotaniaFlowerBlocks.medumoneFloating;
 import static vazkii.botania.common.block.BotaniaFlowerBlocks.munchdewFloating;
+import static vazkii.botania.common.lib.ResourceLocationHelper.prefix;
 
 public class BlockTagProvider extends IntrinsicHolderTagsProvider<Block> {
 	public static final Predicate<Block> BOTANIA_BLOCK = b -> LibMisc.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(b).getNamespace());
@@ -212,7 +214,7 @@ public class BlockTagProvider extends IntrinsicHolderTagsProvider<Block> {
 				.addTag(BlockTags.SAND);
 		tag(BotaniaTags.Blocks.GAIA_BREAK_BLACKLIST).add(Blocks.BEACON, BotaniaBlocks.manaPylon, BotaniaBlocks.naturaPylon, BotaniaBlocks.gaiaPylon);
 		tag(BotaniaTags.Blocks.MAGNET_RING_BLACKLIST).add(BotaniaBlocks.manaPool, BotaniaBlocks.creativePool, BotaniaBlocks.dilutedPool,
-				BotaniaBlocks.fabulousPool, BotaniaBlocks.terraPlate, BotaniaBlocks.runeAltar);
+				BotaniaBlocks.fabulousPool, BotaniaBlocks.largeManaPool, BotaniaBlocks.terraPlate, BotaniaBlocks.runeAltar);
 		tag(BotaniaTags.Blocks.LAPUTA_IMMOBILE);
 		tag(BotaniaTags.Blocks.LAPUTA_NO_DOUBLE_BLOCK);
 
@@ -333,11 +335,13 @@ public class BlockTagProvider extends IntrinsicHolderTagsProvider<Block> {
 				rfGenerator, prism, pump, sparkChanger, forestEye, enderEye,
 				hourglass, starfield, blazeBlock
 		);
+		tag(BlockTags.MINEABLE_WITH_PICKAXE).addOptional(prefix("fluix_mana_pool"));
 		tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
 				getModBlocks(b -> pickaxe.contains(b)
 						|| b instanceof PetalApothecaryBlock
 						|| b instanceof PylonBlock
 						|| b instanceof ManaPoolBlock
+						|| b instanceof LargeManaPoolBlock
 						|| b instanceof RedStringBlock
 						|| BuiltInRegistries.BLOCK.getKey(b).getPath().contains(LibBlockNames.AZULEJO_PREFIX)
 						|| BuiltInRegistries.BLOCK.getKey(b).getPath().contains("corporea")

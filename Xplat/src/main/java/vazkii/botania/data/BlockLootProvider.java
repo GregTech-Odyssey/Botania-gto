@@ -49,6 +49,7 @@ import vazkii.botania.common.block.BotaniaDoubleFlowerBlock;
 import vazkii.botania.common.block.BotaniaFlowerBlocks;
 import vazkii.botania.common.block.BotaniaGrassBlock;
 import vazkii.botania.common.block.flower.generating.*;
+import vazkii.botania.common.block.mana.LargeManaPoolBlock;
 import vazkii.botania.common.item.BotaniaItems;
 import vazkii.botania.common.lib.LibBlockNames;
 import vazkii.botania.common.lib.LibMisc;
@@ -110,6 +111,7 @@ public class BlockLootProvider implements DataProvider {
 		functionTable.put(BotaniaBlocks.root, BlockLootProvider::genRoot);
 		functionTable.put(BotaniaBlocks.solidVines, BlockLootProvider::genSolidVine);
 		functionTable.put(BotaniaBlocks.tinyPotato, BlockLootProvider::genTinyPotato);
+		functionTable.put(BotaniaBlocks.largeManaPool, BlockLootProvider::genLargePool);
 
 		// Flower NBT saving
 		functionTable.put(BotaniaFlowerBlocks.gourmaryllis, b -> genCopyNbt(b, GourmaryllisBlockEntity.TAG_LAST_FOODS, GourmaryllisBlockEntity.TAG_LAST_FOOD_COUNT, GourmaryllisBlockEntity.TAG_STREAK_LENGTH));
@@ -236,6 +238,15 @@ public class BlockLootProvider implements DataProvider {
 				.when(ExplosionCondition.survivesExplosion());
 		LootPoolEntryContainer.Builder<?> entry = AlternativesEntry.alternatives(silk, dirt);
 		LootPool.Builder pool = LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(entry);
+		return LootTable.lootTable().withPool(pool);
+	}
+
+	protected static LootTable.Builder genLargePool(Block b) {
+		LootPoolEntryContainer.Builder<?> entry = LootItem.lootTableItem(b)
+				.when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(b)
+						.setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(LargeManaPoolBlock.CORE, true)));
+		LootPool.Builder pool = LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(entry)
+				.when(ExplosionCondition.survivesExplosion());
 		return LootTable.lootTable().withPool(pool);
 	}
 

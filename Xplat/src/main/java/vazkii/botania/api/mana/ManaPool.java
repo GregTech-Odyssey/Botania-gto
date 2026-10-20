@@ -42,6 +42,10 @@ public interface ManaPool extends ManaReceiver {
 	 */
 	int getMaxMana();
 
+	default long getMaxManaLong() {
+		return getMaxMana();
+	}
+
 	/**
 	 * @return The color of this pool.
 	 */

@@ -113,6 +113,7 @@ public class BlockstateProvider implements DataProvider {
 		// Manually written blockstate + models
 		remainingBlocks.remove(ghostRail);
 		remainingBlocks.remove(solidVines);
+		remainingBlocks.remove(largeManaPool);
 
 		// Manually written model, generated blockstate
 		manualModel(remainingBlocks, cocoon);

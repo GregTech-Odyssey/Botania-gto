@@ -19,6 +19,7 @@ subprojects {
             url = 'https://gtodyssey.com/maven/releases'
             content {
                 includeGroup 'com.gto'
+                includeGroup 'appeng'
             }
         }
 

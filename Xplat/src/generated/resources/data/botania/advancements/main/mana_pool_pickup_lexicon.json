@@ -22,7 +22,8 @@
               "botania:mana_pool",
               "botania:creative_pool",
               "botania:diluted_pool",
-              "botania:fabulous_pool"
+              "botania:fabulous_pool",
+              "botania:large_mana_pool"
             ]
           }
         ]

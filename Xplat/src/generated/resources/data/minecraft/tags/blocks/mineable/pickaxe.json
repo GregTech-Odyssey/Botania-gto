@@ -1,5 +1,9 @@
 {
   "values": [
+    {
+      "id": "botania:fluix_mana_pool",
+      "required": false
+    },
     "botania:alchemy_catalyst",
     "botania:apothecary_deepslate",
     "botania:apothecary_default",
@@ -95,6 +99,7 @@
     "botania:green_pavement_slab",
     "botania:green_pavement_stairs",
     "botania:hourglass",
+    "botania:large_mana_pool",
     "botania:lavender_quartz",
     "botania:lavender_quartz_pillar",
     "botania:lavender_quartz_slab",

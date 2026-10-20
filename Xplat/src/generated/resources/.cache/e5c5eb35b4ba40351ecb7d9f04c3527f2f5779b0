@@ -1,4 +1,4 @@
-// 1.20.1	2026-10-20T11:50:20.3450622	Advancements
+// 1.20.1	2026-10-20T14:20:38.0992991	Advancements
 ab08543643f1a531a05c7a8c557a3ac02791af95 data/botania/advancements/challenge/alf_portal_bread.json
 88699a15ceee5f4d6b3da75b7fc8813d6ed7fecc data/botania/advancements/challenge/all_loonium_mobs.json
 79ad7a7e7ea785cf536ec8396e1e11673650954b data/botania/advancements/challenge/flugel_eye.json
@@ -44,8 +44,8 @@ d8fe1113a892fdccc31fcfd34908eff71d823763 data/botania/advancements/main/mana_bla
 c87bff4cb01bc95927f67b878ee776f8e9b5c45b data/botania/advancements/main/mana_bomb_ignite.json
 3334b32f1b55413c7ed5b032ea1d06731f710f16 data/botania/advancements/main/mana_cart_craft.json
 a6a0079d4aa546ce8e9905237568e8a7fa48459c data/botania/advancements/main/mana_cookie_eat.json
-11f28857dc4164eb9e8f42171a069e06689c9e70 data/botania/advancements/main/mana_pool_pickup.json
-f9b849ddb5d0f0f40cb470214bcc591228be1ae1 data/botania/advancements/main/mana_pool_pickup_lexicon.json
+68bb8f87632162d7418e4c441d84dea377fa9ca7 data/botania/advancements/main/mana_pool_pickup.json
+98d71d90259f8f5bfe634e57e74733852c39278b data/botania/advancements/main/mana_pool_pickup_lexicon.json
 b3e63c8e517a548a01e0f58b923e301e2f04a5b7 data/botania/advancements/main/pollidisiac_pickup.json
 d98a87978f058ffa66e338c7ff8fbc47d2bf3fda data/botania/advancements/main/pure_daisy_pickup.json
 0549c78022529048368d6912860b1de894268119 data/botania/advancements/main/root.json

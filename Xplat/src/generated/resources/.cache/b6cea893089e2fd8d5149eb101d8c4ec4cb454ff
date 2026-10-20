@@ -1,4 +1,4 @@
-// 1.20.1	2026-10-20T11:50:20.3260585	Botania item models
+// 1.20.1	2026-10-20T14:20:38.0827622	Botania item models
 d4b0ba0031453560fbcac5ba06e408d0ee6a8c4f assets/botania/models/item/abstruse_platform.json
 bf099805ffd7a8d3043459d5fa421695f2890c97 assets/botania/models/item/agricarnation.json
 7e549abdb5ceeae46f78cea4c1e835855536fe85 assets/botania/models/item/agricarnation_chibi.json
@@ -330,6 +330,7 @@ dfa4220d8b919db0a461eefb2cbc178e663ff689 assets/botania/models/item/jaded_amaran
 7e3471a280b903d1f47de082b2f73181937240a1 assets/botania/models/item/knockback_belt.json
 9ebe255507d72c8756dfa3e154addcdb91dfb52a assets/botania/models/item/labellia.json
 7d32fb638894ef4e9980fd5dbca509fd9b1a1667 assets/botania/models/item/laputa_shard.json
+594cd1efda19dafdaf315a31481bfae053a72291 assets/botania/models/item/large_mana_pool.json
 8a0a7f4d9a60f336703d79d6e2e63e6d75224c1c assets/botania/models/item/lava_pendant.json
 aa692a94e4887ee2e31f68260f5438cb507ce3e3 assets/botania/models/item/lavender_quartz.json
 cd8e30c78ec814d6a00f56cb508b370e61bfb166 assets/botania/models/item/lavender_quartz_pillar.json

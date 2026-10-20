@@ -1,4 +1,4 @@
-// 1.20.1	2026-10-20T11:50:20.2959328	Tags for minecraft:block mod id vanilla
+// 1.20.1	2026-10-20T17:04:22.5117475	Tags for minecraft:block mod id vanilla
 7a68ff158ad853180a69e6a2276ae92648e36622 data/botania/tags/blocks/agricarnation/apply_bonemeal.json
 875c72992696488f2f82f9474864d8b56c9c7c85 data/botania/tags/blocks/agricarnation/growth_candidate.json
 e016f3ffb8b5cd781715f6f9dbbd57a21d8a0e31 data/botania/tags/blocks/agricarnation/growth_excluded.json
@@ -24,7 +24,7 @@ bed66ad44fe3809d0a23a90734534868dca1d35a data/botania/tags/blocks/horn_of_the_wi
 35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/botania/tags/blocks/laputa_immobile.json
 35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/botania/tags/blocks/laputa_no_double_block.json
 feaf72e7fc3c3e8ecf48a44f487aa8ad764191d7 data/botania/tags/blocks/livingwood_logs.json
-625f245864e2ad11e8c90733f3dd20dd2d2f4b35 data/botania/tags/blocks/magnet_ring_blacklist.json
+aa36effe5c38764d631338328f810f9ed2aab01b data/botania/tags/blocks/magnet_ring_blacklist.json
 86ffec38fa71dd28ba440719f7ca9d9ad186b05f data/botania/tags/blocks/manasteel_blocks.json
 7d152245fd56029344573a358ab79d27529e2878 data/botania/tags/blocks/marimorphosis_convertable.json
 9a4ebe9c9db467b9ab60b8be5eedcce82f2277ed data/botania/tags/blocks/mini_flowers.json
@@ -60,7 +60,7 @@ c949f38c97b56ea057fe936f646be3298a2b8592 data/minecraft/tags/blocks/fences.json
 6b553bb9832d565598020d5d025cb828c1918cdc data/minecraft/tags/blocks/logs_that_burn.json
 da8cc7d3d044a525a70555bc5a0e0ad98ea91790 data/minecraft/tags/blocks/mineable/axe.json
 615e0a6cac000af5aae7161c0b2e14d31dca597d data/minecraft/tags/blocks/mineable/hoe.json
-09e6e64b9508e0cdfaa5f560024775df203e4eb0 data/minecraft/tags/blocks/mineable/pickaxe.json
+5f73bb855bad070fa288f59260a2386a6c6ec61a data/minecraft/tags/blocks/mineable/pickaxe.json
 d2fe1c8f82522fc048eff209bafb73f837946a82 data/minecraft/tags/blocks/mineable/shovel.json
 8f077b74b06d1bc715758cb97a0869d884abd67a data/minecraft/tags/blocks/mushroom_grow_block.json
 119b4275cbffb61da75b503795d3fb0af0e1f35d data/minecraft/tags/blocks/planks.json

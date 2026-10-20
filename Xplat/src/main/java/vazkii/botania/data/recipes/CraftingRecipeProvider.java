@@ -179,6 +179,15 @@ public class CraftingRecipeProvider extends BotaniaRecipeProvider {
 				.unlockedBy("has_item", conditionsFromItem(BotaniaBlocks.bifrostPerm))
 				.unlockedBy("has_alt_item", conditionsFromItem(BotaniaItems.rainbowRod))
 				.save(consumer, prefix(BuiltInRegistries.ITEM.getKey(BotaniaBlocks.fabulousPool.asItem()).getPath() + "_upgrade"));
+		ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, BotaniaBlocks.largeManaPool)
+				.define('P', BotaniaBlocks.manaPool)
+				.define('T', BotaniaItems.terrasteel)
+				.define('D', BotaniaBlocks.manaDiamondBlock)
+				.pattern("PTP")
+				.pattern("TDT")
+				.pattern("PTP")
+				.unlockedBy("has_item", conditionsFromItem(BotaniaItems.terrasteel))
+				.save(consumer);
 		ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, BotaniaBlocks.runeAltar)
 				.define('P', BotaniaItems.manaPearl)
 				.define('S', BotaniaBlocks.livingrock)

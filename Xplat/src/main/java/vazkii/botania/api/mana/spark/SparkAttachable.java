@@ -33,6 +33,10 @@ public interface SparkAttachable {
 	 */
 	int getAvailableSpaceForMana();
 
+	default long getAvailableSpaceForManaLong() {
+		return getAvailableSpaceForMana();
+	}
+
 	/**
 	 * Gets the Spark that is attached to this block. A common implementation is
 	 * to check for Spark entities above using world.getEntitiesWithinAABB()

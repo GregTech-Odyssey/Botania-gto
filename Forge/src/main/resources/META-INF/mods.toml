@@ -29,6 +29,13 @@ configBackground="botania:textures/block/livingrock_bricks.png" # background for
     side="BOTH"
 
 [[dependencies.botania]]
+    modId="gtoutils"
+    mandatory=true
+    versionRange="[26.10.1,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.botania]]
     modId="patchouli"
     mandatory=true
     versionRange="[1.20.1-83,)"

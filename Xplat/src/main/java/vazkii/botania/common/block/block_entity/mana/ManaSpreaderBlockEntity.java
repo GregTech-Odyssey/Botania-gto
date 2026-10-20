@@ -170,7 +170,7 @@ public class ManaSpreaderBlockEntity extends ExposedSimpleInventoryBlockEntity i
 			if (level.hasChunkAt(relPos)) {
 				var receiverAt = XplatAbstractions.INSTANCE.findManaReceiver(level, relPos, dir.getOpposite());
 				if (receiverAt instanceof ManaPool pool) {
-					if (wasInNetwork && (pool != self.receiver || self.getVariant() == ManaSpreaderBlock.Variant.REDSTONE)) {
+					if (wasInNetwork && (!LargeManaPoolBlockEntity.isSamePool(pool, self.receiver) || self.getVariant() == ManaSpreaderBlock.Variant.REDSTONE)) {
 						if (pool instanceof KeyLocked locked && !locked.getOutputKey().equals(self.getInputKey())) {
 							continue;
 						}

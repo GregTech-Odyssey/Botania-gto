@@ -71,6 +71,7 @@ public final class EntityRenderers {
 		consumer.register(BotaniaBlockEntities.ALTAR, PetalApothecaryBlockEntityRenderer::new);
 		consumer.register(BotaniaBlockEntities.SPREADER, ManaSpreaderBlockEntityRenderer::new);
 		consumer.register(BotaniaBlockEntities.POOL, ManaPoolBlockEntityRenderer::new);
+		consumer.register(BotaniaBlockEntities.LARGE_POOL, LargeManaPoolBlockEntityRenderer::new);
 		consumer.register(BotaniaBlockEntities.RUNE_ALTAR, RunicAltarBlockEntityRenderer::new);
 		consumer.register(BotaniaBlockEntities.PYLON, PylonBlockEntityRenderer::new);
 		consumer.register(BotaniaBlockEntities.ENCHANTER, ManaEnchanterBlockEntityRenderer::new);

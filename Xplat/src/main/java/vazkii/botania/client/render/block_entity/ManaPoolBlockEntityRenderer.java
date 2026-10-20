@@ -107,13 +107,13 @@ public class ManaPoolBlockEntityRenderer implements BlockEntityRenderer<ManaPool
 			}
 		}
 
-		int mana = pool == null ? cartMana : pool.getCurrentMana();
-		int maxMana = pool == null ? -1 : pool.getMaxMana();
-		if (maxMana == -1) {
+		long mana = pool == null ? cartMana : pool.getCurrentManaLong();
+		long maxMana = pool == null ? -1 : pool.getMaxManaLong();
+		if (maxMana <= 0) {
 			maxMana = ManaPoolBlockEntity.MAX_MANA;
 		}
 
-		float manaLevel = (float) mana / (float) maxMana;
+		float manaLevel = (float) ((double) mana / (double) maxMana);
 		if (manaLevel > 0) {
 			ms.pushPose();
 			ms.translate(0, Mth.clampedMap(manaLevel, 0, 1, poolBottom, poolTop), 0);

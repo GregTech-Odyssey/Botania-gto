@@ -1,4 +1,4 @@
-// 1.20.1	2026-10-20T11:50:20.3330587	Botania crafting recipes
+// 1.20.1	2026-10-20T14:20:38.0922992	Botania crafting recipes
 ec879ffd210ae530da6254745facbcc5898aa582 data/botania/advancements/recipes/building_blocks/azulejo_0_alt.json
 99564683f286ab7abbd55a8b32ef61c0f89d8f28 data/botania/advancements/recipes/building_blocks/azulejo_1.json
 00b4ec548986f741fd4051449fe10ffee62ef2a9 data/botania/advancements/recipes/building_blocks/azulejo_10.json
@@ -382,6 +382,7 @@ b21abf8b289468844a0cc54947b04ef8cb484cd3 data/botania/advancements/recipes/decor
 f2b3830c99d1fde3520ec37e6f12afc0c4803c08 data/botania/advancements/recipes/decorations/green_petal_block.json
 3a5992a6254cd32d4b4600684c8310f095df532a data/botania/advancements/recipes/decorations/green_shiny_flower.json
 3ed555aeb4368685dea013d59b5c875e598ed928 data/botania/advancements/recipes/decorations/incense_plate.json
+b823429c75128e4e115977bb60bd0de31aff34af data/botania/advancements/recipes/decorations/large_mana_pool.json
 011ed028947f66b887a9f31cae656787dc6dd4f8 data/botania/advancements/recipes/decorations/light_blue_floating_flower.json
 c95d6e43df151ed70e5c17226cd10afdd4e9b3a2 data/botania/advancements/recipes/decorations/light_blue_petal_block.json
 26f51dcd28f4743eca7c94a95a8c59b4544766c5 data/botania/advancements/recipes/decorations/light_blue_shiny_flower.json
@@ -1140,6 +1141,7 @@ ad96d19cfdb08177095f868d9ed72f722eec440a data/botania/recipes/horn_snow.json
 7b630bdca00446d85601c6b7e2da4dce0fa99315 data/botania/recipes/keep_ivy.json
 46f01e51720d28d12a9dfdcb0de987ec19982c3e data/botania/recipes/knockback_belt.json
 f9f714301c88b072a1baedaabd9f8d9a33f99692 data/botania/recipes/laputa_shard.json
+c17d39a82015521cb1814ff901fa52ba91373fa6 data/botania/recipes/large_mana_pool.json
 6f8e5e7252511c141e97a184f02eba90e9d84ba9 data/botania/recipes/lava_pendant.json
 d295ee52f64c16e54a371812740d94be55487386 data/botania/recipes/lavender_quartz.json
 0dd227e3dd9f819a03c3cf988645cfb1d2585a98 data/botania/recipes/lavender_quartz_pillar.json

@@ -44,6 +44,7 @@ import vazkii.botania.common.block.block_entity.PetalApothecaryBlockEntity;
 import vazkii.botania.common.block.block_entity.RunicAltarBlockEntity;
 import vazkii.botania.common.block.block_entity.corporea.CorporeaCrystalCubeBlockEntity;
 import vazkii.botania.common.block.block_entity.corporea.CorporeaIndexBlockEntity;
+import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
 import vazkii.botania.common.block.block_entity.mana.ManaPoolBlockEntity;
 import vazkii.botania.common.handler.EquipmentHandler;
 import vazkii.botania.common.helper.PlayerHelper;
@@ -128,7 +129,9 @@ public final class HUDHandler {
 					}
 				}
 				if (tile instanceof ManaPoolBlockEntity pool && !mc.player.getMainHandItem().isEmpty()) {
-					renderPoolRecipeHUD(gui, pool, mc.player.getMainHandItem(), alternateRecipeHudPosition);
+					renderPoolRecipeHUD(gui, pool, pool.getCurrentMana(), mc.player.getMainHandItem(), alternateRecipeHudPosition);
+				} else if (tile instanceof LargeManaPoolBlockEntity pool && !mc.player.getMainHandItem().isEmpty()) {
+					renderPoolRecipeHUD(gui, pool, pool.getCurrentMana(), mc.player.getMainHandItem(), alternateRecipeHudPosition);
 				}
 			}
 			if (!PlayerHelper.hasHeldItem(mc.player, BotaniaItems.lexicon)) {
@@ -263,17 +266,17 @@ public final class HUDHandler {
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 	}
 
-	private static void renderPoolRecipeHUD(GuiGraphics gui, ManaPoolBlockEntity tile, ItemStack stack, boolean alternateRecipeHudPosition) {
+	private static void renderPoolRecipeHUD(GuiGraphics gui, BlockEntity tile, int currentMana, ItemStack stack, boolean alternateRecipeHudPosition) {
 		Minecraft mc = Minecraft.getInstance();
 		ProfilerFiller profiler = mc.getProfiler();
 
 		profiler.push("poolRecipe");
-		ManaInfusionRecipe recipe = tile.getMatchingRecipe(stack, tile.getLevel().getBlockState(tile.getBlockPos().below()));
+		ManaInfusionRecipe recipe = ManaPoolBlockEntity.findInfusionRecipe(tile.getLevel(), stack, tile.getLevel().getBlockState(tile.getBlockPos().below()));
 		if (recipe != null) {
 			int x = mc.getWindow().getGuiScaledWidth() / 2 - 11;
 			int y = mc.getWindow().getGuiScaledHeight() / 2 + (alternateRecipeHudPosition ? -25 : 10);
 
-			int u = tile.getCurrentMana() >= recipe.getManaToConsume() ? 0 : 22;
+			int u = currentMana >= recipe.getManaToConsume() ? 0 : 22;
 			int v = mc.player.getName().getString().equals("haighyorkie") && mc.player.isShiftKeyDown() ? 23 : 8;
 
 			RenderSystem.enableBlend();

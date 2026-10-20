@@ -49,6 +49,7 @@ import vazkii.botania.api.mana.spark.SparkHelper;
 import vazkii.botania.api.mana.spark.SparkUpgradeType;
 import vazkii.botania.client.core.helper.RenderHelper;
 import vazkii.botania.client.fx.SparkFlowEffects;
+import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
 import vazkii.botania.common.helper.ColorHelper;
 import vazkii.botania.common.helper.PlayerHelper;
 import vazkii.botania.common.helper.VecHelper;
@@ -65,7 +66,9 @@ import java.util.*;
 public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 	private static final int TRANSFER_INTERVAL = 20;
 	private static final int TRANSFER_RATE = 1000 * TRANSFER_INTERVAL;
+	private static final int LARGE_POOL_RATE_MULTIPLIER = 9;
 	private static final String TAG_UPGRADE = "upgrade";
+	private static final String TAG_MIRROR = "mirror";
 	private static final EntityDataAccessor<Integer> UPGRADE = SynchedEntityData.defineId(ManaSparkEntity.class, EntityDataSerializers.INT);
 	private static final int[] NO_FLOWS = new int[0];
 	private static final IntArrayList FLOW_OUT = new IntArrayList();
@@ -80,6 +83,8 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 	private boolean receiverWasFull = true;
 	private boolean firstTick = true;
 	private SparkUpgradeType upgrade = SparkUpgradeType.NONE;
+	private boolean mirror;
+	private boolean inLevel;
 
 	long indexKey;
 	int indexColor;
@@ -116,6 +121,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 	@Override
 	public void setLevelCallback(EntityInLevelCallback callback) {
 		super.setLevelCallback(callback);
+		inLevel = callback != EntityInLevelCallback.NULL;
 		if (callback == EntityInLevelCallback.NULL) {
 			ManaSparkIndex.untrack(this);
 		} else {
@@ -174,19 +180,20 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 
 		checkReceiverFull();
 
-		if (!outgoingTransfers.isEmpty()) {
-			int manaTotal = Math.min(TRANSFER_RATE * outgoingTransfers.size(), receiver.getCurrentMana());
-			int count = outgoingTransfers.size();
+		if (!outgoingTransfers.isEmpty() && receiver.getCurrentManaLong() > 0) {
+			if (shouldFilterTransfers) {
+				filterTransfers();
+				shouldFilterTransfers = false;
+			}
+			long rateLeft = totalRate(receiver, outgoingTransfers);
+			long manaTotal = Math.min(rateLeft, receiver.getCurrentManaLong());
 			int manaSpent = 0;
 
 			if (manaTotal > 0) {
-				if (shouldFilterTransfers) {
-					filterTransfers();
-					shouldFilterTransfers = false;
-				}
-
 				for (ManaSpark spark : outgoingTransfers) {
-					count--;
+					long rate = linkRate(receiver, spark);
+					long share = (manaTotal - manaSpent) * rate / rateLeft;
+					rateLeft -= rate;
 					SparkAttachable attached = spark.entity().isRemoved() ? null : spark.getAttachedTile();
 					var attachedReceiver = attached == null ? null : spark.getAttachedManaReceiver();
 					if (attached == null || attachedReceiver == null || attachedReceiver.isFull() || spark.areIncomingTransfersDone()) {
@@ -194,7 +201,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 						continue;
 					}
 
-					int spend = Math.min(attached.getAvailableSpaceForMana(), (manaTotal - manaSpent) / (count + 1));
+					int spend = (int) Math.min(attached.getAvailableSpaceForManaLong(), share);
 					attachedReceiver.receiveMana(spend);
 					manaSpent += spend;
 					spark.checkReceiverFull();
@@ -206,20 +213,21 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 				receiver.receiveMana(-manaSpent);
 			}
 		}
-		if (!inboundTransfers.isEmpty()) {
-			int manaNeeded = Math.min(TRANSFER_RATE * inboundTransfers.size(), tile.getAvailableSpaceForMana());
-			int count = inboundTransfers.size();
+		if (!inboundTransfers.isEmpty() && tile.getAvailableSpaceForManaLong() > 0) {
+			if (shouldFilterTransfers) {
+				filterTransfers();
+				shouldFilterTransfers = false;
+			}
+			long rateLeft = totalRate(receiver, inboundTransfers);
+			long manaNeeded = Math.min(rateLeft, tile.getAvailableSpaceForManaLong());
 			int manaRecieved = 0;
 
 			if (manaNeeded > 0) {
-				if (shouldFilterTransfers) {
-					filterTransfers();
-					shouldFilterTransfers = false;
-				}
-
 				inboundTransfers.sort(BY_CURRENT_MANA);
 				for (ManaSpark spark : inboundTransfers) {
-					count--;
+					long rate = linkRate(receiver, spark);
+					long share = (manaNeeded - manaRecieved) * rate / rateLeft;
+					rateLeft -= rate;
 					SparkAttachable attached = spark.entity().isRemoved() ? null : spark.getAttachedTile();
 					var attachedReceiver = attached == null ? null : spark.getAttachedManaReceiver();
 					if (attached == null || attachedReceiver == null) {
@@ -227,7 +235,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 						continue;
 					}
 
-					int gained = Math.min(attachedReceiver.getCurrentMana(), (manaNeeded - manaRecieved) / (count + 1));
+					int gained = (int) Math.min(attachedReceiver.getCurrentManaLong(), share);
 					attachedReceiver.receiveMana(-gained);
 					manaRecieved += gained;
 
@@ -241,6 +249,22 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 
 		syncFlows();
 		firstTick = false;
+	}
+
+	private static boolean onLargePool(@Nullable ManaReceiver receiver) {
+		return receiver instanceof LargeManaPoolBlockEntity;
+	}
+
+	private static long linkRate(ManaReceiver own, ManaSpark other) {
+		return onLargePool(own) || onLargePool(other.getAttachedManaReceiver()) ? (long) TRANSFER_RATE * LARGE_POOL_RATE_MULTIPLIER : TRANSFER_RATE;
+	}
+
+	private static long totalRate(ManaReceiver own, Collection<ManaSpark> links) {
+		long total = 0;
+		for (ManaSpark spark : links) {
+			total += linkRate(own, spark);
+		}
+		return total;
 	}
 
 	private static int currentManaOf(ManaSpark spark) {
@@ -270,7 +294,8 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		}
 
 		if (target != null) {
-			int manaToPut = Math.min(receiver.getCurrentMana(), Math.min(TRANSFER_RATE, targetItem.getMaxMana() - targetItem.getMana()));
+			int rate = onLargePool(receiver) ? TRANSFER_RATE * LARGE_POOL_RATE_MULTIPLIER : TRANSFER_RATE;
+			int manaToPut = Math.min(receiver.getCurrentMana(), Math.min(rate, targetItem.getMaxMana() - targetItem.getMana()));
 			targetItem.addMana(manaToPut);
 			receiver.receiveMana(-manaToPut);
 			FLOW_OUT.add(target.getId());
@@ -412,13 +437,58 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		return BotaniaItems.spark;
 	}
 
-	private void dropAndKill() {
+	public void dropAndKill() {
+		if (mirror) {
+			discard();
+			return;
+		}
+		var pool = getAttachedManaReceiver() instanceof LargeManaPoolBlockEntity large ? large : null;
 		SparkUpgradeType upgrade = getUpgrade();
 		spawnAtLocation(new ItemStack(getSparkItem()), 0F);
 		if (upgrade != SparkUpgradeType.NONE) {
 			spawnAtLocation(SparkAugmentItem.getByType(upgrade), 0F);
 		}
 		discard();
+		if (pool != null) {
+			pool.refreshSparks();
+		}
+	}
+
+	public boolean isMirror() {
+		return mirror;
+	}
+
+	public void setMirror(boolean mirror) {
+		this.mirror = mirror;
+	}
+
+	public void copyMirrorState(ManaSparkEntity master) {
+		if (!inLevel) {
+			entityData.set(UPGRADE, master.getUpgrade().ordinal());
+			super.setNetwork(master.getNetwork());
+			setInvisible(master.isInvisible());
+			return;
+		}
+		if (getUpgrade() != master.getUpgrade()) {
+			setUpgrade(master.getUpgrade());
+		}
+		if (getNetwork() != master.getNetwork()) {
+			setNetwork(master.getNetwork());
+		}
+		if (isInvisible() != master.isInvisible()) {
+			setInvisible(master.isInvisible());
+		}
+	}
+
+	private void refreshMirrors() {
+		if (!mirror && !level().isClientSide && inLevel && getAttachedManaReceiver() instanceof LargeManaPoolBlockEntity pool) {
+			pool.refreshSparks();
+		}
+	}
+
+	@Nullable
+	private ManaSparkEntity mirrorMaster() {
+		return getAttachedManaReceiver() instanceof LargeManaPoolBlockEntity pool && pool.getAttachedSpark() instanceof ManaSparkEntity master && master != this && !master.isMirror() ? master : null;
 	}
 
 	@Override
@@ -430,6 +500,10 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 	@Override
 	public InteractionResult interact(Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
+		if (mirror && !level().isClientSide) {
+			var master = mirrorMaster();
+			return master != null ? master.interact(player, hand) : InteractionResult.PASS;
+		}
 		if (isAlive() && !stack.isEmpty()) {
 			SparkUpgradeType upgrade = getUpgrade();
 			if (stack.getItem() instanceof WandOfTheForestItem) {
@@ -465,6 +539,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 			} else if (stack.is(BotaniaItems.phantomInk)) {
 				if (!level().isClientSide) {
 					setInvisible(true);
+					refreshMirrors();
 				}
 				return InteractionResult.sidedSuccess(level().isClientSide);
 			} else if (stack.getItem() instanceof DyeItem dye) {
@@ -486,12 +561,16 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 	protected void readAdditionalSaveData(@NotNull CompoundTag cmp) {
 		super.readAdditionalSaveData(cmp);
 		setUpgrade(SparkUpgradeType.values()[cmp.getInt(TAG_UPGRADE)]);
+		mirror = cmp.getBoolean(TAG_MIRROR);
 	}
 
 	@Override
 	protected void addAdditionalSaveData(@NotNull CompoundTag cmp) {
 		super.addAdditionalSaveData(cmp);
 		cmp.putInt(TAG_UPGRADE, getUpgrade().ordinal());
+		if (mirror) {
+			cmp.putBoolean(TAG_MIRROR, true);
+		}
 	}
 
 	@Override
@@ -607,6 +686,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		entityData.set(UPGRADE, upgrade.ordinal());
 		updateTransfers();
 		notifyOthers(getNetwork());
+		refreshMirrors();
 	}
 
 	@Override
@@ -618,6 +698,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		updateTransfers();
 		notifyOthers(color);
 		notifyOthers(previousNetwork);
+		refreshMirrors();
 	}
 
 	@Override

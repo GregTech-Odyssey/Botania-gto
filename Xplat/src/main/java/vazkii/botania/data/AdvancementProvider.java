@@ -76,7 +76,7 @@ public class AdvancementProvider {
 			Advancement manaPoolPickup = Advancement.Builder.advancement()
 					.display(simple(BotaniaBlocks.manaPool, "manaPoolPickup", FrameType.TASK))
 					.parent(flowerPickup)
-					.addCriterion("pickup", onPickup(BotaniaBlocks.manaPool, BotaniaBlocks.creativePool, BotaniaBlocks.dilutedPool, BotaniaBlocks.fabulousPool))
+					.addCriterion("pickup", onPickup(BotaniaBlocks.manaPool, BotaniaBlocks.creativePool, BotaniaBlocks.dilutedPool, BotaniaBlocks.fabulousPool, BotaniaBlocks.largeManaPool))
 					.save(consumer, mainId("mana_pool_pickup"));
 
 			Advancement runePickup = Advancement.Builder.advancement()
@@ -296,7 +296,7 @@ public class AdvancementProvider {
 					.save(consumer, mainId("pure_daisy_pickup"));
 			Advancement.Builder.advancement()
 					.parent(root)
-					.addCriterion("pickup", onPickup(BotaniaBlocks.manaPool, BotaniaBlocks.creativePool, BotaniaBlocks.dilutedPool, BotaniaBlocks.fabulousPool))
+					.addCriterion("pickup", onPickup(BotaniaBlocks.manaPool, BotaniaBlocks.creativePool, BotaniaBlocks.dilutedPool, BotaniaBlocks.fabulousPool, BotaniaBlocks.largeManaPool))
 					.addCriterion("elven_lexicon", elvenLexicon)
 					.requirements(RequirementsStrategy.OR)
 					.save(consumer, mainId("mana_pool_pickup_lexicon"));
