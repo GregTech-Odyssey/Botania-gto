@@ -8,6 +8,8 @@
  */
 package vazkii.botania.client.core.proxy;
 
+import com.suried.gtorenders.effect.MoteParticles;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -99,7 +101,7 @@ public class ClientProxy implements Proxy {
 	@Override
 	public void addParticleForceNear(Level world, ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
 		Camera info = Minecraft.getInstance().gameRenderer.getMainCamera();
-		if (info.isInitialized() && info.getPosition().distanceToSqr(x, y, z) <= 1024.0D) {
+		if (info.isInitialized() && info.getPosition().distanceToSqr(x, y, z) <= MoteParticles.SPAWN_DISTANCE * MoteParticles.SPAWN_DISTANCE) {
 			world.addParticle(particleData, true, x, y, z, xSpeed, ySpeed, zSpeed);
 		}
 	}
