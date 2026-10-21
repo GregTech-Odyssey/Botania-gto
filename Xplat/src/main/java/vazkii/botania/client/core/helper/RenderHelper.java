@@ -17,6 +17,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.suried.gtorenders.effect.ShaderPacks;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -102,6 +103,10 @@ public final class RenderHelper extends RenderType {
 
 	public static void onWorldRenderLast() {
 		offY = INITIAL_OFFSET;
+	}
+
+	public static RenderType manaPoolWater() {
+		return ShaderPacks.inUse() ? ICON_OVERLAY : MANA_POOL_WATER;
 	}
 
 	private static RenderType makeLayer(String name, VertexFormat format, VertexFormat.Mode mode,

@@ -31,6 +31,13 @@ configBackground="botania:textures/block/livingrock_bricks.png" # background for
 [[dependencies.botania]]
     modId="gtoutils"
     mandatory=true
+    versionRange="[26.10.3,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.botania]]
+    modId="gtorenders"
+    mandatory=true
     versionRange="[26.10.1,)"
     ordering="AFTER"
     side="BOTH"

@@ -46,11 +46,22 @@ public interface BotaniaAPIClient {
 	/**
 	 * Draw a mana bar on the screen
 	 */
-	default void drawSimpleManaHUD(GuiGraphics gui, int color, int mana, int maxMana, String name) {}
+	default void drawSimpleManaHUD(GuiGraphics gui, int color, int mana, int maxMana, String name) {
+		drawSimpleManaHUD(gui, color, (long) mana, (long) maxMana, name);
+	}
+
+	/**
+	 * Same as {@link #drawSimpleManaHUD(GuiGraphics, int, int, int, String)}, for mana amounts beyond int range.
+	 */
+	default void drawSimpleManaHUD(GuiGraphics gui, int color, long mana, long maxMana, String name) {}
 
 	/**
 	 * Performs the effects of {@link #drawSimpleManaHUD}, then renders {@code bindDisplay}, and a checkmark or x-mark
 	 * dependong on the value of {@code properlyBound}.
 	 */
-	default void drawComplexManaHUD(GuiGraphics gui, int color, int mana, int maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {}
+	default void drawComplexManaHUD(GuiGraphics gui, int color, int mana, int maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {
+		drawComplexManaHUD(gui, color, (long) mana, (long) maxMana, name, bindDisplay, properlyBound);
+	}
+
+	default void drawComplexManaHUD(GuiGraphics gui, int color, long mana, long maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {}
 }

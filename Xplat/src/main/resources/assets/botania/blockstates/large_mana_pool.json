@@ -42,9 +42,17 @@
     },
     {
       "when": {
-        "north": "true",
-        "east": "true",
-        "north_east": "false"
+        "OR": [
+          {
+            "north": "false"
+          },
+          {
+            "east": "false"
+          },
+          {
+            "north_east": "false"
+          }
+        ]
       },
       "apply": {
         "model": "botania:block/large_mana_pool_post"
@@ -52,9 +60,17 @@
     },
     {
       "when": {
-        "east": "true",
-        "south": "true",
-        "south_east": "false"
+        "OR": [
+          {
+            "east": "false"
+          },
+          {
+            "south": "false"
+          },
+          {
+            "south_east": "false"
+          }
+        ]
       },
       "apply": {
         "model": "botania:block/large_mana_pool_post",
@@ -63,9 +79,17 @@
     },
     {
       "when": {
-        "south": "true",
-        "west": "true",
-        "south_west": "false"
+        "OR": [
+          {
+            "south": "false"
+          },
+          {
+            "west": "false"
+          },
+          {
+            "south_west": "false"
+          }
+        ]
       },
       "apply": {
         "model": "botania:block/large_mana_pool_post",
@@ -74,9 +98,17 @@
     },
     {
       "when": {
-        "west": "true",
-        "north": "true",
-        "north_west": "false"
+        "OR": [
+          {
+            "west": "false"
+          },
+          {
+            "north": "false"
+          },
+          {
+            "north_west": "false"
+          }
+        ]
       },
       "apply": {
         "model": "botania:block/large_mana_pool_post",

@@ -9,6 +9,10 @@
 package vazkii.botania.client.fx;
 
 import com.mojang.serialization.Codec;
+import com.suried.gtorenders.effect.MoteLook;
+import com.suried.gtorenders.effect.MoteParticles;
+import com.suried.gtorenders.effect.MoteSprite;
+
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -30,17 +34,25 @@ public class WispParticleType extends ParticleType<WispParticleData> {
 	}
 
 	public static class Factory implements ParticleProvider<WispParticleData> {
-		private final SpriteSet sprite;
+		private final MoteLook look;
 
 		public Factory(SpriteSet sprite) {
-			this.sprite = sprite;
+			this.look = MoteLook.sprite(MoteSprite.of(sprite));
 		}
 
 		@Override
 		public Particle createParticle(WispParticleData data, ClientLevel world, double x, double y, double z, double mx, double my, double mz) {
-			FXWisp ret = new FXWisp(world, x, y, z, mx, my, mz, data.size, data.r, data.g, data.b, data.depthTest, data.maxAgeMul, data.noClip, data.gravity);
-			ret.pickSprite(sprite);
-			return ret;
+			var random = world.random;
+			float size = (random.nextFloat() * 0.5F + 0.5F) * 2.0F * data.size;
+			float life = (float) (28D / (random.nextDouble() * 0.3D + 0.7D) * data.maxAgeMul);
+			int rgb = rgb(data.r) << 16 | rgb(data.g) << 8 | rgb(data.b);
+			MoteParticles.spawn(x, y, z, mx, my, mz, data.gravity == 0 ? 0.98F : 1, data.gravity, life, size, MoteParticles.PULSE, rgb, 0.375F,
+					data.depthTest ? 0 : MoteParticles.THROUGH_WALLS, look);
+			return null;
 		}
+	}
+
+	static int rgb(float channel) {
+		return Math.max(0, Math.min(255, (int) (channel * 255)));
 	}
 }

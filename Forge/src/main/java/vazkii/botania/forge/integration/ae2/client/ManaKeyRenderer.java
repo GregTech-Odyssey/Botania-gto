@@ -20,7 +20,7 @@ import appeng.api.client.AEKeyRenderHandler;
 
 final class ManaKeyRenderer implements AEKeyRenderHandler<ManaKey> {
 	private static TextureAtlasSprite sprite() {
-		return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(prefix("block/mana_water"));
+		return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(prefix("block/mana_ae_icon"));
 	}
 
 	@Override

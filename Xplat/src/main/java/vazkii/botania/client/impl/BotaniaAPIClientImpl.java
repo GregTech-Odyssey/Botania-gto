@@ -35,12 +35,12 @@ public class BotaniaAPIClientImpl implements BotaniaAPIClient {
 	}
 
 	@Override
-	public void drawSimpleManaHUD(GuiGraphics gui, int color, int mana, int maxMana, String name) {
-		HUDHandler.drawSimpleManaHUD(gui, color, mana, maxMana, name);
+	public void drawSimpleManaHUD(GuiGraphics gui, int color, long mana, long maxMana, String name) {
+		HUDHandler.drawManaHUD(gui, color, mana, maxMana, name);
 	}
 
 	@Override
-	public void drawComplexManaHUD(GuiGraphics gui, int color, int mana, int maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {
+	public void drawComplexManaHUD(GuiGraphics gui, int color, long mana, long maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {
 		HUDHandler.drawComplexManaHUD(color, gui, mana, maxMana, name, bindDisplay, properlyBound);
 	}
 }

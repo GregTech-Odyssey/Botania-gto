@@ -8,10 +8,11 @@
  */
 package vazkii.botania.common.block.flower.generating;
 
+import com.suried.gtoutils.spatial.BlockRange;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import vazkii.botania.api.block_entity.GeneratingFlowerBlockEntity;
@@ -19,8 +20,10 @@ import vazkii.botania.api.block_entity.RadiusDescriptor;
 import vazkii.botania.common.block.BotaniaBlocks;
 import vazkii.botania.common.block.BotaniaFlowerBlocks;
 import vazkii.botania.common.block.block_entity.CellularBlockEntity;
+import vazkii.botania.common.handler.BotaniaBlockEntityIndexes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DandelifeonBlockEntity extends GeneratingFlowerBlockEntity {
@@ -62,16 +65,7 @@ public class DandelifeonBlockEntity extends GeneratingFlowerBlockEntity {
 			if (shouldTick(getLevel().getGameTime())) {
 				runSimulation();
 			} else if (shouldTick(getLevel().getGameTime() + 1)) {
-				int diameter = radius * 2;
-
-				for (int i = 0; i <= diameter; i++) {
-					for (int j = 0; j <= diameter; j++) {
-						BlockPos pos = getEffectivePos().offset(-radius + i, 0, -radius + j);
-						if (getLevel().getBlockEntity(pos) instanceof CellularBlockEntity cell) {
-							cell.claim(this);
-						}
-					}
-				}
+				BotaniaBlockEntityIndexes.CELLS.forEach(getLevel(), getEffectivePos(), BlockRange.box(radius, 0, radius), null, cell -> cell.claim(this));
 			}
 		}
 	}
@@ -182,22 +176,19 @@ public class DandelifeonBlockEntity extends GeneratingFlowerBlockEntity {
 			diameter = range * 2 + 1;
 			// store everything in range + one outside
 			cells = new int[diameter + 2][diameter + 2];
-
-			for (int i = -1; i <= diameter; i++) {
-				for (int j = -1; j <= diameter; j++) {
-					BlockPos pos = center.offset(-range + i, 0, -range + j);
-					cells[i + 1][j + 1] = getCellGeneration(pos, dandie, onBoundary(i, j));
-				}
+			for (int[] row : cells) {
+				Arrays.fill(row, Cell.DEAD);
 			}
+
+			BotaniaBlockEntityIndexes.CELLS.forEach(dandie.getLevel(), center, BlockRange.box(range + 1, 0, range + 1), null, cell -> {
+				int i = cell.getBlockPos().getX() - center.getX() + range;
+				int j = cell.getBlockPos().getZ() - center.getZ() + range;
+				cells[i + 1][j + 1] = getCellGeneration(cell, dandie, onBoundary(i, j));
+			});
 		}
 
-		private static int getCellGeneration(BlockPos pos, DandelifeonBlockEntity dandie, boolean onBoundary) {
-			BlockEntity tile = dandie.getLevel().getBlockEntity(pos);
-			if (tile instanceof CellularBlockEntity cell) {
-				return onBoundary ? (cell.hasActiveParent(dandie) ? Cell.boundaryPunish(cell.getGeneration()) : Cell.DEAD) : cell.getGeneration();
-			}
-
-			return Cell.DEAD;
+		private static int getCellGeneration(CellularBlockEntity cell, DandelifeonBlockEntity dandie, boolean onBoundary) {
+			return onBoundary ? (cell.hasActiveParent(dandie) ? Cell.boundaryPunish(cell.getGeneration()) : Cell.DEAD) : cell.getGeneration();
 		}
 
 		public boolean inBounds(int x, int z) {

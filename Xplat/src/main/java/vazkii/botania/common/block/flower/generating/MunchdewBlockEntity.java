@@ -8,10 +8,13 @@
  */
 package vazkii.botania.common.block.flower.generating;
 
+import com.suried.gtoutils.spatial.LevelSections;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.LevelEvent;
@@ -79,18 +82,14 @@ public class MunchdewBlockEntity extends GeneratingFlowerBlockEntity {
 				Random rng = new Random();
 				BlockPos pos = getEffectivePos();
 
-				for (BlockPos pos_ : BlockPos.betweenClosed(pos.offset(-RANGE, 0, -RANGE),
-						pos.offset(RANGE, RANGE_Y, RANGE))) {
-					BlockState state = getLevel().getBlockState(pos_);
-					if (state.is(BlockTags.LEAVES)) {
-						for (Direction dir : Direction.values()) {
-							if (getLevel().isEmptyBlock(pos_.relative(dir))) {
-								coordsMap.put(pos_.immutable(), (state.hasProperty(LeavesBlock.DISTANCE)
-										? state.getValue(LeavesBlock.DISTANCE) : 1) + 2.0f * rng.nextFloat());
-								break;
-							}
-						}
-					}
+				Level world = getLevel();
+				List<BlockPos> leaves = new ArrayList<>();
+				LevelSections.betweenClosed(world, pos.offset(-RANGE, 0, -RANGE), pos.offset(RANGE, RANGE_Y, RANGE),
+						state -> state.is(BlockTags.LEAVES), (state, pos_) -> hasEmptyNeighbor(world, pos_), Integer.MAX_VALUE, leaves);
+				for (BlockPos pos_ : leaves) {
+					BlockState state = world.getBlockState(pos_);
+					coordsMap.put(pos_, (state.hasProperty(LeavesBlock.DISTANCE)
+							? state.getValue(LeavesBlock.DISTANCE) : 1) + 2.0f * rng.nextFloat());
 				}
 
 				if (coordsMap.isEmpty()) {
@@ -135,6 +134,15 @@ public class MunchdewBlockEntity extends GeneratingFlowerBlockEntity {
 	@Override
 	public RadiusDescriptor getRadius() {
 		return RadiusDescriptor.Rectangle.square(getEffectivePos(), RANGE);
+	}
+
+	private static boolean hasEmptyNeighbor(Level world, BlockPos pos) {
+		for (Direction dir : Direction.values()) {
+			if (world.isEmptyBlock(pos.relative(dir))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

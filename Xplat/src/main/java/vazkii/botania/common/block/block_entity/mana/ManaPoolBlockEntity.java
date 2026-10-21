@@ -598,9 +598,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 
 			RenderHelper.renderHUDBox(gui, centerX - width / 2, centerY + 8, centerX + width / 2, centerY + 48);
 
-			long max = Math.max(1, pool.getMaxManaLong());
-			int shown = (int) (Math.min(1D, (double) pool.getCurrentManaLong() / max) * 1_000_000);
-			BotaniaAPIClient.instance().drawSimpleManaHUD(gui, 0x0095FF, shown, 1_000_000, name);
+			BotaniaAPIClient.instance().drawSimpleManaHUD(gui, 0x0095FF, pool.getCurrentManaLong(), pool.getMaxManaLong(), name);
 
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

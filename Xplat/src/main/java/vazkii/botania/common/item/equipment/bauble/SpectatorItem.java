@@ -10,6 +10,8 @@ package vazkii.botania.common.item.equipment.bauble;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.suried.gtoutils.spatial.BlockOrder;
+import com.suried.gtoutils.spatial.BlockRange;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -44,12 +46,15 @@ import vazkii.botania.client.core.handler.MiscellaneousModels;
 import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.client.render.AccessoryRenderRegistry;
 import vazkii.botania.client.render.AccessoryRenderer;
+import vazkii.botania.common.handler.BotaniaBlockEntityIndexes;
 import vazkii.botania.common.helper.ItemNBTHelper;
 import vazkii.botania.common.proxy.Proxy;
 import vazkii.botania.mixin.AbstractHorseAccessor;
 import vazkii.botania.mixin.RandomizableContainerBlockEntityAccessor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class SpectatorItem extends BaubleItem {
 	private static final int[] EMPTY_ENTITIES_ARRAY = new int[0];
@@ -197,9 +202,21 @@ public class SpectatorItem extends BaubleItem {
 			return EMPTY_BLOCKPOS_ARRAY;
 		}
 		var blockPositions = new LongArrayList();
-		BlockPos.betweenClosedStream(new AABB(player.blockPosition()).inflate(RANGE_BLOCKS))
-				.filter(pos -> scanBlock(player, pos, mainHandStack, offHandStack))
-				.forEach(pos -> blockPositions.add(pos.asLong()));
+		BlockPos center = player.blockPosition();
+		List<BlockPos> candidates = new ArrayList<>();
+		BotaniaBlockEntityIndexes.CONTAINERS.forEach(player.level(), center, BlockRange.box(RANGE_BLOCKS + 1), null, container -> {
+			BlockPos pos = ((BlockEntity) container).getBlockPos();
+			if (pos.getX() - center.getX() >= -RANGE_BLOCKS && pos.getY() - center.getY() >= -RANGE_BLOCKS
+					&& pos.getZ() - center.getZ() >= -RANGE_BLOCKS) {
+				candidates.add(pos);
+			}
+		});
+		BlockOrder.sortBetweenClosed(candidates, Function.identity());
+		for (BlockPos pos : candidates) {
+			if (scanBlock(player, pos, mainHandStack, offHandStack)) {
+				blockPositions.add(pos.asLong());
+			}
+		}
 		blockPositions.trim();
 		return blockPositions.elements();
 	}

@@ -10,6 +10,7 @@ package vazkii.botania.client.render.block_entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.suried.gtorenders.geometry.SpriteQuads;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -27,7 +29,6 @@ import vazkii.botania.client.core.handler.ClientTickHandler;
 import vazkii.botania.client.core.helper.RenderHelper;
 import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
 import vazkii.botania.common.block.mana.LargeManaPoolBlock;
-import vazkii.botania.common.helper.VecHelper;
 
 import java.util.Objects;
 
@@ -57,10 +58,12 @@ public class LargeManaPoolBlockEntityRenderer implements BlockEntityRenderer<Lar
 			return;
 		}
 		float height = (float) LargeManaPoolBlockEntity.surfaceHeight(fill);
-		renderLayer(pool, core, height, buffers.getBuffer(RenderHelper.MANA_POOL_WATER), waterSprite, 1, ms, light);
+		renderLayer(pool, core, height, buffers.getBuffer(RenderHelper.manaPoolWater()), waterSprite, 1, ms, light);
 	}
 
 	private static void renderLayer(LargeManaPoolBlockEntity pool, BlockPos core, float height, VertexConsumer buffer, TextureAtlasSprite sprite, float alpha, PoseStack ms, int light) {
+		int argb = (int) (alpha * 255) << 24 | 0xFFFFFF;
+		float y = height * 16;
 		for (int dx = -1; dx <= 1; dx++) {
 			for (int dz = -1; dz <= 1; dz++) {
 				BlockState state = pool.getLevel().getBlockState(core.offset(dx, 0, dz));
@@ -72,11 +75,7 @@ public class LargeManaPoolBlockEntityRenderer implements BlockEntityRenderer<Lar
 				int x1 = state.getValue(LargeManaPoolBlock.EAST) ? 16 : 16 - rim;
 				int z0 = state.getValue(LargeManaPoolBlock.NORTH) ? 0 : rim;
 				int z1 = state.getValue(LargeManaPoolBlock.SOUTH) ? 16 : 16 - rim;
-				ms.pushPose();
-				ms.translate(dx, height, dz);
-				ms.mulPose(VecHelper.rotateX(90F));
-				RenderHelper.renderIconCropped(ms, buffer, x0, z0, x1, z1, sprite, 0xFFFFFF, alpha, light);
-				ms.popPose();
+				SpriteQuads.face(buffer, ms.last().pose(), sprite, Direction.UP, dx * 16 + x0, y, dz * 16 + z0, dx * 16 + x1, y, dz * 16 + z1, argb, light);
 			}
 		}
 	}

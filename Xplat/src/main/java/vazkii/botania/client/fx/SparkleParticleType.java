@@ -9,6 +9,10 @@
 package vazkii.botania.client.fx;
 
 import com.mojang.serialization.Codec;
+import com.suried.gtorenders.effect.MoteLook;
+import com.suried.gtorenders.effect.MoteParticles;
+import com.suried.gtorenders.effect.MoteSprite;
+
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -32,13 +36,22 @@ public class SparkleParticleType extends ParticleType<SparkleParticleData> {
 	public static class Factory implements ParticleProvider<SparkleParticleData> {
 		private final SpriteSet sprite;
 
+		private final MoteLook look;
+
 		public Factory(SpriteSet sprite) {
 			this.sprite = sprite;
+			this.look = MoteLook.animated(MoteSprite.of(sprite));
 		}
 
 		@Override
 		public Particle createParticle(SparkleParticleData data, ClientLevel world, double x, double y, double z, double mx, double my, double mz) {
-			return new FXSparkle(world, x, y, z, data.size, data.r, data.g, data.b, data.m, data.fake, data.noClip, data.corrupt, sprite);
+			if (data.corrupt) {
+				return new FXSparkle(world, x, y, z, data.size, data.r, data.g, data.b, data.m, data.fake, data.noClip, data.corrupt, sprite);
+			}
+			float size = (world.random.nextFloat() * 0.5F + 0.5F) * 0.4F * data.size;
+			int rgb = WispParticleType.rgb(data.r) << 16 | WispParticleType.rgb(data.g) << 8 | WispParticleType.rgb(data.b);
+			MoteParticles.spawn(x, y, z, 0, 0, 0, 0.908F, 0, data.fake ? 2 : 3 * data.m, size, MoteParticles.SHRINK, rgb, 0.75F, 0, look);
+			return null;
 		}
 	}
 }

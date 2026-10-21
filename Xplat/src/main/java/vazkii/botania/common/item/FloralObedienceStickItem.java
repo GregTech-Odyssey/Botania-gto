@@ -8,6 +8,9 @@
  */
 package vazkii.botania.common.item;
 
+import com.suried.gtoutils.spatial.BlockOrder;
+import com.suried.gtoutils.spatial.BlockRange;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -21,8 +24,11 @@ import vazkii.botania.api.block_entity.FunctionalFlowerBlockEntity;
 import vazkii.botania.api.block_entity.GeneratingFlowerBlockEntity;
 import vazkii.botania.api.mana.ManaCollector;
 import vazkii.botania.api.mana.ManaPool;
-import vazkii.botania.common.helper.MathHelper;
+import vazkii.botania.common.handler.BotaniaBlockEntityIndexes;
 import vazkii.botania.xplat.XplatAbstractions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FloralObedienceStickItem extends Item {
 
@@ -45,16 +51,12 @@ public class FloralObedienceStickItem extends Item {
 		if (receiver instanceof ManaPool || receiver instanceof ManaCollector) {
 			int range = receiver instanceof ManaPool ? FunctionalFlowerBlockEntity.LINK_RANGE : GeneratingFlowerBlockEntity.LINK_RANGE;
 
-			for (BlockPos iterPos : BlockPos.betweenClosed(pos.offset(-range, -range, -range), pos.offset(range, range, range))) {
-				if (MathHelper.distSqr(iterPos, pos) > range * range) {
-					continue;
-				}
-
-				if (world.getBlockEntity(iterPos) instanceof BindableSpecialFlowerBlockEntity<?>bindable
-						&& bindable.wouldBeValidBinding(pos)) {
-					bindable.setBindingPos(pos);
-					WandOfTheForestItem.doParticleBeamWithOffset(world, iterPos, pos);
-				}
+			List<BindableSpecialFlowerBlockEntity<?>> flowers = new ArrayList<>();
+			BotaniaBlockEntityIndexes.BINDABLE_FLOWERS.query(world, pos, BlockRange.sphere(range), bindable -> bindable.wouldBeValidBinding(pos), flowers);
+			BlockOrder.sortBetweenClosed(flowers, BindableSpecialFlowerBlockEntity::getBlockPos);
+			for (BindableSpecialFlowerBlockEntity<?> bindable : flowers) {
+				bindable.setBindingPos(pos);
+				WandOfTheForestItem.doParticleBeamWithOffset(world, bindable.getBlockPos(), pos);
 			}
 
 			return true;

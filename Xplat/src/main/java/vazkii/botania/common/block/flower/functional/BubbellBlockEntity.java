@@ -8,6 +8,9 @@
  */
 package vazkii.botania.common.block.flower.functional;
 
+import com.suried.gtoutils.spatial.BlockRange;
+import com.suried.gtoutils.spatial.LevelSections;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -21,6 +24,9 @@ import vazkii.botania.api.block_entity.RadiusDescriptor;
 import vazkii.botania.common.block.BotaniaBlocks;
 import vazkii.botania.common.block.BotaniaFlowerBlocks;
 import vazkii.botania.common.block.block_entity.FakeAirBlockEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BubbellBlockEntity extends FunctionalFlowerBlockEntity {
 	private static final int RANGE = 12;
@@ -57,15 +63,13 @@ public class BubbellBlockEntity extends FunctionalFlowerBlockEntity {
 				range++;
 			}
 
-			for (BlockPos pos : BlockPos.betweenClosed(getEffectivePos().offset(-range, -range, -range), getEffectivePos().offset(range, range, range))) {
-				if (getEffectivePos().distSqr(pos) < range * range) {
-					BlockState state = getLevel().getBlockState(pos);
-					if (state.is(Blocks.WATER)) {
-						getLevel().setBlock(pos, BotaniaBlocks.fakeAir.defaultBlockState(), Block.UPDATE_CLIENTS);
-						if (getLevel().getBlockEntity(pos) instanceof FakeAirBlockEntity air) {
-							air.setFlower(this);
-						}
-					}
+			List<BlockPos> water = new ArrayList<>();
+			LevelSections.inRange(getLevel(), getEffectivePos(), BlockRange.sphereSq((long) range * range - 1),
+					state -> state.is(Blocks.WATER), Integer.MAX_VALUE, water);
+			for (BlockPos pos : water) {
+				getLevel().setBlock(pos, BotaniaBlocks.fakeAir.defaultBlockState(), Block.UPDATE_CLIENTS);
+				if (getLevel().getBlockEntity(pos) instanceof FakeAirBlockEntity air) {
+					air.setFlower(this);
 				}
 			}
 		}

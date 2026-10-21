@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'net.neoforged.moddev.legacyforge' version '2.0.142'
-    id 'com.gto.gtopublishgradleplugin' version '1.0.25'
+    id 'com.gto.gtopublishgradleplugin' version '1.0.26'
 }
 
 version = gto_version
@@ -102,6 +102,7 @@ dependencies {
     modImplementation("vazkii.patchouli:Patchouli:${minecraft_version}-84-FORGE")
     modImplementation("com.gto:datasynclib-forge-1.20.1:${datasynclib_version}")
     modImplementation("com.gto:gtoutils-forge-1.20.1:${gtoutils_version}")
+    modImplementation("com.gto:gtorenders-forge-1.20.1:${gtorenders_version}")
     modCompileOnly("mezz.jei:jei-1.20.1-common-api:15.2.0.27")
     modRuntimeOnly("mezz.jei:jei-1.20.1-forge:15.2.0.27")
 

@@ -8,6 +8,8 @@
  */
 package vazkii.botania.common.block.block_entity.corporea;
 
+import com.suried.gtoutils.spatial.BlockRange;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -26,6 +28,7 @@ import vazkii.botania.api.corporea.*;
 import vazkii.botania.common.BotaniaStats;
 import vazkii.botania.common.advancements.CorporeaRequestTrigger;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntities;
+import vazkii.botania.common.handler.BotaniaBlockEntityIndexes;
 import vazkii.botania.common.helper.MathHelper;
 import vazkii.botania.network.serverbound.IndexStringRequestPacket;
 import vazkii.botania.xplat.ClientXplatAbstractions;
@@ -37,10 +40,8 @@ import java.util.regex.Pattern;
 
 public class CorporeaIndexBlockEntity extends BaseCorporeaBlockEntity implements CorporeaRequestor {
 	public static final double RADIUS = 2.5;
+	private static final BlockRange SEARCH_BOX = BlockRange.box(3, 6, 3);
 	public static final int MAX_REQUEST = 1 << 16;
-
-	private static final Set<CorporeaIndexBlockEntity> serverIndexes = Collections.newSetFromMap(new WeakHashMap<>());
-	private static final Set<CorporeaIndexBlockEntity> clientIndexes = Collections.newSetFromMap(new WeakHashMap<>());
 
 	private static final Map<Pattern, IRegexStacker> patterns = new LinkedHashMap<>();
 
@@ -293,26 +294,13 @@ public class CorporeaIndexBlockEntity extends BaseCorporeaBlockEntity implements
 		} else if (self.closeby > 0F) {
 			self.closeby -= step;
 		}
-
-		if (!self.isRemoved()) {
-			addIndex(self);
-		}
 	}
 
 	public static List<CorporeaIndexBlockEntity> getNearbyValidIndexes(Player player) {
 		List<CorporeaIndexBlockEntity> result = new ArrayList<>();
-		for (var index : (player.level().isClientSide ? clientIndexes : serverIndexes)) {
-			if (index.getSpark() != null && index.isInRange(player)) {
-				result.add(index);
-			}
-		}
+		BotaniaBlockEntityIndexes.CORPOREA_INDEXES.query(player.level(), player.blockPosition(), SEARCH_BOX,
+				index -> index.getSpark() != null && index.isInRange(player), result);
 		return result;
-	}
-
-	@Override
-	public void setRemoved() {
-		super.setRemoved();
-		removeIndex(this);
 	}
 
 	@Override
@@ -350,21 +338,6 @@ public class CorporeaIndexBlockEntity extends BaseCorporeaBlockEntity implements
 		} catch (NumberFormatException e) {
 			return 0;
 		}
-	}
-
-	private static void addIndex(CorporeaIndexBlockEntity index) {
-		Set<CorporeaIndexBlockEntity> set = index.level.isClientSide ? clientIndexes : serverIndexes;
-		set.add(index);
-	}
-
-	private static void removeIndex(CorporeaIndexBlockEntity index) {
-		Set<CorporeaIndexBlockEntity> set = index.level.isClientSide ? clientIndexes : serverIndexes;
-		set.remove(index);
-	}
-
-	public static void clearIndexCache() {
-		clientIndexes.clear();
-		serverIndexes.clear();
 	}
 
 	public void performPlayerRequest(ServerPlayer player, CorporeaRequestMatcher request, int count) {

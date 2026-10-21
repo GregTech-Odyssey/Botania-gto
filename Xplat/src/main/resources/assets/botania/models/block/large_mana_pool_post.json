@@ -26,11 +26,13 @@
         },
         "north": {
           "texture": "#side",
-          "tintindex": 0
+          "tintindex": 0,
+          "cullface": "north"
         },
         "east": {
           "texture": "#side",
-          "tintindex": 0
+          "tintindex": 0,
+          "cullface": "east"
         },
         "south": {
           "texture": "#side",

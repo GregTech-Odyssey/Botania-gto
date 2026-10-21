@@ -317,18 +317,27 @@ public final class HUDHandler {
 	 * Renders a mana HUD below the crosshair, containing just a mana bar and a name above
 	 */
 	public static void drawSimpleManaHUD(GuiGraphics gui, int color, int mana, int maxMana, String name) {
+		drawManaHUD(gui, color, mana, maxMana, name);
+	}
+
+	public static void drawManaHUD(GuiGraphics gui, int color, long mana, long maxMana, String name) {
 		RenderSystem.enableBlend();
 		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		Minecraft mc = Minecraft.getInstance();
-		int x = mc.getWindow().getGuiScaledWidth() / 2 - mc.font.width(name) / 2;
+		int centerX = mc.getWindow().getGuiScaledWidth() / 2;
+		int x = centerX - mc.font.width(name) / 2;
 		int y = mc.getWindow().getGuiScaledHeight() / 2 + 10;
 
 		gui.drawString(mc.font, name, x, y, color);
 
-		x = mc.getWindow().getGuiScaledWidth() / 2 - 51;
-		y += 10;
+		renderManaBar(gui, centerX - 51, y + 10, color, 1F, mana, maxMana);
 
-		renderManaBar(gui, x, y, color, 1F, mana, maxMana);
+		String amount = mana + "/" + maxMana;
+		PoseStack ms = gui.pose();
+		ms.pushPose();
+		ms.scale(0.75F, 0.75F, 0.75F);
+		gui.drawString(mc.font, amount, (int) ((centerX - mc.font.width(amount) * 0.75F / 2) / 0.75F), (int) ((y + 15) / 0.75F), color);
+		ms.popPose();
 
 		RenderSystem.disableBlend();
 	}
@@ -336,9 +345,9 @@ public final class HUDHandler {
 	/**
 	 * Renders a mana HUD below the crosshair, containing a mana bar, a name above, and a bound item status to the right
 	 */
-	public static void drawComplexManaHUD(int color, GuiGraphics gui, int mana, int maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {
+	public static void drawComplexManaHUD(int color, GuiGraphics gui, long mana, long maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {
 		PoseStack ms = gui.pose();
-		drawSimpleManaHUD(gui, color, mana, maxMana, name);
+		drawManaHUD(gui, color, mana, maxMana, name);
 
 		Minecraft mc = Minecraft.getInstance();
 
@@ -362,11 +371,11 @@ public final class HUDHandler {
 		RenderSystem.enableDepthTest();
 	}
 
-	public static void renderManaBar(GuiGraphics gui, int x, int y, int color, float alpha, int mana, int maxMana) {
+	public static void renderManaBar(GuiGraphics gui, int x, int y, int color, float alpha, long mana, long maxMana) {
 		RenderSystem.setShaderColor(1F, 1F, 1F, alpha);
 		RenderHelper.drawTexturedModalRect(gui, manaBar, x, y, 0, 0, 102, 5);
 
-		int manaPercentage = Math.max(0, (int) ((double) mana / (double) maxMana * 100));
+		int manaPercentage = maxMana <= 0 ? 0 : Math.max(0, (int) ((double) mana / (double) maxMana * 100));
 
 		if (manaPercentage == 0 && mana > 0) {
 			manaPercentage = 1;

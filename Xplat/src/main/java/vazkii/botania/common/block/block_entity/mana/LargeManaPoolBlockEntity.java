@@ -139,6 +139,23 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 		return coreDx == 0 && coreDz == 0;
 	}
 
+	private AABB unitRenderBox;
+	private AABB cellRenderBox;
+
+	public AABB getRenderBoundingBox() {
+		if (!isCore()) {
+			if (cellRenderBox == null) {
+				cellRenderBox = new AABB(worldPosition);
+			}
+			return cellRenderBox;
+		}
+		if (unitRenderBox == null) {
+			unitRenderBox = new AABB(worldPosition.getX() - 1, worldPosition.getY(), worldPosition.getZ() - 1,
+					worldPosition.getX() + 2, worldPosition.getY() + 1, worldPosition.getZ() + 2);
+		}
+		return unitRenderBox;
+	}
+
 	public BlockPos getCorePos() {
 		return worldPosition.offset(coreDx, 0, coreDz);
 	}
@@ -616,7 +633,7 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 			int width = Math.max(102, mc.font.width(name)) + 4;
 
 			RenderHelper.renderHUDBox(gui, centerX - width / 2, centerY + 8, centerX + width / 2, centerY + 48);
-			BotaniaAPIClient.instance().drawSimpleManaHUD(gui, 0x0095FF, (int) (pool.getFillFraction() * 1_000_000), 1_000_000, name);
+			BotaniaAPIClient.instance().drawSimpleManaHUD(gui, 0x0095FF, pool.getCurrentManaLong(), pool.getMaxManaLong(), name);
 
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

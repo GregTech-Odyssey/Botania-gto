@@ -9,6 +9,7 @@
 package vazkii.botania.common.block.flower.functional;
 
 import com.google.common.collect.ImmutableList;
+import com.suried.gtoutils.spatial.LevelSections;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -50,6 +51,7 @@ import vazkii.botania.common.helper.EntityHelper;
 import vazkii.botania.xplat.BotaniaConfig;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class RannuncarpusBlockEntity extends FunctionalFlowerBlockEntity implements Wandable {
 	private static final int PICKUP_RANGE = 2;
@@ -85,6 +87,7 @@ public class RannuncarpusBlockEntity extends FunctionalFlowerBlockEntity impleme
 			List<ItemEntity> items = getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(getBlockPos().offset(-PICKUP_RANGE, -PICKUP_RANGE_Y, -PICKUP_RANGE), getBlockPos().offset(PICKUP_RANGE + 1, PICKUP_RANGE_Y + 1, PICKUP_RANGE + 1)));
 
 			List<ItemStack> filter = HopperhockBlockEntity.getFilterForInventory(getLevel(), getFilterPos(), false);
+			List<BlockPos> matches = null;
 
 			for (ItemEntity item : items) {
 				if (!DelayHelper.canInteractWith(this, item)) {
@@ -104,10 +107,14 @@ public class RannuncarpusBlockEntity extends FunctionalFlowerBlockEntity impleme
 				}
 
 				if (stackItem instanceof BlockItem || stackItem instanceof FlowerPlaceable) {
-					BlockPos coords = getCandidatePosition(getLevel().random, stack);
+					if (matches == null) {
+						matches = getFilterMatches();
+					}
+					BlockPos coords = getCandidatePosition(getLevel().random, stack, matches);
 					if (coords == null) {
 						continue;
 					}
+					matches = null;
 					BlockPlaceContext ctx = getBlockPlaceContext(stack, coords);
 
 					boolean success = false;
@@ -150,35 +157,32 @@ public class RannuncarpusBlockEntity extends FunctionalFlowerBlockEntity impleme
 		return getLevel().getBlockState(getFilterPos());
 	}
 
-	@Nullable
-	private BlockPos getCandidatePosition(RandomSource rand, ItemStack stack) {
+	private List<BlockPos> getFilterMatches() {
 		int rangePlace = getPlaceRange();
 		int rangePlaceY = getVerticalPlaceRange();
 		BlockPos center = getEffectivePos();
 		BlockState filter = getUnderlyingBlock();
+		Predicate<BlockState> match = stateSensitive ? state -> state == filter : state -> state.is(filter.getBlock());
+		List<BlockPos> matches = new ArrayList<>();
+		LevelSections.betweenClosed(getLevel(), center.offset(-rangePlace, -rangePlaceY, -rangePlace),
+				center.offset(rangePlace, rangePlaceY, rangePlace), match, Integer.MAX_VALUE, matches);
+		return matches;
+	}
+
+	@Nullable
+	private BlockPos getCandidatePosition(RandomSource rand, ItemStack stack, List<BlockPos> matches) {
 		List<BlockPos> emptyPositions = new ArrayList<>();
 		List<BlockPos> additivePositions = new ArrayList<>();
 
-		for (BlockPos pos : BlockPos.betweenClosed(center.offset(-rangePlace, -rangePlaceY, -rangePlace),
-				center.offset(rangePlace, rangePlaceY, rangePlace))) {
-			BlockState state = getLevel().getBlockState(pos);
+		for (BlockPos pos : matches) {
 			BlockPos placementPos = pos.above();
 			BlockState up = getLevel().getBlockState(placementPos);
 
-			boolean matches;
-			if (stateSensitive) {
-				matches = state == filter;
-			} else {
-				matches = state.is(filter.getBlock());
-			}
-
-			if (matches) {
-				if (isAirOrDifferentReplaceableBlock(up, stack)) {
-					emptyPositions.add(pos.immutable());
-				} else if (up.canBeReplaced(getBlockPlaceContext(stack, placementPos))) {
-					// same block type, but can still place more
-					additivePositions.add(pos.immutable());
-				}
+			if (isAirOrDifferentReplaceableBlock(up, stack)) {
+				emptyPositions.add(pos);
+			} else if (up.canBeReplaced(getBlockPlaceContext(stack, placementPos))) {
+				// same block type, but can still place more
+				additivePositions.add(pos);
 			}
 		}
 

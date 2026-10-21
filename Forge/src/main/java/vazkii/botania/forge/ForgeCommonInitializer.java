@@ -83,7 +83,6 @@ import vazkii.botania.common.block.*;
 import vazkii.botania.common.block.block_entity.*;
 import vazkii.botania.common.block.block_entity.BlockEntityConstants;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntities;
-import vazkii.botania.common.block.block_entity.corporea.CorporeaIndexBlockEntity;
 import vazkii.botania.common.block.block_entity.mana.PowerGeneratorBlockEntity;
 import vazkii.botania.common.block.block_entity.red_string.RedStringContainerBlockEntity;
 import vazkii.botania.common.block.flower.functional.DaffomillBlockEntity;
@@ -103,6 +102,7 @@ import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 import vazkii.botania.common.entity.BotaniaEntities;
 import vazkii.botania.common.entity.GaiaGuardianEntity;
 import vazkii.botania.common.handler.*;
+import vazkii.botania.common.handler.BotaniaBlockEntityIndexes;
 import vazkii.botania.common.helper.ColorHelper;
 import vazkii.botania.common.helper.PlayerHelper;
 import vazkii.botania.common.impl.BotaniaAPIImpl;
@@ -146,6 +146,7 @@ import static vazkii.botania.common.lib.ResourceLocationHelper.prefix;
 @Mod(LibMisc.MOD_ID)
 public class ForgeCommonInitializer {
 	public ForgeCommonInitializer() {
+		BotaniaBlockEntityIndexes.init();
 		coreInit();
 		registryInit();
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
@@ -691,7 +692,6 @@ public class ForgeCommonInitializer {
 
 	private void serverStopping(MinecraftServer server) {
 		ManaNetworkHandler.instance.clear();
-		CorporeaIndexBlockEntity.clearIndexCache();
 	}
 
 }

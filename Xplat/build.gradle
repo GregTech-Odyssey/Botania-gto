@@ -52,6 +52,7 @@ dependencies {
     compileOnly "org.jetbrains:annotations:24.0.1"
     compileOnly("com.gto:datasynclib-forge-1.20.1:${datasynclib_version}") { transitive = false }
     compileOnly("com.gto:gtoutils-forge-1.20.1:${gtoutils_version}") { transitive = false }
+    compileOnly("com.gto:gtorenders-forge-1.20.1:${gtorenders_version}") { transitive = false }
 
     // annotationProcessor 'com.blamejared.crafttweaker:Crafttweaker_Annotation_Processors-1.18.2:2.0.0.123'
     // annotationProcessor 'com.blamejared.crafttweaker:CraftTweaker-common-1.18.2:9.1.123'

@@ -12,6 +12,7 @@ import com.suried.gtoutils.spatial.BlockIndex;
 import com.suried.gtoutils.spatial.BlockRange;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import vazkii.botania.api.mana.spark.ManaSpark;
+import vazkii.botania.common.handler.BotaniaBlockEntityIndexes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +32,6 @@ import java.util.function.Consumer;
 // so range lookups only visit nearby sparks of the requested colour instead of every entity in a 25-block box.
 public final class ManaSparkIndex {
 	private static final double MARGIN = 1.0;
-
-	public interface Holder {
-		ManaSparkIndex botania$getSparkIndex();
-	}
 
 	private final BlockIndex<ArrayList<ManaSparkEntity>> all = new BlockIndex<>();
 	private final List<BlockIndex<ArrayList<ManaSparkEntity>>> byColor = new ArrayList<>(DyeColor.values().length);
@@ -46,7 +44,7 @@ public final class ManaSparkIndex {
 
 	@Nullable
 	public static ManaSparkIndex of(Level level) {
-		return level instanceof Holder holder ? holder.botania$getSparkIndex() : null;
+		return level instanceof ServerLevel ? BotaniaBlockEntityIndexes.SPARKS.get(level) : null;
 	}
 
 	static void track(ManaSparkEntity spark) {
