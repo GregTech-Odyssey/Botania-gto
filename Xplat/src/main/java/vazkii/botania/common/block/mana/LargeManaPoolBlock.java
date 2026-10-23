@@ -42,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 import vazkii.botania.common.block.BotaniaBlock;
 import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
+import vazkii.botania.common.block.block_entity.mana.ManaPoolSpec;
 import vazkii.botania.common.block.decor.BotaniaMushroomBlock;
 import vazkii.botania.common.entity.ManaBurstEntity;
 import vazkii.botania.common.item.material.MysticalPetalItem;
@@ -49,7 +50,7 @@ import vazkii.botania.common.item.material.MysticalPetalItem;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public class LargeManaPoolBlock extends BotaniaBlock implements EntityBlock {
+public class LargeManaPoolBlock extends BotaniaBlock implements EntityBlock, ManaPoolSpec.Holder {
 	public static final BooleanProperty CORE = BooleanProperty.create("core");
 	public static final BooleanProperty NORTH = BooleanProperty.create("north");
 	public static final BooleanProperty EAST = BooleanProperty.create("east");
@@ -98,18 +99,25 @@ public class LargeManaPoolBlock extends BotaniaBlock implements EntityBlock {
 		}
 	}
 
+	private final ManaPoolSpec spec;
 	private final BiFunction<BlockPos, BlockState, ? extends LargeManaPoolBlockEntity> factory;
 
 	public LargeManaPoolBlock(Properties builder) {
-		this(builder, LargeManaPoolBlockEntity::new);
+		this(builder, ManaPoolSpec.LARGE, LargeManaPoolBlockEntity::new);
 	}
 
-	public LargeManaPoolBlock(Properties builder, BiFunction<BlockPos, BlockState, ? extends LargeManaPoolBlockEntity> factory) {
+	public LargeManaPoolBlock(Properties builder, ManaPoolSpec spec, BiFunction<BlockPos, BlockState, ? extends LargeManaPoolBlockEntity> factory) {
 		super(builder);
+		this.spec = spec;
 		this.factory = factory;
 		registerDefaultState(defaultBlockState().setValue(CORE, false)
 				.setValue(NORTH, false).setValue(EAST, false).setValue(SOUTH, false).setValue(WEST, false)
 				.setValue(NORTH_EAST, false).setValue(SOUTH_EAST, false).setValue(SOUTH_WEST, false).setValue(NORTH_WEST, false));
+	}
+
+	@Override
+	public ManaPoolSpec poolSpec() {
+		return spec;
 	}
 
 	@Override
@@ -266,7 +274,7 @@ public class LargeManaPoolBlock extends BotaniaBlock implements EntityBlock {
 
 	@Override
 	public void entityInside(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
-		if (entity instanceof ItemEntity item && level.getBlockEntity(pos) instanceof LargeManaPoolBlockEntity pool) {
+		if (level.isClientSide && entity instanceof ItemEntity item && level.getBlockEntity(pos) instanceof LargeManaPoolBlockEntity pool) {
 			pool.collideEntityItem(item);
 		}
 	}

@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -36,14 +37,12 @@ import vazkii.botania.api.BotaniaAPI;
 import vazkii.botania.api.BotaniaAPIClient;
 import vazkii.botania.api.block.WandHUD;
 import vazkii.botania.api.block.Wandable;
-import vazkii.botania.api.item.ManaDissolvable;
 import vazkii.botania.api.mana.ManaBlockType;
 import vazkii.botania.api.mana.ManaNetworkAction;
 import vazkii.botania.api.mana.ManaPool;
 import vazkii.botania.api.mana.ManaReceiver;
 import vazkii.botania.api.mana.spark.ManaSpark;
 import vazkii.botania.api.mana.spark.SparkAttachable;
-import vazkii.botania.api.recipe.ManaInfusionRecipe;
 import vazkii.botania.client.core.helper.RenderHelper;
 import vazkii.botania.client.fx.SparkleParticleData;
 import vazkii.botania.client.fx.WispParticleData;
@@ -60,13 +59,10 @@ import vazkii.botania.common.item.ManaTabletItem;
 import vazkii.botania.xplat.BotaniaConfig;
 import vazkii.botania.xplat.XplatAbstractions;
 
-import java.util.List;
 import java.util.Optional;
 
-public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool, SparkAttachable, ThrottledPacket, Wandable {
-	public static final long UNIT_CAPACITY = 36_000_000L;
+public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool, SparkAttachable, ThrottledPacket, Wandable, ManaPoolSpec.Holder {
 	private static final int CRAFT_EFFECT_EVENT = 0;
-	private static final int TRANSFER_RATE = 1000;
 	private static final String TAG_CORE_X = "coreX";
 	private static final String TAG_CORE_Z = "coreZ";
 	private static final String TAG_MANA = "mana";
@@ -90,6 +86,7 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 	@SyncToClient
 	private int shownColor = -1;
 
+	private final ManaPoolSpec spec;
 	long mana;
 	boolean outputting;
 	int color = -1;
@@ -109,12 +106,14 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 
 	protected LargeManaPoolBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
+		spec = ManaPoolSpec.of(state.getBlock(), ManaPoolSpec.LARGE);
 		leaderPos = pos.asLong();
-		shownCapacity = unitCapacity();
+		shownCapacity = spec.capacity();
 	}
 
-	public long unitCapacity() {
-		return UNIT_CAPACITY;
+	@Override
+	public ManaPoolSpec poolSpec() {
+		return spec;
 	}
 
 	public static boolean isSamePool(@Nullable ManaReceiver a, @Nullable ManaReceiver b) {
@@ -418,33 +417,11 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 			}
 			return;
 		}
-		var net = network();
-		if (net == null) {
+		if (network() == null
+				|| ManaInfusion.process(level, this, item, level.getBlockState(getCorePos().below()), spec.infusionRate(), getCorePos()) <= 0) {
 			return;
 		}
-		ItemStack stack = item.getItem();
-		if (stack.getItem() instanceof ManaDissolvable dissolvable) {
-			dissolvable.onDissolveTick(this, item);
-		}
-		if (XplatAbstractions.INSTANCE.itemFlagsComponent(item).manaInfusionSpawned) {
-			return;
-		}
-		ManaInfusionRecipe recipe = ManaPoolBlockEntity.findInfusionRecipe(level, stack, level.getBlockState(getCorePos().below()));
-		if (recipe == null || net.getMana() < recipe.getManaToConsume()) {
-			return;
-		}
-		net.receive(-recipe.getManaToConsume());
-		ItemStack output = recipe.getRecipeOutput(level.registryAccess(), stack);
-		EntityHelper.shrinkItem(item);
-		item.setOnGround(false);
-		ItemEntity outputItem = new ItemEntity(level, worldPosition.getX() + 0.5, worldPosition.getY() + 1.5, worldPosition.getZ() + 0.5, output);
-		XplatAbstractions.INSTANCE.itemFlagsComponent(outputItem).manaInfusionSpawned = true;
-		if (item.getOwner() instanceof Player player) {
-			player.triggerRecipeCrafted(recipe, List.of(output));
-			output.onCraftedBy(level, player, output.getCount());
-		}
-		level.addFreshEntity(outputItem);
-		if (net.claimCraftSound(level.getGameTime())) {
+		if (network().claimCraftSound(level.getGameTime())) {
 			level.playSound(null, worldPosition, BotaniaSounds.manaPoolCraft, SoundSource.BLOCKS, 1F, 1F);
 		}
 		craftingEffect();
@@ -487,8 +464,18 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 		self.ticks++;
 	}
 
+	private boolean ownsItem(ItemEntity item) {
+		int dx = Mth.floor(item.getX()) - worldPosition.getX();
+		int dz = Mth.floor(item.getZ()) - worldPosition.getZ();
+		return dx >= -1 && dx <= 1 && dz >= -1 && dz <= 1;
+	}
+
 	private void chargeItems(LargeManaPoolNetwork net) {
 		for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, unitArea())) {
+			if (!ownsItem(item)) {
+				continue;
+			}
+			collideEntityItem(item);
 			if (!item.isAlive()) {
 				continue;
 			}
@@ -503,13 +490,13 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 			}
 			int moved;
 			if (outputting) {
-				moved = (int) Math.min(TRANSFER_RATE, Math.min(net.getMana(), manaItem.getMaxMana() - manaItem.getMana()));
+				moved = (int) Math.min(spec.itemTransferRate(), Math.min(net.getMana(), manaItem.getMaxMana() - manaItem.getMana()));
 				if (moved > 0) {
 					manaItem.addMana(moved);
 					net.receive(-moved);
 				}
 			} else {
-				moved = (int) Math.min(TRANSFER_RATE, Math.min(net.getCapacity() - net.getMana(), manaItem.getMana()));
+				moved = (int) Math.min(spec.itemTransferRate(), Math.min(net.getCapacity() - net.getMana(), manaItem.getMana()));
 				if (moved > 0) {
 					manaItem.addMana(-moved);
 					net.receive(moved);
@@ -602,7 +589,7 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 	public void readPacketNBT(CompoundTag tag) {
 		coreDx = tag.getInt(TAG_CORE_X);
 		coreDz = tag.getInt(TAG_CORE_Z);
-		mana = Math.max(0, Math.min(unitCapacity(), tag.getLong(TAG_MANA)));
+		mana = Math.max(0, Math.min(spec.capacity(), tag.getLong(TAG_MANA)));
 		outputting = tag.getBoolean(TAG_OUTPUTTING);
 		color = tag.contains(TAG_COLOR) ? tag.getInt(TAG_COLOR) : -1;
 		shownMana = mana;

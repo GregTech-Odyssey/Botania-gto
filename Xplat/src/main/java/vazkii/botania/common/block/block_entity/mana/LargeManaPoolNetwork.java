@@ -58,7 +58,7 @@ public final class LargeManaPoolNetwork {
 		this.parts = parts;
 		long total = 0;
 		for (var core : cores) {
-			total += core.unitCapacity();
+			total += core.poolSpec().capacity();
 		}
 		this.capacity = total;
 		int minX = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;

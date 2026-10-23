@@ -465,8 +465,18 @@ public class AlfheimPortalBlockEntity extends BotaniaBlockEntity implements Wand
 		}
 
 		if (consumed >= expectedConsumption) {
+			for (int i = 0; i < consumePools.size(); i++) {
+				long taken = consumePools.get(i).removeMana(costPer, false);
+				if (taken < costPer) {
+					consumePools.get(i).addMana(taken, false);
+					for (int j = 0; j < i; j++) {
+						consumePools.get(j).addMana(costPer, false);
+					}
+					closeNow = closeNow || close;
+					return false;
+				}
+			}
 			for (ManaPool pool : consumePools) {
-				pool.receiveMana(-costPer);
 				if (pool instanceof ManaPoolBlockEntity normal) {
 					normal.craftingEffect(false);
 				} else if (pool instanceof LargeManaPoolBlockEntity large) {

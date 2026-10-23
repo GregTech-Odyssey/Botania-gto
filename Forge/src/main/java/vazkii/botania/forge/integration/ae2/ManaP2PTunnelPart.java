@@ -78,25 +78,36 @@ public class ManaP2PTunnelPart extends CapabilityP2PTunnelPart<ManaP2PTunnelPart
 
 		@Override
 		public void receiveManaLong(long mana) {
+			addMana(mana, false);
+		}
+
+		@Override
+		public long addMana(long amount, boolean simulate) {
 			var outputs = getOutputs();
-			if (mana <= 0 || outputs.isEmpty()) {
-				return;
+			if (amount <= 0 || outputs.isEmpty()) {
+				return 0;
 			}
-			long remaining = mana;
+			long remaining = amount;
 			int left = outputs.size();
 			for (var output : outputs) {
 				long share = remaining / left--;
 				try (var guard = output.getAdjacentCapability()) {
-					remaining -= ManaAccess.insert(guard.get(), left == 0 ? remaining : share, false);
+					remaining -= ManaAccess.insert(guard.get(), left == 0 ? remaining : share, simulate);
 				}
 				if (remaining <= 0) {
 					break;
 				}
 			}
-			long moved = mana - remaining;
-			if (moved > 0) {
+			long moved = amount - remaining;
+			if (moved > 0 && !simulate) {
 				deductTransportCost(moved, ManaKeyType.TYPE);
 			}
+			return moved;
+		}
+
+		@Override
+		public long removeMana(long amount, boolean simulate) {
+			return 0;
 		}
 	}
 
@@ -129,11 +140,30 @@ public class ManaP2PTunnelPart extends CapabilityP2PTunnelPart<ManaP2PTunnelPart
 
 		@Override
 		public void receiveManaLong(long mana) {
+			if (mana > 0) {
+				addMana(mana, false);
+			} else if (mana < 0) {
+				removeMana(-mana, false);
+			}
+		}
+
+		@Override
+		public long addMana(long amount, boolean simulate) {
+			return move(amount, simulate, true);
+		}
+
+		@Override
+		public long removeMana(long amount, boolean simulate) {
+			return move(amount, simulate, false);
+		}
+
+		private long move(long amount, boolean simulate, boolean insert) {
 			try (var guard = getInputCapability()) {
-				long moved = mana > 0 ? ManaAccess.insert(guard.get(), mana, false) : ManaAccess.extract(guard.get(), -mana, false);
-				if (moved > 0) {
+				long moved = insert ? ManaAccess.insert(guard.get(), amount, simulate) : ManaAccess.extract(guard.get(), amount, simulate);
+				if (moved > 0 && !simulate) {
 					deductTransportCost(moved, ManaKeyType.TYPE);
 				}
+				return moved;
 			}
 		}
 	}
@@ -151,6 +181,16 @@ public class ManaP2PTunnelPart extends CapabilityP2PTunnelPart<ManaP2PTunnelPart
 
 		@Override
 		public void receiveMana(int mana) {}
+
+		@Override
+		public long addMana(long amount, boolean simulate) {
+			return 0;
+		}
+
+		@Override
+		public long removeMana(long amount, boolean simulate) {
+			return 0;
+		}
 
 		@Override
 		public boolean canReceiveManaFromBursts() {

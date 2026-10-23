@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /**
  * An item that has this capability can contain mana.
  */
-public interface ManaItem {
+public interface ManaItem extends ManaEndpoint {
 
 	/**
 	 * Gets the amount of mana this item contains
@@ -64,4 +64,27 @@ public interface ManaItem {
 	 */
 	boolean isNoExport();
 
+	@Override
+	default long addMana(long amount, boolean simulate) {
+		long change = Math.min(amount, (long) getMaxMana() - getMana());
+		if (change <= 0) {
+			return 0;
+		}
+		if (!simulate) {
+			addMana((int) change);
+		}
+		return change;
+	}
+
+	@Override
+	default long removeMana(long amount, boolean simulate) {
+		long change = Math.min(amount, getMana());
+		if (change <= 0) {
+			return 0;
+		}
+		if (!simulate) {
+			addMana((int) -change);
+		}
+		return change;
+	}
 }

@@ -42,6 +42,7 @@ import vazkii.botania.common.block.BotaniaBlocks;
 import vazkii.botania.common.block.BotaniaWaterloggedBlock;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntities;
 import vazkii.botania.common.block.block_entity.mana.ManaPoolBlockEntity;
+import vazkii.botania.common.block.block_entity.mana.ManaPoolSpec;
 import vazkii.botania.common.block.decor.BotaniaMushroomBlock;
 import vazkii.botania.common.entity.ManaBurstEntity;
 import vazkii.botania.common.item.material.MysticalPetalItem;
@@ -51,7 +52,7 @@ import java.util.Optional;
 
 import static vazkii.botania.api.state.BotaniaStateProperties.OPTIONAL_DYE_COLOR;
 
-public class ManaPoolBlock extends BotaniaWaterloggedBlock implements EntityBlock {
+public class ManaPoolBlock extends BotaniaWaterloggedBlock implements EntityBlock, ManaPoolSpec.Holder {
 	private static final VoxelShape NORMAL_SHAPE;
 	private static final VoxelShape DILUTED_SHAPE;
 	private static final VoxelShape CREATIVE_SHAPE;
@@ -79,11 +80,22 @@ public class ManaPoolBlock extends BotaniaWaterloggedBlock implements EntityBloc
 	}
 
 	public final Variant variant;
+	private final ManaPoolSpec spec;
 
 	public ManaPoolBlock(Variant v, Properties builder) {
+		this(v, builder, v == Variant.DILUTED ? ManaPoolSpec.DILUTED : ManaPoolSpec.POOL);
+	}
+
+	public ManaPoolBlock(Variant v, Properties builder, ManaPoolSpec spec) {
 		super(builder);
 		this.variant = v;
+		this.spec = spec;
 		registerDefaultState(defaultBlockState().setValue(OPTIONAL_DYE_COLOR, OptionalDyeColor.NONE));
+	}
+
+	@Override
+	public ManaPoolSpec poolSpec() {
+		return spec;
 	}
 
 	@Override
@@ -184,7 +196,7 @@ public class ManaPoolBlock extends BotaniaWaterloggedBlock implements EntityBloc
 
 	@Override
 	public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
-		if (entity instanceof ItemEntity item && world.getBlockEntity(pos) instanceof ManaPoolBlockEntity pool) {
+		if (world.isClientSide && entity instanceof ItemEntity item && world.getBlockEntity(pos) instanceof ManaPoolBlockEntity pool) {
 			pool.collideEntityItem(item);
 		}
 	}

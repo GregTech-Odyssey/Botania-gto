@@ -5,15 +5,20 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 
+import org.jetbrains.annotations.Nullable;
+
 import vazkii.botania.api.mana.ManaReceiver;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 import appeng.api.behaviors.ExternalStorageStrategy;
 import appeng.api.behaviors.StackExportStrategy;
 import appeng.api.behaviors.StackImportStrategy;
 import appeng.api.behaviors.StackTransferContext;
 import appeng.api.config.Actionable;
+import appeng.api.networking.GridHelper;
+import appeng.api.networking.IGrid;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.KeyCounter;
@@ -27,10 +32,19 @@ final class ManaStorageStrategies {
 
 	static ExternalStorageStrategy external(ServerLevel level, BlockPos pos, Direction side) {
 		var lookup = new ManaReceiverLookup(level, pos, side);
+		var busPos = pos.relative(side);
+		var busSide = side.getOpposite();
 		return (extractableOnly, callback) -> {
 			var receiver = lookup.find();
-			return receiver == null ? null : new ReceiverStorage(receiver, callback);
+			return receiver == null ? null : new ReceiverStorage(receiver, callback, () -> busGrid(level, busPos, busSide));
 		};
+	}
+
+	@Nullable
+	private static IGrid busGrid(ServerLevel level, BlockPos pos, Direction side) {
+		var host = GridHelper.getNodeHost(level, pos);
+		var node = host == null ? null : host.getGridNode(side);
+		return node == null ? null : node.getGrid();
 	}
 
 	static StackImportStrategy importer(ServerLevel level, BlockPos pos, Direction side) {
@@ -51,10 +65,14 @@ final class ManaStorageStrategies {
 		}
 	}
 
-	private record ReceiverStorage(ManaReceiver receiver, Runnable callback) implements MEStorage {
+	private record ReceiverStorage(ManaReceiver receiver, Runnable callback, Supplier<IGrid> busGrid) implements MEStorage {
+		private boolean ownNetwork() {
+			return receiver instanceof FluixManaPoolBlockEntity pool && pool.isOnGrid(busGrid.get());
+		}
+
 		@Override
 		public long insert(AEKey what, long amount, Actionable mode, IActionSource source) {
-			if (what != ManaKey.KEY) {
+			if (what != ManaKey.KEY || ownNetwork()) {
 				return 0;
 			}
 			long inserted = ManaAccess.insert(receiver, amount, mode == Actionable.SIMULATE);
@@ -66,7 +84,7 @@ final class ManaStorageStrategies {
 
 		@Override
 		public long extract(AEKey what, long amount, Actionable mode, IActionSource source) {
-			if (what != ManaKey.KEY) {
+			if (what != ManaKey.KEY || ownNetwork()) {
 				return 0;
 			}
 			long extracted = ManaAccess.extract(receiver, amount, mode == Actionable.SIMULATE);
@@ -78,6 +96,9 @@ final class ManaStorageStrategies {
 
 		@Override
 		public void getAvailableStacks(KeyCounter out) {
+			if (ownNetwork()) {
+				return;
+			}
 			long stored = ManaAccess.stored(receiver);
 			if (stored > 0) {
 				out.add(ManaKey.KEY, stored);

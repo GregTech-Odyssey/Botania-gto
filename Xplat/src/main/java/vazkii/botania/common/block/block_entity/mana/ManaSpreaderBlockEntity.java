@@ -178,9 +178,7 @@ public class ManaSpreaderBlockEntity extends ExposedSimpleInventoryBlockEntity i
 						int manaInPool = pool.getCurrentMana();
 						if (manaInPool > 0 && !self.isFull()) {
 							int manaMissing = self.getMaxMana() - self.mana;
-							int manaToRemove = Math.min(manaInPool, manaMissing);
-							pool.receiveMana(-manaToRemove);
-							self.receiveMana(manaToRemove);
+							ManaEndpoint.transfer(pool, self, Math.min(manaInPool, manaMissing));
 						}
 					}
 				}

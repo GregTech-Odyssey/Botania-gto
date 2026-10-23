@@ -20,6 +20,7 @@ import vazkii.botania.common.block.block_entity.mana.ManaPoolBlockEntity;
 
 import appeng.api.config.Actionable;
 import appeng.api.networking.GridHelper;
+import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.IGridNodeListener;
 import appeng.api.networking.IInWorldGridNodeHost;
@@ -31,21 +32,11 @@ import appeng.api.storage.StorageHelper;
 import appeng.api.util.AECableType;
 
 /**
- * Mana pool whose contents are the mana of the attached ME network; stored and free space are read once per tick
- * and invalidated by every write, and the display copy is synced at most every 10 ticks.
+ * Mana pool whose contents are the mana of the attached ME network; every read asks the network so that nested reads
+ * through a storage bus hit AE's reentrancy guard instead of a stale copy, and the display copy is synced at most every 10 ticks.
  */
 public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IInWorldGridNodeHost, IActionHost {
-	private static final IGridNodeListener<FluixManaPoolBlockEntity> LISTENER = new IGridNodeListener<>() {
-		@Override
-		public void onSaveChanges(FluixManaPoolBlockEntity owner, IGridNode node) {
-			owner.setChanged();
-		}
-
-		@Override
-		public void onStateChanged(FluixManaPoolBlockEntity owner, IGridNode node, State state) {
-			owner.cacheTick = -1;
-		}
-	};
+	private static final IGridNodeListener<FluixManaPoolBlockEntity> LISTENER = (owner, node) -> owner.setChanged();
 
 	private final IManagedGridNode mainNode = GridHelper.createManagedNode(this, LISTENER)
 			.setFlags()
@@ -59,9 +50,6 @@ public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IIn
 	@SyncToClient
 	private long shownCapacity;
 
-	private long cacheTick = -1;
-	private long stored;
-	private long space;
 	private boolean comparatorDirty;
 	private int ticks;
 
@@ -79,20 +67,23 @@ public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IIn
 		return grid != null && mainNode.isActive() ? grid.getStorageService().getInventory() : null;
 	}
 
-	private void refresh() {
-		long now = level == null ? 0 : level.getGameTime();
-		if (now == cacheTick) {
-			return;
-		}
-		cacheTick = now;
+	private long stored() {
 		var inventory = storage();
-		if (inventory == null) {
-			stored = 0;
-			space = 0;
-			return;
-		}
-		stored = inventory.extract(ManaKey.KEY, Long.MAX_VALUE, Actionable.SIMULATE, source);
-		space = inventory.insert(ManaKey.KEY, Long.MAX_VALUE, Actionable.SIMULATE, source);
+		return inventory == null ? 0 : inventory.extract(ManaKey.KEY, Long.MAX_VALUE, Actionable.SIMULATE, source);
+	}
+
+	private long space() {
+		var inventory = storage();
+		return inventory == null ? 0 : inventory.insert(ManaKey.KEY, Long.MAX_VALUE, Actionable.SIMULATE, source);
+	}
+
+	private static long capacity(long stored, long space) {
+		long total = stored + space;
+		return total < 0 ? Long.MAX_VALUE : total;
+	}
+
+	boolean isOnGrid(@Nullable IGrid grid) {
+		return grid != null && mainNode.getGrid() == grid;
 	}
 
 	private boolean client() {
@@ -104,8 +95,7 @@ public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IIn
 		if (client()) {
 			return shownMana;
 		}
-		refresh();
-		return stored;
+		return stored();
 	}
 
 	@Override
@@ -113,9 +103,7 @@ public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IIn
 		if (client()) {
 			return shownCapacity;
 		}
-		refresh();
-		long total = stored + space;
-		return total < 0 ? Long.MAX_VALUE : total;
+		return capacity(stored(), space());
 	}
 
 	@Override
@@ -123,8 +111,7 @@ public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IIn
 		if (client()) {
 			return Math.max(0, shownCapacity - shownMana);
 		}
-		refresh();
-		return space;
+		return space();
 	}
 
 	@Override
@@ -154,22 +141,41 @@ public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IIn
 
 	@Override
 	public void receiveManaLong(long mana) {
-		if (mana == 0 || client()) {
-			return;
+		if (mana > 0) {
+			addMana(mana, false);
+		} else if (mana < 0) {
+			removeMana(-mana, false);
+		}
+	}
+
+	@Override
+	public long addMana(long amount, boolean simulate) {
+		return move(amount, simulate, true);
+	}
+
+	@Override
+	public long removeMana(long amount, boolean simulate) {
+		return move(amount, simulate, false);
+	}
+
+	private long move(long amount, boolean simulate, boolean insert) {
+		if (amount <= 0 || client()) {
+			return 0;
 		}
 		var grid = mainNode.getGrid();
 		var inventory = storage();
 		if (grid == null || inventory == null) {
-			return;
+			return 0;
 		}
-		long moved = mana > 0
-				? StorageHelper.poweredInsert(grid.getEnergyService(), inventory, ManaKey.KEY, mana, source)
-				: StorageHelper.poweredExtraction(grid.getEnergyService(), inventory, ManaKey.KEY, -mana, source);
-		if (moved > 0) {
-			cacheTick = -1;
+		var mode = simulate ? Actionable.SIMULATE : Actionable.MODULATE;
+		long moved = insert
+				? StorageHelper.poweredInsert(grid.getEnergyService(), inventory, ManaKey.KEY, amount, source, mode)
+				: StorageHelper.poweredExtraction(grid.getEnergyService(), inventory, ManaKey.KEY, amount, source, mode);
+		if (moved > 0 && !simulate) {
 			comparatorDirty = true;
 			markDispatchable();
 		}
+		return Math.max(0, moved);
 	}
 
 	public long getComparatorSignal() {
@@ -186,11 +192,10 @@ public class FluixManaPoolBlockEntity extends ManaPoolBlockEntity implements IIn
 		if (++self.ticks % 10 != 0) {
 			return;
 		}
-		self.refresh();
-		long total = self.stored + self.space;
-		long capacity = total < 0 ? Long.MAX_VALUE : total;
-		if (capacity != self.shownCapacity || self.stored != self.shownMana) {
-			self.shownMana = self.stored;
+		long stored = self.stored();
+		long capacity = capacity(stored, self.space());
+		if (capacity != self.shownCapacity || stored != self.shownMana) {
+			self.shownMana = stored;
 			self.shownCapacity = capacity;
 			self.comparatorDirty = true;
 			self.syncToClients();

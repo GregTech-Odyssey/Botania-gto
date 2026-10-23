@@ -11,10 +11,12 @@ package vazkii.botania.api.mana;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
+import vazkii.botania.api.mana.spark.SparkAttachable;
+
 /**
  * Any Block or Block Entity with this capability can hold and receive mana from mana bursts.
  */
-public interface ManaReceiver {
+public interface ManaReceiver extends ManaEndpoint {
 	Level getManaReceiverLevel();
 
 	BlockPos getManaReceiverPos();
@@ -52,4 +54,49 @@ public interface ManaReceiver {
 	 */
 	boolean canReceiveManaFromBursts();
 
+	@Override
+	default long addMana(long amount, boolean simulate) {
+		if (amount <= 0 || isFull()) {
+			return 0;
+		}
+		long room = roomOf(this);
+		if (room < 0) {
+			if (simulate) {
+				return amount;
+			}
+			long before = getCurrentManaLong();
+			receiveManaLong(amount);
+			return Math.max(0, Math.min(amount, getCurrentManaLong() - before));
+		}
+		long change = Math.min(amount, room);
+		if (change > 0 && !simulate) {
+			receiveManaLong(change);
+		}
+		return Math.max(0, change);
+	}
+
+	@Override
+	default long removeMana(long amount, boolean simulate) {
+		long change = Math.min(amount, getCurrentManaLong());
+		if (change <= 0) {
+			return 0;
+		}
+		if (!simulate) {
+			receiveManaLong(-change);
+		}
+		return change;
+	}
+
+	private static long roomOf(ManaReceiver receiver) {
+		if (receiver instanceof SparkAttachable attachable) {
+			return Math.max(0, attachable.getAvailableSpaceForManaLong());
+		}
+		if (receiver instanceof ManaPool pool) {
+			return Math.max(0, pool.getMaxManaLong() - pool.getCurrentManaLong());
+		}
+		if (receiver instanceof ManaCollector collector) {
+			return Math.max(0, collector.getMaxMana() - collector.getCurrentManaLong());
+		}
+		return -1;
+	}
 }

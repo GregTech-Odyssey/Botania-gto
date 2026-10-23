@@ -32,6 +32,7 @@ import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
 import vazkii.botania.common.block.mana.LargeManaPoolBlock;
 
 import java.util.List;
+import java.util.Locale;
 
 public class LargeManaPoolItem extends BlockItem {
 	public LargeManaPoolItem(Block block, Properties props) {
@@ -78,7 +79,8 @@ public class LargeManaPoolItem extends BlockItem {
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
 		super.appendHoverText(stack, level, tooltip, flag);
-		tooltip.add(Component.translatable("botaniamisc.largePool0").withStyle(ChatFormatting.GRAY));
+		var spec = ((LargeManaPoolBlock) getBlock()).poolSpec();
+		tooltip.add(Component.translatable("botaniamisc.largePool0", spec.width(), spec.depth(), String.format(Locale.ROOT, "%,d", spec.capacity())).withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("botaniamisc.largePool1").withStyle(ChatFormatting.GRAY));
 	}
 }

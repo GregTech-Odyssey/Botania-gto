@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import vazkii.botania.api.BotaniaAPI;
 import vazkii.botania.api.block.WandHUD;
+import vazkii.botania.api.mana.ManaEndpoint;
 import vazkii.botania.api.mana.ManaItem;
 import vazkii.botania.api.mana.ManaPool;
 import vazkii.botania.api.mana.ManaReceiver;
@@ -50,6 +51,7 @@ import vazkii.botania.api.mana.spark.SparkUpgradeType;
 import vazkii.botania.client.core.helper.RenderHelper;
 import vazkii.botania.client.fx.SparkFlowEffects;
 import vazkii.botania.common.block.block_entity.mana.LargeManaPoolBlockEntity;
+import vazkii.botania.common.block.block_entity.mana.ManaPoolSpec;
 import vazkii.botania.common.helper.ColorHelper;
 import vazkii.botania.common.helper.PlayerHelper;
 import vazkii.botania.common.helper.VecHelper;
@@ -66,7 +68,6 @@ import java.util.*;
 public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 	private static final int TRANSFER_INTERVAL = 20;
 	private static final int TRANSFER_RATE = 1000 * TRANSFER_INTERVAL;
-	private static final int LARGE_POOL_RATE_MULTIPLIER = 9;
 	private static final String TAG_UPGRADE = "upgrade";
 	private static final String TAG_MIRROR = "mirror";
 	private static final EntityDataAccessor<Integer> UPGRADE = SynchedEntityData.defineId(ManaSparkEntity.class, EntityDataSerializers.INT);
@@ -187,7 +188,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 			}
 			long rateLeft = totalRate(receiver, outgoingTransfers);
 			long manaTotal = Math.min(rateLeft, receiver.getCurrentManaLong());
-			int manaSpent = 0;
+			long manaSpent = 0;
 
 			if (manaTotal > 0) {
 				for (ManaSpark spark : outgoingTransfers) {
@@ -201,8 +202,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 						continue;
 					}
 
-					int spend = (int) Math.min(attached.getAvailableSpaceForManaLong(), share);
-					attachedReceiver.receiveMana(spend);
+					long spend = ManaEndpoint.transfer(receiver, attachedReceiver, share);
 					manaSpent += spend;
 					spark.checkReceiverFull();
 
@@ -210,7 +210,6 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 						FLOW_OUT.add(spark.entity().getId());
 					}
 				}
-				receiver.receiveMana(-manaSpent);
 			}
 		}
 		if (!inboundTransfers.isEmpty() && tile.getAvailableSpaceForManaLong() > 0) {
@@ -220,7 +219,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 			}
 			long rateLeft = totalRate(receiver, inboundTransfers);
 			long manaNeeded = Math.min(rateLeft, tile.getAvailableSpaceForManaLong());
-			int manaRecieved = 0;
+			long manaRecieved = 0;
 
 			if (manaNeeded > 0) {
 				inboundTransfers.sort(BY_CURRENT_MANA);
@@ -235,15 +234,13 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 						continue;
 					}
 
-					int gained = (int) Math.min(attachedReceiver.getCurrentManaLong(), share);
-					attachedReceiver.receiveMana(-gained);
+					long gained = ManaEndpoint.transfer(attachedReceiver, receiver, share);
 					manaRecieved += gained;
 
 					if (gained > 0) {
 						FLOW_IN.add(spark.entity().getId());
 					}
 				}
-				receiver.receiveMana(manaRecieved);
 			}
 		}
 
@@ -251,12 +248,8 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		firstTick = false;
 	}
 
-	private static boolean onLargePool(@Nullable ManaReceiver receiver) {
-		return receiver instanceof LargeManaPoolBlockEntity;
-	}
-
 	private static long linkRate(ManaReceiver own, ManaSpark other) {
-		return onLargePool(own) || onLargePool(other.getAttachedManaReceiver()) ? (long) TRANSFER_RATE * LARGE_POOL_RATE_MULTIPLIER : TRANSFER_RATE;
+		return (long) TRANSFER_RATE * Math.max(ManaPoolSpec.sparkFactorOf(own), ManaPoolSpec.sparkFactorOf(other.getAttachedManaReceiver()));
 	}
 
 	private static long totalRate(ManaReceiver own, Collection<ManaSpark> links) {
@@ -280,12 +273,13 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 				this.position().with(Direction.Axis.Y, getY() + (getBbHeight() / 2.0)),
 				SparkHelper.SPARK_SCAN_RANGE);
 		ItemStack input = sparkStack();
+		int rate = TRANSFER_RATE * ManaPoolSpec.sparkFactorOf(receiver);
 		Player target = null;
 		ManaItem targetItem = null;
 		int candidates = 0;
 		for (Player player : level().players()) {
 			if (player.isAlive() && player.getBoundingBox().intersects(aabb)) {
-				ManaItem item = findChargeable(player, input);
+				ManaItem item = findChargeable(player, input, rate);
 				if (item != null && level().random.nextInt(++candidates) == 0) {
 					target = player;
 					targetItem = item;
@@ -294,34 +288,32 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		}
 
 		if (target != null) {
-			int rate = onLargePool(receiver) ? TRANSFER_RATE * LARGE_POOL_RATE_MULTIPLIER : TRANSFER_RATE;
-			int manaToPut = Math.min(receiver.getCurrentMana(), Math.min(rate, targetItem.getMaxMana() - targetItem.getMana()));
-			targetItem.addMana(manaToPut);
-			receiver.receiveMana(-manaToPut);
-			FLOW_OUT.add(target.getId());
+			if (ManaEndpoint.transfer(receiver, targetItem, rate) > 0) {
+				FLOW_OUT.add(target.getId());
+			}
 		}
 	}
 
 	@Nullable
-	private static ManaItem findChargeable(Player player, ItemStack input) {
+	private static ManaItem findChargeable(Player player, ItemStack input, int rate) {
 		var inventory = player.getInventory();
-		ManaItem item = findChargeable(inventory.items, input);
+		ManaItem item = findChargeable(inventory.items, input, rate);
 		if (item == null) {
-			item = findChargeable(inventory.armor, input);
+			item = findChargeable(inventory.armor, input, rate);
 		}
 		if (item == null) {
 			Container inv = BotaniaAPI.instance().getAccessoriesInventory(player);
 			for (int i = 0; i < inv.getContainerSize() && item == null; i++) {
-				item = chargeable(inv.getItem(i), input);
+				item = chargeable(inv.getItem(i), input, rate);
 			}
 		}
 		return item;
 	}
 
 	@Nullable
-	private static ManaItem findChargeable(List<ItemStack> stacks, ItemStack input) {
+	private static ManaItem findChargeable(List<ItemStack> stacks, ItemStack input, int rate) {
 		for (int i = 0, n = stacks.size(); i < n; i++) {
-			ManaItem item = chargeable(stacks.get(i), input);
+			ManaItem item = chargeable(stacks.get(i), input, rate);
 			if (item != null) {
 				return item;
 			}
@@ -330,7 +322,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 	}
 
 	@Nullable
-	private static ManaItem chargeable(ItemStack stack, ItemStack input) {
+	private static ManaItem chargeable(ItemStack stack, ItemStack input, int rate) {
 		if (stack.isEmpty()) {
 			return null;
 		}
@@ -338,7 +330,7 @@ public class ManaSparkEntity extends SparkBaseEntity implements ManaSpark {
 		if (manaItem == null || !manaItem.canReceiveManaFromItem(input)) {
 			return null;
 		}
-		return Math.min(TRANSFER_RATE, manaItem.getMaxMana() - manaItem.getMana()) > 0 ? manaItem : null;
+		return Math.min(rate, manaItem.getMaxMana() - manaItem.getMana()) > 0 ? manaItem : null;
 	}
 
 	private ItemStack sparkStack() {

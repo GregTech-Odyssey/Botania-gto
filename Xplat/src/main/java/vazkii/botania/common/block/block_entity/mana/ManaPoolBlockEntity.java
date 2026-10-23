@@ -43,7 +43,6 @@ import vazkii.botania.api.BotaniaAPIClient;
 import vazkii.botania.api.block.WandHUD;
 import vazkii.botania.api.block.Wandable;
 import vazkii.botania.api.internal.VanillaPacketDispatcher;
-import vazkii.botania.api.item.ManaDissolvable;
 import vazkii.botania.api.mana.*;
 import vazkii.botania.api.mana.spark.ManaSpark;
 import vazkii.botania.api.mana.spark.SparkAttachable;
@@ -58,7 +57,6 @@ import vazkii.botania.common.block.BotaniaBlocks;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntities;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntity;
 import vazkii.botania.common.block.mana.ManaPoolBlock;
-import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 import vazkii.botania.common.handler.BotaniaSounds;
 import vazkii.botania.common.handler.ManaNetworkHandler;
 import vazkii.botania.common.helper.EntityHelper;
@@ -68,20 +66,18 @@ import vazkii.botania.common.item.ManaTabletItem;
 import vazkii.botania.xplat.BotaniaConfig;
 import vazkii.botania.xplat.XplatAbstractions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static vazkii.botania.api.state.BotaniaStateProperties.OPTIONAL_DYE_COLOR;
 
 public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool, KeyLocked, SparkAttachable,
-		ThrottledPacket, Wandable {
+		ThrottledPacket, Wandable, ManaPoolSpec.Holder {
 	public static final int PARTICLE_COLOR = 0x00C6FF;
 	public static final float PARTICLE_COLOR_BLUE = (PARTICLE_COLOR & 0xFF) / 255F;
 	public static final float PARTICLE_COLOR_GREEN = (PARTICLE_COLOR >> 8 & 0xFF) / 255F;
 	public static final float PARTICLE_COLOR_RED = (PARTICLE_COLOR >> 16 & 0xFF) / 255F;
 	public static final int MAX_MANA = 1000000;
-	private static final int MAX_MANA_DILLUTED = 10000;
 
 	private static final String TAG_MANA = "mana";
 	private static final String TAG_OUTPUTTING = "outputting";
@@ -99,6 +95,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	private boolean outputting = false;
 
 	private Optional<DyeColor> legacyColor = Optional.empty();
+	private final ManaPoolSpec spec;
 	@SyncToClient
 	private int mana;
 
@@ -127,6 +124,12 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 
 	protected ManaPoolBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
+		spec = ManaPoolSpec.of(state.getBlock(), ManaPoolSpec.POOL);
+	}
+
+	@Override
+	public ManaPoolSpec poolSpec() {
+		return spec;
 	}
 
 	@Override
@@ -170,21 +173,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 
 	@Nullable
 	public static ManaInfusionRecipe findInfusionRecipe(Level level, @NotNull ItemStack stack, @NotNull BlockState state) {
-		List<ManaInfusionRecipe> matchingNonCatRecipes = new ArrayList<>();
-		List<ManaInfusionRecipe> matchingCatRecipes = new ArrayList<>();
-
-		for (var recipe : BotaniaRecipeTypes.getRecipes(level, BotaniaRecipeTypes.MANA_INFUSION_TYPE).values()) {
-			if (recipe.matches(stack)) {
-				if (recipe.getRecipeCatalyst() == null) {
-					matchingNonCatRecipes.add(recipe);
-				} else if (recipe.getRecipeCatalyst().test(state)) {
-					matchingCatRecipes.add(recipe);
-				}
-			}
-		}
-
-		// Recipes with matching catalyst take priority above recipes with no catalyst specified
-		return !matchingCatRecipes.isEmpty() ? matchingCatRecipes.get(0) : !matchingNonCatRecipes.isEmpty() ? matchingNonCatRecipes.get(0) : null;
+		return ManaInfusion.find(level, stack, state);
 	}
 
 	public boolean collideEntityItem(ItemEntity item) {
@@ -197,41 +186,10 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 			}
 			return false;
 		}
-
-		ItemStack stack = item.getItem();
-
-		if (stack.getItem() instanceof ManaDissolvable dissolvable) {
-			dissolvable.onDissolveTick(this, item);
+		if (ManaInfusion.process(level, this, item, level.getBlockState(worldPosition.below()), spec.infusionRate(), worldPosition) > 0) {
+			craftingEffect(true);
+			return true;
 		}
-
-		if (XplatAbstractions.INSTANCE.itemFlagsComponent(item).manaInfusionSpawned) {
-			return false;
-		}
-
-		ManaInfusionRecipe recipe = getMatchingRecipe(stack, level.getBlockState(worldPosition.below()));
-
-		if (recipe != null) {
-			int mana = recipe.getManaToConsume();
-			if (getCurrentMana() >= mana) {
-				receiveMana(-mana);
-
-				ItemStack output = recipe.getRecipeOutput(level.registryAccess(), stack);
-				EntityHelper.shrinkItem(item);
-				item.setOnGround(false); //Force entity collision update to run every tick if crafting is in progress
-
-				ItemEntity outputItem = new ItemEntity(level, worldPosition.getX() + 0.5, worldPosition.getY() + 1.5, worldPosition.getZ() + 0.5, output);
-				XplatAbstractions.INSTANCE.itemFlagsComponent(outputItem).manaInfusionSpawned = true;
-				if (item.getOwner() instanceof Player player) {
-					player.triggerRecipeCrafted(recipe, List.of(output));
-					output.onCraftedBy(level, player, output.getCount());
-				}
-				level.addFreshEntity(outputItem);
-
-				craftingEffect(true);
-				return true;
-			}
-		}
-
 		return false;
 	}
 
@@ -281,7 +239,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	private void initManaCapAndNetwork() {
 		var variant = ((ManaPoolBlock) getBlockState().getBlock()).variant;
 		if (manaCap == -1) {
-			manaCap = variant == ManaPoolBlock.Variant.DILUTED ? MAX_MANA_DILLUTED : MAX_MANA;
+			manaCap = (int) Math.min(Integer.MAX_VALUE, spec.capacity());
 		}
 		resetLegacyFabulousCap(variant);
 		if (!ManaNetworkHandler.instance.isPoolIn(level, this) && !isRemoved()) {
@@ -425,6 +383,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 
 		List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(worldPosition, worldPosition.offset(1, 1, 1)));
 		for (ItemEntity item : items) {
+			self.collideEntityItem(item);
 			if (!item.isAlive()) {
 				continue;
 			}
@@ -436,7 +395,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 					boolean didSomething = false;
 
 					int bellowCount = self.outputting ? getBellowCount(level, worldPosition, self) : 0;
-					int transfRate = 1000 * (bellowCount + 1);
+					int transfRate = self.spec.itemTransferRate() * (bellowCount + 1);
 
 					if (self.outputting) {
 						if (self.canSpare) {
@@ -444,9 +403,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 								didSomething = true;
 							}
 
-							int manaVal = Math.min(transfRate, Math.min(self.getCurrentMana(), mana.getMaxMana() - mana.getMana()));
-							mana.addMana(manaVal);
-							self.receiveMana(-manaVal);
+							ManaEndpoint.transfer(self, mana, transfRate);
 						}
 					} else {
 						if (self.canAccept) {
@@ -454,12 +411,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 								didSomething = true;
 							}
 
-							int manaVal = Math.min(transfRate, Math.min(Math.max(0, self.getMaxMana() - self.getCurrentMana()), mana.getMana()));
-							if (manaVal == 0 && self.level.getBlockState(worldPosition.below()).is(BotaniaBlocks.manaVoid)) {
-								manaVal = Math.min(transfRate, mana.getMana());
-							}
-							mana.addMana(-manaVal);
-							self.receiveMana(manaVal);
+							ManaEndpoint.transfer(mana, self, transfRate);
 						}
 					}
 
@@ -649,6 +601,14 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	@Override
 	public int getMaxMana() {
 		return manaCap;
+	}
+
+	@Override
+	public long removeMana(long amount, boolean simulate) {
+		if (getBlockState().getBlock() instanceof ManaPoolBlock pool && pool.variant == ManaPoolBlock.Variant.CREATIVE) {
+			return Math.max(0, amount);
+		}
+		return ManaPool.super.removeMana(amount, simulate);
 	}
 
 	@Override
