@@ -345,6 +345,10 @@ public final class HUDHandler {
 	/**
 	 * Renders a mana HUD below the crosshair, containing a mana bar, a name above, and a bound item status to the right
 	 */
+	public static void drawComplexManaHUD(int color, GuiGraphics gui, int mana, int maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {
+		drawComplexManaHUD(color, gui, (long) mana, (long) maxMana, name, bindDisplay, properlyBound);
+	}
+
 	public static void drawComplexManaHUD(int color, GuiGraphics gui, long mana, long maxMana, String name, ItemStack bindDisplay, boolean properlyBound) {
 		PoseStack ms = gui.pose();
 		drawManaHUD(gui, color, mana, maxMana, name);
@@ -369,6 +373,10 @@ public final class HUDHandler {
 		}
 		ms.popPose();
 		RenderSystem.enableDepthTest();
+	}
+
+	public static void renderManaBar(GuiGraphics gui, int x, int y, int color, float alpha, int mana, int maxMana) {
+		renderManaBar(gui, x, y, color, alpha, (long) mana, (long) maxMana);
 	}
 
 	public static void renderManaBar(GuiGraphics gui, int x, int y, int color, float alpha, long mana, long maxMana) {
