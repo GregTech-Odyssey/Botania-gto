@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const lang_directory = `${__dirname}/../Xplat/src/main/resources/assets/botania/lang`;
+const lang_directory = `${__dirname}/../src/main/resources/assets/botania/lang`;
 const files = fs.readdirSync(lang_directory);
 
 const en_us = 'en_us.json';

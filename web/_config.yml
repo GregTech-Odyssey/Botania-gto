@@ -4,6 +4,6 @@ exclude:
   - ARCHITECTURE.md
 lexicon:
   script: _scripts/collate_data.py
-  filepath: ../Xplat/src/main/resources
+  filepath: ../src/main/resources
   mod_name: botania
   book_name: lexicon

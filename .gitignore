@@ -7,8 +7,6 @@ build
 
 ## Run directories
 /run
-/Forge/run
-/Fabric/run
 
 ## eclipse
 .settings
@@ -34,7 +32,6 @@ out
 ## vscode
 .favorites.json
 .vscode/settings.json
-Fabric/.vscode/*
  
 ## Private Stuffs
 /private.properties
@@ -70,4 +67,5 @@ Temporary Items
 /docsOut
 
 # Logs
-Xplat/logs/latest.log
+/logs/
+/src/generated/resources/.cache/

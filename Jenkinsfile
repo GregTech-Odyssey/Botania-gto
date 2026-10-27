@@ -15,7 +15,7 @@ pipeline {
     }
     agent any
     tools {
-        jdk "jdk-17.0.1"
+        jdk "jdk-21"
     }
     stages {
         stage('Clean') {
@@ -33,7 +33,7 @@ pipeline {
                 RELEASE_MODE = '1'
             }
             steps {
-                sh './gradlew build publish --no-daemon'
+                sh './gradlew spotlessApply spotlessCheck build publish --no-daemon'
             }
         }
         stage('Build and Deploy Snapshot') {
@@ -43,7 +43,7 @@ pipeline {
                 }
             }
             steps {
-                sh './gradlew build publish --no-daemon'
+                sh './gradlew spotlessApply spotlessCheck build publish --no-daemon'
             }
         }
 	/*
@@ -86,7 +86,7 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: 'Forge/build/libs/*.jar'
+            archiveArtifacts artifacts: 'build/libs/*.jar'
         }
     }
 }

@@ -12,9 +12,7 @@ body:
     attributes:
       label: Mod Loader
       options:
-        - (Neo)Forge
-        - Fabric
-        - Both Fabric and (Neo)Forge (I confirm that I have tested both loaders and will specify both loader versions below)
+        - Forge
     validations:
       required: true
   - type: input
@@ -37,8 +35,7 @@ body:
       label: Modloader version
       description: |
         List the version of the mod loader you are using.
-        If on Fabric, post the versions of both Fabric Loader and Fabric API.
-      placeholder: "eg. Forge: 47.1.3 / NeoForge: 21.1.217 / Fabric: Loader 0.18.4 + API 0.92.6"
+      placeholder: "eg. Forge: 47.4.20"
     validations:
       required: true
   - type: input

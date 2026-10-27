@@ -2,7 +2,7 @@
 
 FAILED=0
 
-for f in ./Xplat/src/main/resources/assets/botania/lang/*.json
+for f in ./src/main/resources/assets/botania/lang/*.json
 do
     if ! jq . "${f}" > /dev/null
     then

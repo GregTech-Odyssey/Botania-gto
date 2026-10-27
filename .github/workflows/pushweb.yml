@@ -3,7 +3,7 @@ name: Build and Push website
 on:
   push:
     paths:
-      - 'Xplat/src/main/resources/assets/botania/lang/en_us.json'
+      - 'src/main/resources/assets/botania/lang/en_us.json'
       - 'web/**'
 
 jobs:

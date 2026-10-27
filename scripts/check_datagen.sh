@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 set -e
 
-./gradlew :Forge:runXplatData :Forge:runData || exit 1
+./gradlew runData || exit 1
 
-STATUS="$(git status --porcelain Xplat/src/generated/resources Forge/src/generated/resources)"
+STATUS="$(git status --porcelain src/generated/resources)"
 if [ -z "$STATUS" ]
 then
   echo "Datagen ok"
