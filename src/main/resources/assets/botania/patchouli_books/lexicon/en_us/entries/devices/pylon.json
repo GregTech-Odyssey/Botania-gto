@@ -13,5 +13,8 @@
       "text": "botania.page.pylon1",
       "recipe": "botania:mana_pylon"
     }
-  ]
+  ],
+  "extra_recipe_mappings": {
+    "botania:mana_pylon": 1
+  }
 }

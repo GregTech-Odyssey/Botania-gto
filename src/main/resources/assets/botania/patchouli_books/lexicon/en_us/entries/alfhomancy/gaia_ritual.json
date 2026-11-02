@@ -34,6 +34,7 @@
     }
   ],
   "extra_recipe_mappings": {
-    "botania:life_essence": 1
+    "botania:life_essence": 1,
+    "botania:gaia_pylon": 1
   }
 }

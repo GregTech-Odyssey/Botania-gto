@@ -19,7 +19,7 @@ public final class ManaKey extends AEKey {
 	private ManaKey() {}
 
 	@Override
-	public AEKeyType getType() {
+	public AEKeyType<ManaKey> getType() {
 		return ManaKeyType.TYPE;
 	}
 

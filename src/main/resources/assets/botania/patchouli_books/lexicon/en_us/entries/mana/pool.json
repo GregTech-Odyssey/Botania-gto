@@ -89,6 +89,8 @@
   ],
   "extra_recipe_mappings": {
     "botania:manasteel_nugget": 6,
-    "botania:mana_glass_pane": 11
+    "botania:mana_glass_pane": 11,
+    "botania:mana_pearl": 8,
+    "botania:mana_string": 12
   }
 }

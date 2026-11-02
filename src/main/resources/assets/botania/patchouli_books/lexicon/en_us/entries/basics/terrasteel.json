@@ -34,6 +34,7 @@
   ],
   "extra_recipe_mappings": {
     "botania:terrasteel_block": 1,
-    "botania:terrasteel_nugget": 1
+    "botania:terrasteel_nugget": 1,
+    "botania:terra_plate": 1
   }
 }

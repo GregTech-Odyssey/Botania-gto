@@ -9,10 +9,9 @@ import org.jetbrains.annotations.ApiStatus;
 
 import static vazkii.botania.common.lib.ResourceLocationHelper.prefix;
 
-import appeng.api.stacks.AEKey;
 import appeng.api.stacks.AEKeyType;
 
-public final class ManaKeyType extends AEKeyType {
+public final class ManaKeyType extends AEKeyType<ManaKey> {
 	public static final ResourceLocation ID = prefix("mana");
 	@Deprecated(since = "457.2610.7", forRemoval = true)
 	@ApiStatus.ScheduledForRemoval(inVersion = "2027.6.1")
@@ -26,12 +25,12 @@ public final class ManaKeyType extends AEKeyType {
 	}
 
 	@Override
-	public AEKey readFromPacket(FriendlyByteBuf input) {
+	public ManaKey readFromPacket(FriendlyByteBuf input) {
 		return ManaKey.KEY;
 	}
 
 	@Override
-	public AEKey loadKeyFromTag(CompoundTag tag) {
+	public ManaKey loadKeyFromTag(CompoundTag tag) {
 		return ManaKey.KEY;
 	}
 

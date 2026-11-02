@@ -42,5 +42,9 @@
       "type": "text",
       "text": "botania.page.aIntro7"
     }
-  ]
+  ],
+  "extra_recipe_mappings": {
+    "botania:alfheim_portal": 2,
+    "botania:natura_pylon": 3
+  }
 }

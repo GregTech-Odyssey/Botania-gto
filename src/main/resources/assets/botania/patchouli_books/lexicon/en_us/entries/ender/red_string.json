@@ -77,5 +77,8 @@
       "text": "botania.page.redString14",
       "recipe": "botania:red_string_interceptor"
     }
-  ]
+  ],
+  "extra_recipe_mappings": {
+    "botania:red_string": 3
+  }
 }

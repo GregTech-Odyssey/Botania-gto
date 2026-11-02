@@ -63,7 +63,7 @@ import appeng.items.parts.PartModelsHelper;
  * pool, mana P2P tunnel, bus strategies, and aliases that migrate the IDs of the retired Applied Botanics addon.
  */
 public final class BotaniaAE2 {
-	public static final ResourceKey<Registry<AEKeyType>> KEY_TYPES = ResourceKey.createRegistryKey(new ResourceLocation("ae2", "keytypes"));
+	public static final ResourceKey<Registry<AEKeyType<?>>> KEY_TYPES = ResourceKey.createRegistryKey(new ResourceLocation("ae2", "keytypes"));
 	@Deprecated(since = "457.2610.7", forRemoval = true)
 	@ApiStatus.ScheduledForRemoval(inVersion = "2027.6.1")
 	private static final String LEGACY = "appbot";

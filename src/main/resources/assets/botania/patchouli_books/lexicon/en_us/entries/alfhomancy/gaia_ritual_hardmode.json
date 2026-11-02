@@ -19,5 +19,8 @@
       "text": "botania.page.gaiaRitualHardmode2",
       "recipe": "botania:gaia_ingot"
     }
-  ]
+  ],
+  "extra_recipe_mappings": {
+    "botania:gaia_ingot": 2
+  }
 }
