@@ -24,7 +24,7 @@ configBackground="botania:textures/block/livingrock_bricks.png" # background for
 [[dependencies.botania]]
     modId="datasynclib"
     mandatory=true
-    versionRange="[26.10.11,)"
+    versionRange="[26.11.2,)"
     ordering="AFTER"
     side="BOTH"
 

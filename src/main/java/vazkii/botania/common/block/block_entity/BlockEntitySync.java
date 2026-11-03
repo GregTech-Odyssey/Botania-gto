@@ -12,6 +12,7 @@ import com.gto.datasynclib.IFieldDataHolder;
 import com.gto.datasynclib.LazyFieldDataManager;
 import com.gto.datasynclib.LogicalSide;
 import com.gto.datasynclib.util.ByteBufCodecExtends;
+import com.gto.datasynclib.util.ByteBufUtil;
 
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 
@@ -113,7 +114,8 @@ public final class BlockEntitySync {
 		if (!manager.updateFieldDirtyFlags(LogicalSide.SERVER, true)) {
 			return;
 		}
-		byte[] data = manager.writeToNetworkBuffer(LogicalSide.SERVER, false);
+		byte[] data = ByteBufUtil.writeToBytes(ByteBufUtil.FRIENDLY_BYTE_BUF_WRAPPER,
+				buf -> manager.writeToNetworkBuffer(LogicalSide.SERVER, buf, false));
 		if (data.length > 0) {
 			XplatAbstractions.INSTANCE.sendBlockEntitySync(be, data);
 		}
@@ -125,7 +127,8 @@ public final class BlockEntitySync {
 			send(be);
 		}
 		var tag = new CompoundTag();
-		tag.putByteArray(FULL_KEY, manager.get().writeToNetworkBuffer(LogicalSide.SERVER, true));
+		tag.putByteArray(FULL_KEY, ByteBufUtil.writeToBytes(ByteBufUtil.FRIENDLY_BYTE_BUF_WRAPPER,
+				buf -> manager.get().writeToNetworkBuffer(LogicalSide.SERVER, buf, true)));
 		return tag;
 	}
 
@@ -135,7 +138,8 @@ public final class BlockEntitySync {
 
 	public void readFull(CompoundTag tag) {
 		if (tag.get(FULL_KEY) instanceof ByteArrayTag data) {
-			manager.get().readFromNetworkBuffer(LogicalSide.CLIENT, data.getAsByteArray());
+			ByteBufUtil.readFromBytes(ByteBufUtil.FRIENDLY_BYTE_BUF_WRAPPER, data.getAsByteArray(),
+					buf -> manager.get().readFromNetworkBuffer(LogicalSide.CLIENT, buf));
 		}
 	}
 

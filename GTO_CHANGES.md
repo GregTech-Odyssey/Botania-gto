@@ -13,7 +13,7 @@
 
 - 模组显示名为 Botania GTO Edition；模组 ID 仍为 `botania`，与原版存档及附属模组保持兼容。
 - 不再联网获取原版贡献者名单，因此原版贡献者的头顶花饰与小土豆花饰不会显示。
-- 只提供 Forge 版，需要 Java 21 与前置模组 DataSyncLib（26.10.11 及以上）、GTOUtils（26.10.1 及以上）、GTORenders（26.10.1 及以上）。
+- 只提供 Forge 版，需要 Java 21 与前置模组 DataSyncLib（26.11.2 及以上）、GTOUtils（26.10.1 及以上）、GTORenders（26.10.1 及以上）；支持 DataSyncLib 26.11.2，修复方块实体同步时的接口不兼容崩溃。
 
 ## 魔力存储
 
