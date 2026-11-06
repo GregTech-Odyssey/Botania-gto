@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import appeng.api.config.Actionable;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEKey;
+import appeng.api.stacks.AEKeyType;
 import appeng.api.stacks.KeyCounter;
 import appeng.api.storage.MEStorage;
 import appeng.api.storage.cells.CellState;
@@ -31,8 +32,8 @@ final class CreativeManaCellInventory implements StorageCell {
 	}
 
 	@Override
-	public boolean isPreferredStorageFor(AEKey what, IActionSource source) {
-		return what == ManaKey.KEY;
+	public boolean supportsKeyType(AEKeyType<?> aeKeyType) {
+		return aeKeyType == ManaKeyType.TYPE;
 	}
 
 	@Override

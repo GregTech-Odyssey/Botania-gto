@@ -21,6 +21,7 @@ import appeng.api.networking.GridHelper;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEKey;
+import appeng.api.stacks.AEKeyType;
 import appeng.api.stacks.KeyCounter;
 import appeng.api.storage.MEStorage;
 import appeng.api.storage.StorageHelper;
@@ -68,6 +69,11 @@ final class ManaStorageStrategies {
 	private record ReceiverStorage(ManaReceiver receiver, Runnable callback, Supplier<IGrid> busGrid) implements MEStorage {
 		private boolean ownNetwork() {
 			return receiver instanceof FluixManaPoolBlockEntity pool && pool.isOnGrid(busGrid.get());
+		}
+
+		@Override
+		public boolean supportsKeyType(AEKeyType<?> aeKeyType) {
+			return aeKeyType == ManaKeyType.TYPE;
 		}
 
 		@Override
