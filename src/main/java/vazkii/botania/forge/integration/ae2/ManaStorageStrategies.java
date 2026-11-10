@@ -77,6 +77,11 @@ final class ManaStorageStrategies {
 		}
 
 		@Override
+		public int operationTime() {
+			return 2;
+		}
+
+		@Override
 		public long insert(AEKey what, long amount, Actionable mode, IActionSource source) {
 			if (what != ManaKey.KEY || ownNetwork()) {
 				return 0;

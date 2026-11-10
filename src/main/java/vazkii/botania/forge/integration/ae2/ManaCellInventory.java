@@ -58,6 +58,11 @@ final class ManaCellInventory implements StorageCell {
 	}
 
 	@Override
+	public int operationTime() {
+		return 1;
+	}
+
+	@Override
 	public long insert(AEKey what, long amount, Actionable mode, IActionSource source) {
 		if (what != ManaKey.KEY || amount <= 0) {
 			return 0;

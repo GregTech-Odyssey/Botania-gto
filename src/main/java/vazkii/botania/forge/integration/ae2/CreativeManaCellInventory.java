@@ -37,6 +37,11 @@ final class CreativeManaCellInventory implements StorageCell {
 	}
 
 	@Override
+	public int operationTime() {
+		return 1;
+	}
+
+	@Override
 	public long insert(AEKey what, long amount, Actionable mode, IActionSource source) {
 		return what == ManaKey.KEY ? Math.max(0, amount) : 0;
 	}
