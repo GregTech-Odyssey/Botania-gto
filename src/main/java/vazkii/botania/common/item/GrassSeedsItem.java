@@ -9,11 +9,11 @@
 package vazkii.botania.common.item;
 
 import com.google.common.collect.ImmutableMap;
+import com.suried.gtoutils.schedule.Cadence;
+import com.suried.gtoutils.schedule.Schedulers;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -35,11 +35,6 @@ import vazkii.botania.common.lib.BotaniaTags;
 import java.util.*;
 
 public class GrassSeedsItem extends Item implements FloatingFlowerVariant {
-	/**
-	 * Represents a map of dimension IDs to a set of all block swappers
-	 * active in that dimension.
-	 */
-	private static final Map<ResourceKey<Level>, Set<BlockSwapper>> blockSwappers = new HashMap<>();
 	private static final Map<IslandType, Integer> COLORS = ImmutableMap.<IslandType, Integer>builder()
 			.put(IslandType.GRASS, 0x006600)
 			.put(IslandType.PODZOL, 0x805E00)
@@ -103,13 +98,6 @@ public class GrassSeedsItem extends Item implements FloatingFlowerVariant {
 		}
 	}
 
-	public static void onTickEnd(ServerLevel world) {
-		ResourceKey<Level> dim = world.dimension();
-		if (blockSwappers.containsKey(dim)) {
-			blockSwappers.get(dim).removeIf(next -> next == null || !next.tick());
-		}
-	}
-
 	/**
 	 * Adds a grass seed block swapper to the world at the provided position
 	 * and with the provided meta (which designates the type of the grass
@@ -125,10 +113,7 @@ public class GrassSeedsItem extends Item implements FloatingFlowerVariant {
 	 */
 	private static BlockSwapper addBlockSwapper(Level world, BlockPos pos, IslandType type) {
 		BlockSwapper swapper = new BlockSwapper(world, pos, stateForType(type));
-
-		ResourceKey<Level> dim = world.dimension();
-		blockSwappers.computeIfAbsent(dim, d -> new HashSet<>()).add(swapper);
-
+		Schedulers.of(world).repeat(Cadence.EVERY_TICK, swapper, BlockSwapper::tick, BlockSwapper::isDone);
 		return swapper;
 	}
 
@@ -219,6 +204,10 @@ public class GrassSeedsItem extends Item implements FloatingFlowerVariant {
 
 			// This swapper should exist for 80 ticks
 			return ticksExisted < 80;
+		}
+
+		public boolean isDone() {
+			return ticksExisted >= 80;
 		}
 
 		/**

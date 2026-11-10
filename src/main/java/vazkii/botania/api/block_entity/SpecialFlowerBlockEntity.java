@@ -9,6 +9,8 @@
 package vazkii.botania.api.block_entity;
 
 import com.gto.datasynclib.FieldDataManager;
+import com.suried.gtoutils.schedule.CoalescedTask;
+import com.suried.gtoutils.schedule.Schedulers;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -77,6 +79,8 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 	private boolean slowTicking;
 	private boolean observed;
 	private int lastSync;
+	@Nullable
+	private CoalescedTask trailingSync;
 	private BlockEntitySync blockEntitySync;
 
 	public static final String TAG_TICKS_EXISTED = "ticksExisted";
@@ -278,10 +282,16 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity implements Fl
 	public void sync() {
 		if (level instanceof ServerLevel serverLevel) {
 			int tick = serverLevel.getServer().getTickCount();
-			if (tick - lastSync > (observed ? OBSERVED_SYNC_INTERVAL : SYNC_INTERVAL)) {
+			int wait = lastSync + (observed ? OBSERVED_SYNC_INTERVAL : SYNC_INTERVAL) + 1 - tick;
+			if (wait <= 0) {
 				observed = false;
 				lastSync = tick;
 				VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
+			} else {
+				if (trailingSync == null) {
+					trailingSync = new CoalescedTask(this, this::sync);
+				}
+				Schedulers.of(serverLevel).submit(trailingSync, wait);
 			}
 		}
 	}

@@ -8,6 +8,7 @@
  */
 package vazkii.botania.common.block.block_entity.mana;
 
+import com.suried.gtoutils.schedule.TickBatch;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 public final class LargeManaPoolNetwork {
-	private static final List<LargeManaPoolBlockEntity> LOADED_PARTS = new ArrayList<>();
+	private static final TickBatch<LargeManaPoolBlockEntity> LOADED_PARTS = TickBatch.create(LargeManaPoolNetwork::mergeLoadedPart);
 
 	private final Level level;
 	private final List<LargeManaPoolBlockEntity> cores;
@@ -148,45 +149,27 @@ public final class LargeManaPoolNetwork {
 	}
 
 	static void onPartLoaded(LargeManaPoolBlockEntity part) {
-		LOADED_PARTS.add(part);
+		LOADED_PARTS.add(part.getLevel(), part);
 	}
 
-	public static void processLoadedParts(Level level) {
-		if (LOADED_PARTS.isEmpty()) {
+	private static void mergeLoadedPart(LargeManaPoolBlockEntity part) {
+		Level level = part.getLevel();
+		if (level == null || part.isRemoved()) {
 			return;
 		}
-		List<LargeManaPoolBlockEntity> due = null;
-		var it = LOADED_PARTS.iterator();
-		while (it.hasNext()) {
-			var part = it.next();
-			if (part.getLevel() == level || part.getLevel() == null || part.isRemoved()) {
-				it.remove();
-				if (part.getLevel() == level && !part.isRemoved()) {
-					if (due == null) {
-						due = new ArrayList<>();
-					}
-					due.add(part);
-				}
+		Set<LargeManaPoolNetwork> touching = new ReferenceOpenHashSet<>();
+		addNetworkOf(part, touching);
+		for (Direction dir : Direction.Plane.HORIZONTAL) {
+			BlockPos next = part.getBlockPos().relative(dir);
+			if (level.isLoaded(next) && level.getBlockEntity(next) instanceof LargeManaPoolBlockEntity neighbor
+					&& neighbor.getBlockState().is(part.getBlockState().getBlock())
+					&& LargeManaPoolBlock.linked(part.getCorePos(), neighbor.getCorePos())) {
+				addNetworkOf(neighbor, touching);
 			}
 		}
-		if (due == null) {
-			return;
-		}
-		for (var part : due) {
-			Set<LargeManaPoolNetwork> touching = new ReferenceOpenHashSet<>();
-			addNetworkOf(part, touching);
-			for (Direction dir : Direction.Plane.HORIZONTAL) {
-				BlockPos next = part.getBlockPos().relative(dir);
-				if (level.isLoaded(next) && level.getBlockEntity(next) instanceof LargeManaPoolBlockEntity neighbor
-						&& neighbor.getBlockState().is(part.getBlockState().getBlock())
-						&& LargeManaPoolBlock.linked(part.getCorePos(), neighbor.getCorePos())) {
-					addNetworkOf(neighbor, touching);
-				}
-			}
-			if (touching.size() > 1) {
-				for (var net : touching) {
-					net.dissolve();
-				}
+		if (touching.size() > 1) {
+			for (var net : touching) {
+				net.dissolve();
 			}
 		}
 	}

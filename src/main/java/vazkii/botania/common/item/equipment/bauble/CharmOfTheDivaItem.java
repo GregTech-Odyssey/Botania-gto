@@ -9,13 +9,12 @@
 package vazkii.botania.common.item.equipment.bauble;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.suried.gtoutils.schedule.Schedulers;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Creeper;
@@ -91,12 +90,11 @@ public class CharmOfTheDivaItem extends BaubleItem {
 				// TODO 1.21: Use an actual boss identification method (likely via entity tag)
 				&& target.canChangeDimensions()
 				&& Math.random() < 0.6) {
-			MinecraftServer server = player.level().getServer();
 			ItemStack amulet = EquipmentHandler.findOrEmpty(BotaniaItems.divaCharm, player);
 
-			if (server != null && !amulet.isEmpty()) {
+			if (!amulet.isEmpty()) {
 				// schedule for immediate execution after everything else in this tick
-				server.tell(new TickTask(0, () -> charmMobs(amulet, player, target)));
+				Schedulers.of(player.level()).schedule(0, player, () -> charmMobs(amulet, player, target));
 			}
 		}
 	}

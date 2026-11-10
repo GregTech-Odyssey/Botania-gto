@@ -8,8 +8,8 @@
  */
 package vazkii.botania.common.handler;
 
+import com.suried.gtoutils.level.LevelStore;
 import com.suried.gtoutils.spatial.BlockEntityIndex;
-import com.suried.gtoutils.spatial.LevelStore;
 import com.suried.gtoutils.spatial.ProbedBlockEntityIndex;
 
 import net.minecraft.world.Container;

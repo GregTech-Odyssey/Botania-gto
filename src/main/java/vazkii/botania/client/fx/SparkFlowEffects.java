@@ -8,6 +8,7 @@
  */
 package vazkii.botania.client.fx;
 
+import com.suried.gtoutils.level.LevelStore;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -29,8 +30,7 @@ public final class SparkFlowEffects {
 	private static final int MAX_MISSES = 40;
 	private static final double CULL_SQ = 33 * 33;
 
-	private static final Int2ObjectOpenHashMap<Flows> FLOWS = new Int2ObjectOpenHashMap<>();
-	private static ClientLevel lastLevel;
+	private static final LevelStore<Int2ObjectOpenHashMap<Flows>> FLOWS = LevelStore.create(Int2ObjectOpenHashMap::new);
 	private static int ticks;
 
 	private static final class Flows {
@@ -47,13 +47,18 @@ public final class SparkFlowEffects {
 	private SparkFlowEffects() {}
 
 	public static void update(int sparkId, int[] outgoing, int[] incoming) {
-		if (outgoing.length == 0 && incoming.length == 0) {
-			FLOWS.remove(sparkId);
+		ClientLevel level = Minecraft.getInstance().level;
+		if (level == null) {
 			return;
 		}
-		var flows = FLOWS.get(sparkId);
+		var all = FLOWS.get(level);
+		if (outgoing.length == 0 && incoming.length == 0) {
+			all.remove(sparkId);
+			return;
+		}
+		var flows = all.get(sparkId);
 		if (flows == null) {
-			FLOWS.put(sparkId, new Flows(outgoing, incoming));
+			all.put(sparkId, new Flows(outgoing, incoming));
 		} else {
 			flows.outgoing = outgoing;
 			flows.incoming = incoming;
@@ -62,21 +67,20 @@ public final class SparkFlowEffects {
 	}
 
 	public static int activeSparks() {
-		return FLOWS.size();
+		ClientLevel level = Minecraft.getInstance().level;
+		var all = level == null ? null : FLOWS.getIfPresent(level);
+		return all == null ? 0 : all.size();
 	}
 
 	public static void tick(Minecraft mc) {
 		ClientLevel level = mc.level;
-		if (level != lastLevel) {
-			FLOWS.clear();
-			lastLevel = level;
-		}
-		if (level == null || FLOWS.isEmpty() || mc.isPaused()) {
+		var all = level == null ? null : FLOWS.getIfPresent(level);
+		if (all == null || all.isEmpty() || mc.isPaused()) {
 			return;
 		}
 		int now = ++ticks;
 		Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
-		var it = FLOWS.int2ObjectEntrySet().fastIterator();
+		var it = all.int2ObjectEntrySet().fastIterator();
 		while (it.hasNext()) {
 			Int2ObjectMap.Entry<Flows> entry = it.next();
 			Flows flows = entry.getValue();

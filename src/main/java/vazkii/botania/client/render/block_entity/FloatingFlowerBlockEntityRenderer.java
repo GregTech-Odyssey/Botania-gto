@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +53,9 @@ public class FloatingFlowerBlockEntityRenderer implements BlockEntityRenderer<Fl
 
 		ms.mulPose(VecHelper.rotateX(4F * (float) Math.sin(worldTime * 0.04F)));
 		ms.mulPose(VecHelper.rotateY(90.0F));
+
+		Vec3 offset = tile.getBlockState().getOffset(tile.getLevel(), tile.getBlockPos());
+		ms.translate(-offset.x, -offset.y, -offset.z);
 
 		ClientXplatAbstractions.INSTANCE.tessellateBlock(tile.getLevel(), tile.getBlockState(),
 				tile.getBlockPos(), ms, buffers, overlay);

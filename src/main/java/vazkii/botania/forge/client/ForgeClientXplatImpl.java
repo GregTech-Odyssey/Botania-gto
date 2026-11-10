@@ -77,9 +77,11 @@ public class ForgeClientXplatImpl implements ClientXplatAbstractions {
 		var modelData = model.getModelData(level, pos, state, ModelData.EMPTY);
 		var rand = RandomSource.create();
 		for (RenderType type : model.getRenderTypes(state, rand, modelData)) {
+			ps.pushPose();
 			renderer.getModelRenderer().tesselateBlock(level, model,
 					state, pos, ps, buffers.getBuffer(type), false, rand,
 					state.getSeed(pos), overlay, modelData, type);
+			ps.popPose();
 		}
 	}
 

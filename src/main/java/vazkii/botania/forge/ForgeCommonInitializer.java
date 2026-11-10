@@ -114,7 +114,6 @@ import vazkii.botania.common.item.equipment.armor.terrasteel.TerrasteelHelmItem;
 import vazkii.botania.common.item.equipment.bauble.*;
 import vazkii.botania.common.item.equipment.tool.terrasteel.TerraBladeItem;
 import vazkii.botania.common.item.equipment.tool.terrasteel.TerraShattererItem;
-import vazkii.botania.common.item.equipment.tool.terrasteel.TerraTruncatorItem;
 import vazkii.botania.common.item.material.EnderAirItem;
 import vazkii.botania.common.item.relic.*;
 import vazkii.botania.common.item.rod.*;
@@ -345,8 +344,6 @@ public class ForgeCommonInitializer {
 		bus.addListener((TickEvent.LevelTickEvent e) -> {
 			if (e.phase == TickEvent.Phase.END && e.level instanceof ServerLevel level) {
 				CommonTickHandler.onTick(level);
-				GrassSeedsItem.onTickEnd(level);
-				TerraTruncatorItem.onTickEnd(level);
 			}
 		});
 		bus.addListener((PlayerInteractEvent.RightClickBlock e) -> {

@@ -8,10 +8,11 @@
  */
 package vazkii.botania.common.item.equipment.tool.terrasteel;
 
+import com.suried.gtoutils.schedule.Cadence;
+import com.suried.gtoutils.schedule.Schedulers;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -56,12 +57,6 @@ public class TerraTruncatorItem extends ManasteelAxeItem implements SequentialBr
 	private static final int MANA_PER_DAMAGE = 100;
 
 	/**
-	 * Represents a map of dimension IDs to a set of all block swappers
-	 * active in that dimension.
-	 */
-	private static final Map<ResourceKey<Level>, Set<BlockSwapper>> blockSwappers = new HashMap<>();
-
-	/**
 	 * Toggled during the block swapper ticking to prevent adding more of them during the map iteration.
 	 */
 	private static boolean tickingSwappers = false;
@@ -100,19 +95,6 @@ public class TerraTruncatorItem extends ManasteelAxeItem implements SequentialBr
 		}
 	}
 
-	public static void onTickEnd(ServerLevel world) {
-		ResourceKey<Level> dim = world.dimension();
-		if (blockSwappers.containsKey(dim)) {
-			tickingSwappers = true;
-			Set<BlockSwapper> swappers = blockSwappers.get(dim);
-
-			// Iterate through all of our swappers, removing any
-			// which no longer need to tick.
-			swappers.removeIf(next -> next == null || !next.tick());
-			tickingSwappers = false;
-		}
-	}
-
 	/**
 	 * Adds a new block swapper to the provided world as the provided player.
 	 * Block swappers are only added on the server, and a marker instance
@@ -131,9 +113,7 @@ public class TerraTruncatorItem extends ManasteelAxeItem implements SequentialBr
 		}
 
 		BlockSwapper swapper = new BlockSwapper(world, player, stack, origCoords, TerraTruncatorItem.BLOCK_RANGE);
-
-		ResourceKey<Level> dim = world.dimension();
-		blockSwappers.computeIfAbsent(dim, d -> new HashSet<>()).add(swapper);
+		Schedulers.of(world).repeat(Cadence.EVERY_TICK, swapper, BlockSwapper::tick, BlockSwapper::isDone);
 	}
 
 	/**
@@ -194,7 +174,20 @@ public class TerraTruncatorItem extends ManasteelAxeItem implements SequentialBr
 		 * @return True if the block swapper has more blocks to swap, false
 		 *         otherwise (implying it can be safely removed).
 		 */
+		public boolean isDone() {
+			return candidateQueue.isEmpty();
+		}
+
 		public boolean tick() {
+			tickingSwappers = true;
+			try {
+				return swap();
+			} finally {
+				tickingSwappers = false;
+			}
+		}
+
+		private boolean swap() {
 			// If empty, this swapper is done.
 			if (candidateQueue.isEmpty()) {
 				return false;
