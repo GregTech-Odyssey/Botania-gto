@@ -66,6 +66,7 @@ import vazkii.botania.common.item.ManaTabletItem;
 import vazkii.botania.xplat.BotaniaConfig;
 import vazkii.botania.xplat.XplatAbstractions;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +79,8 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	public static final float PARTICLE_COLOR_GREEN = (PARTICLE_COLOR >> 8 & 0xFF) / 255F;
 	public static final float PARTICLE_COLOR_RED = (PARTICLE_COLOR >> 16 & 0xFF) / 255F;
 	public static final int MAX_MANA = 1000000;
+	private static final int ITEM_WATCH_TICKS = 10;
+	private static final int ITEM_IDLE_SCAN = 20;
 
 	private static final String TAG_MANA = "mana";
 	private static final String TAG_OUTPUTTING = "outputting";
@@ -114,6 +117,10 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	private final String outputKey = "";
 
 	private int ticks = 0;
+	private int itemWatch = ITEM_WATCH_TICKS;
+	private final boolean itemSignalled;
+	private final int idleScanPhase;
+	private final ManaInfusion.Output infusionOutput = new ManaInfusion.Output(0);
 	private boolean sendPacket = false;
 	private final Int2ObjectMap<MutableInt> chargingParticles = new Int2ObjectOpenHashMap<>();
 	private final Int2ObjectMap<MutableInt> drainingParticles = new Int2ObjectOpenHashMap<>();
@@ -125,6 +132,12 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 	protected ManaPoolBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 		spec = ManaPoolSpec.of(state.getBlock(), ManaPoolSpec.POOL);
+		itemSignalled = state.getBlock().getClass() == ManaPoolBlock.class;
+		idleScanPhase = Math.floorMod(pos.hashCode(), ITEM_IDLE_SCAN);
+	}
+
+	public void itemEntered() {
+		itemWatch = ITEM_WATCH_TICKS;
 	}
 
 	@Override
@@ -186,7 +199,7 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 			}
 			return false;
 		}
-		if (ManaInfusion.process(level, this, item, level.getBlockState(worldPosition.below()), spec.infusionRate(), worldPosition) > 0) {
+		if (ManaInfusion.process(level, this, item, level.getBlockState(worldPosition.below()), spec.infusionRate(), worldPosition, infusionOutput) > 0) {
 			craftingEffect(true);
 			return true;
 		}
@@ -381,7 +394,13 @@ public class ManaPoolBlockEntity extends BotaniaBlockEntity implements ManaPool,
 			self.sendPacket = false;
 		}
 
-		List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(worldPosition, worldPosition.offset(1, 1, 1)));
+		List<ItemEntity> items;
+		if (self.itemSignalled && self.itemWatch <= 0 && (self.ticks + self.idleScanPhase) % ITEM_IDLE_SCAN != 0) {
+			items = Collections.emptyList();
+		} else {
+			items = level.getEntitiesOfClass(ItemEntity.class, new AABB(worldPosition, worldPosition.offset(1, 1, 1)));
+			self.itemWatch = items.isEmpty() ? Math.max(0, self.itemWatch - 1) : ITEM_WATCH_TICKS;
+		}
 		for (ItemEntity item : items) {
 			self.collideEntityItem(item);
 			if (!item.isAlive()) {

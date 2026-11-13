@@ -36,6 +36,11 @@ import java.util.function.Function;
 public class PaintslingerLens extends Lens {
 
 	@Override
+	public boolean collidesWithEntities() {
+		return true;
+	}
+
+	@Override
 	public boolean collideBurst(ManaBurst burst, HitResult pos, boolean isManaBlock, boolean shouldKill, ItemStack stack) {
 		Entity entity = burst.entity();
 		int storedColor = LensItem.getStoredColor(stack);

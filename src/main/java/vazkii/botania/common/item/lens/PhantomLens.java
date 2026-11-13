@@ -25,4 +25,9 @@ public class PhantomLens extends Lens {
 		return shouldKill;
 	}
 
+	@Override
+	public boolean collidesWithEntities() {
+		return true;
+	}
+
 }

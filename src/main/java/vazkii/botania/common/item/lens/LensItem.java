@@ -168,6 +168,19 @@ public class LensItem extends Item implements ControlLensItem, CompositableLensI
 		return (item1.getProps(lens1) & item2.getProps(lens2)) != 0;
 	}
 
+	public static boolean collidesWithEntities(ItemStack stack) {
+		if (stack.isEmpty()) {
+			return false;
+		}
+		if (!(stack.getItem() instanceof LensItem item)) {
+			return true;
+		}
+		if (item.lens.collidesWithEntities()) {
+			return true;
+		}
+		return collidesWithEntities(item.getCompositeLens(stack));
+	}
+
 	public static Lens getLens(ItemStack stack) {
 		if (stack.getItem() instanceof LensItem lens) {
 			return lens.lens;

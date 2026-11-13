@@ -52,6 +52,7 @@ import vazkii.botania.client.fx.WispParticleData;
 import vazkii.botania.common.block.block_entity.mana.ThrottledPacket;
 import vazkii.botania.common.block.mana.ManaVoidBlock;
 import vazkii.botania.common.item.equipment.bauble.ManaseerMonocleItem;
+import vazkii.botania.common.item.lens.LensItem;
 import vazkii.botania.common.proxy.Proxy;
 import vazkii.botania.mixin.ProjectileAccessor;
 import vazkii.botania.xplat.BotaniaConfig;
@@ -101,6 +102,7 @@ public class ManaBurstEntity extends ThrowableProjectile implements ManaBurst {
 	private UUID shooterIdentity = null;
 	private int _ticksExisted = 0;
 	private boolean scanBeam = false;
+	private byte entityCollision;
 	private BlockPos lastCollision;
 	private BlockHitResult clientHit;
 	private boolean warped = false;
@@ -787,6 +789,22 @@ public class ManaBurstEntity extends ThrowableProjectile implements ManaBurst {
 	@Override
 	public void setSourceLens(ItemStack lens) {
 		entityData.set(SOURCE_LENS, lens);
+		entityCollision = 0;
+	}
+
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+		super.onSyncedDataUpdated(key);
+		if (SOURCE_LENS.equals(key)) {
+			entityCollision = 0;
+		}
+	}
+
+	public boolean collidesWithEntities() {
+		if (entityCollision == 0) {
+			entityCollision = (byte) (getClass() != ManaBurstEntity.class || LensItem.collidesWithEntities(getSourceLens()) ? 2 : 1);
+		}
+		return entityCollision == 2;
 	}
 
 	@Override

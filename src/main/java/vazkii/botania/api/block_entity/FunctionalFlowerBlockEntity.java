@@ -98,8 +98,10 @@ public abstract class FunctionalFlowerBlockEntity extends BindableSpecialFlowerB
 			int manaInPool = pool.getCurrentMana();
 			int manaMissing = getMaxMana() - mana;
 			int manaToRemove = Math.min(manaMissing, manaInPool);
-			pool.receiveMana(-manaToRemove);
-			addMana(manaToRemove);
+			if (manaToRemove != 0) {
+				pool.receiveMana(-manaToRemove);
+				addMana(manaToRemove);
+			}
 		}
 	}
 

@@ -28,6 +28,7 @@ import vazkii.botania.api.mana.ManaPool;
 import vazkii.botania.api.recipe.ManaInfusionRecipe;
 import vazkii.botania.common.crafting.BotaniaRecipeTypes;
 import vazkii.botania.common.helper.EntityHelper;
+import vazkii.botania.mixin.ItemEntityAccessor;
 import vazkii.botania.xplat.XplatAbstractions;
 
 import java.util.ArrayList;
@@ -42,7 +43,38 @@ public final class ManaInfusion {
 
 	private ManaInfusion() {}
 
-	public static int process(Level level, ManaPool pool, ItemEntity item, BlockState catalyst, int rate, BlockPos outputPos) {
+	public static final class Output {
+		private final int reach;
+		private ItemEntity last;
+
+		public Output(int reach) {
+			this.reach = reach;
+		}
+
+		private boolean absorb(ItemStack part, BlockPos pos) {
+			ItemEntity entity = last;
+			if (entity == null || !entity.isAlive()
+					|| Math.abs(entity.getBlockX() - pos.getX()) > reach || Math.abs(entity.getBlockZ() - pos.getZ()) > reach
+					|| entity.getBlockY() < pos.getY() || entity.getBlockY() > pos.getY() + 1) {
+				last = null;
+				return false;
+			}
+			ItemStack held = entity.getItem();
+			int total = held.getCount() + part.getCount();
+			if (!ItemStack.isSameItemSameTags(held, part) || total > held.getMaxStackSize()) {
+				return false;
+			}
+			entity.setItem(held.copyWithCount(total));
+			if (entity.getItem().getCount() != total) {
+				last = null;
+				return false;
+			}
+			((ItemEntityAccessor) entity).setAge(0);
+			return true;
+		}
+	}
+
+	public static int process(Level level, ManaPool pool, ItemEntity item, BlockState catalyst, int rate, BlockPos outputPos, Output sink) {
 		ItemStack stack = item.getItem();
 		if (stack.getItem() instanceof ManaDissolvable dissolvable) {
 			for (int i = 0; i < rate && item.isAlive() && !item.getItem().isEmpty(); i++) {
@@ -88,9 +120,13 @@ public final class ManaInfusion {
 				part.onCraftedBy(level, player, output.getCount() * count);
 			}
 			first = false;
+			if (sink.absorb(part, outputPos)) {
+				continue;
+			}
 			ItemEntity outputItem = new ItemEntity(level, outputPos.getX() + 0.5, outputPos.getY() + 1.5, outputPos.getZ() + 0.5, part);
 			XplatAbstractions.INSTANCE.itemFlagsComponent(outputItem).manaInfusionSpawned = true;
 			level.addFreshEntity(outputItem);
+			sink.last = outputItem;
 		}
 		return count;
 	}

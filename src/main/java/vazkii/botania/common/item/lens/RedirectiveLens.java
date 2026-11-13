@@ -26,6 +26,11 @@ import vazkii.botania.xplat.XplatAbstractions;
 public class RedirectiveLens extends Lens {
 
 	@Override
+	public boolean collidesWithEntities() {
+		return true;
+	}
+
+	@Override
 	public boolean collideBurst(ManaBurst burst, HitResult pos, boolean isManaBlock, boolean shouldKill, ItemStack stack) {
 		BlockPos sourcePos = burst.getBurstSourceBlockPos();
 		var burstEntity = burst.entity();

@@ -69,6 +69,8 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 	private static final String TAG_OUTPUTTING = "outputting";
 	private static final String TAG_COLOR = "color";
 
+	private final ManaInfusion.Output infusionOutput = new ManaInfusion.Output(1);
+
 	@SyncToClient
 	private int coreDx;
 	@SyncToClient
@@ -419,7 +421,7 @@ public class LargeManaPoolBlockEntity extends BotaniaBlockEntity implements Mana
 			return;
 		}
 		if (network() == null
-				|| ManaInfusion.process(level, this, item, level.getBlockState(getCorePos().below()), spec.infusionRate(), getCorePos()) <= 0) {
+				|| ManaInfusion.process(level, this, item, level.getBlockState(getCorePos().below()), spec.infusionRate(), getCorePos(), infusionOutput) <= 0) {
 			return;
 		}
 		if (network().claimCraftSound(level.getGameTime())) {

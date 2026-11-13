@@ -196,8 +196,12 @@ public class ManaPoolBlock extends BotaniaWaterloggedBlock implements EntityBloc
 
 	@Override
 	public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
-		if (world.isClientSide && entity instanceof ItemEntity item && world.getBlockEntity(pos) instanceof ManaPoolBlockEntity pool) {
-			pool.collideEntityItem(item);
+		if (entity instanceof ItemEntity item && world.getBlockEntity(pos) instanceof ManaPoolBlockEntity pool) {
+			if (world.isClientSide) {
+				pool.collideEntityItem(item);
+			} else {
+				pool.itemEntered();
+			}
 		}
 	}
 

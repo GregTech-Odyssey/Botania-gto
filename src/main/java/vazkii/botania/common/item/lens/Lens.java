@@ -25,6 +25,10 @@ public class Lens {
 		return shouldKill;
 	}
 
+	public boolean collidesWithEntities() {
+		return !getClass().getName().startsWith("vazkii.botania.");
+	}
+
 	public void updateBurst(ManaBurst burst, ItemStack stack) {}
 
 	public void onClientBurstEnd(ManaBurst burst, BlockHitResult hit, ItemStack stack) {}
