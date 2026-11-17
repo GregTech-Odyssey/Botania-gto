@@ -1,137 +1,116 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.common.handler;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
-
-import static vazkii.botania.common.lib.ResourceLocationHelper.prefix;
-
+/** 植物魔法复刻的音效事件。 */
 public final class BotaniaSounds {
-	private static final List<SoundEvent> EVENTS = new ArrayList<>();
-	//blocks
-	public static final SoundEvent altarCraft = makeSoundEvent("altar_craft");
-	public static final SoundEvent bellows = makeSoundEvent("bellows");
-	public static final SoundEvent drum = makeSoundEvent("drum");
-	public static final SoundEvent enchanterEnchant = makeSoundEvent("enchanter_enchant");
-	public static final SoundEvent enchanterFade = makeSoundEvent("enchanter_fade");
-	public static final SoundEvent enchanterForm = makeSoundEvent("enchanter_form");
-	public static final SoundEvent hornDoot = makeSoundEvent("horn_doot");
-	public static final SoundEvent incensePlateIgnite = makeSoundEvent("incense_plate_ignite");
-	public static final SoundEvent lightRelay = makeSoundEvent("light_relay");
-	public static final SoundEvent manaPoolCraft = makeSoundEvent("mana_pool_craft");
-	public static final SoundEvent potionCreate = makeSoundEvent("potion_create");
-	public static final SoundEvent redStringInterceptorClick = makeSoundEvent("red_string_interceptor_click");
-	public static final SoundEvent runeAltarCraft = makeSoundEvent("rune_altar_craft");
-	public static final SoundEvent runeAltarStart = makeSoundEvent("rune_altar_start");
-	public static final SoundEvent prismAddLens = makeSoundEvent("prism_add_lens");
-	public static final SoundEvent prismRemoveLens = makeSoundEvent("prism_remove_lens");
-	public static final SoundEvent spreaderAddLens = makeSoundEvent("spreader_add_lens");
-	public static final SoundEvent spreaderRemoveLens = makeSoundEvent("spreader_remove_lens");
-	public static final SoundEvent spreaderCover = makeSoundEvent("spreader_cover");
-	public static final SoundEvent spreaderUncover = makeSoundEvent("spreader_uncover");
-	public static final SoundEvent spreaderScaffold = makeSoundEvent("spreader_scaffold");
-	public static final SoundEvent spreaderUnScaffold = makeSoundEvent("spreader_un_scaffold");
-	public static final SoundEvent spreaderFire = makeSoundEvent("spreader_fire");
-	public static final SoundEvent terrasteelCraft = makeSoundEvent("terrasteel_craft");
 
-	//items, rods, and trinkets
-	public static final SoundEvent airRod = makeSoundEvent("air_rod");
-	public static final SoundEvent astrolabeConfigure = makeSoundEvent("astrolabe_configure");
-	public static final SoundEvent bifrostRod = makeSoundEvent("bifrost_rod");
-	public static final SoundEvent blackHoleTalismanConfigure = makeSoundEvent("black_hole_talisman_configure");
-	public static final SoundEvent blackLotus = makeSoundEvent("black_lotus");
-	public static final SoundEvent dash = makeSoundEvent("dash");
-	public static final SoundEvent diceOfFate = makeSoundEvent("dice_of_fate");
-	public static final SoundEvent divaCharm = makeSoundEvent("diva_charm");
-	public static final SoundEvent divinationRod = makeSoundEvent("divination_rod");
-	public static final SoundEvent enderAirThrow = makeSoundEvent("ender_air_throw");
-	public static final SoundEvent equipBauble = makeSoundEvent("equip_bauble");
-	public static final SoundEvent equipElementium = makeSoundEvent("equip_elementium");
-	public static final SoundEvent equipManasteel = makeSoundEvent("equip_manasteel");
-	public static final SoundEvent equipManaweave = makeSoundEvent("equip_manaweave");
-	public static final SoundEvent equipTerrasteel = makeSoundEvent("equip_terrasteel");
-	public static final SoundEvent fireRod = makeSoundEvent("fire_rod");
-	public static final SoundEvent flareChakramThrow = makeSoundEvent("flare_chakram_throw");
-	public static final SoundEvent flugelEyeBind = makeSoundEvent("flugel_eye_bind");
-	public static final SoundEvent flugelEyeTeleport = makeSoundEvent("flugel_eye_teleport");
-	public static final SoundEvent holyCloak = makeSoundEvent("holy_cloak");
-	public static final SoundEvent laputaStart = makeSoundEvent("laputa_start");
-	public static final SoundEvent lexiconOpen = makeSoundEvent("lexicon_open");
-	//public static final SoundEvent lexiconPage = makeSoundEvent("lexicon_page");
-	public static final SoundEvent manaBlaster = makeSoundEvent("mana_blaster");
-	public static final SoundEvent manaBlasterCycle = makeSoundEvent("mana_blaster_cycle");
-	public static final SoundEvent manaBlasterMisfire = makeSoundEvent("mana_blaster_misfire");
-	public static final SoundEvent missile = makeSoundEvent("missile");
-	public static final SoundEvent missileFunny = makeSoundEvent("missile_funny"); //pew pew
-	public static final SoundEvent pinkinator = makeSoundEvent("pinkinator");
-	public static final SoundEvent smeltRod = makeSoundEvent("smelt_rod");
-	public static final SoundEvent smeltRod2 = makeSoundEvent("smelt_rod_extra_no_subtitle");
-	public static final SoundEvent smeltRodSimmer = makeSoundEvent("smelt_rod_simmer");
-	public static final SoundEvent starcaller = makeSoundEvent("starcaller");
-	public static final SoundEvent temperanceStoneConfigure = makeSoundEvent("temperance_stone_configure");
-	public static final SoundEvent manufactoryHaloConfigure = makeSoundEvent("manufactory_halo_configure");
-	public static final SoundEvent terraBlade = makeSoundEvent("terrablade");
-	public static final SoundEvent terraPickMode = makeSoundEvent("terra_pick_mode");
-	public static final SoundEvent terraformRod = makeSoundEvent("terraform_rod");
-	public static final SoundEvent thornChakramThrow = makeSoundEvent("thorn_chakram_throw");
-	public static final SoundEvent unholyCloak = makeSoundEvent("unholy_cloak");
-	public static final SoundEvent vineBallThrow = makeSoundEvent("vine_ball_throw");
-	public static final SoundEvent virusInfect = makeSoundEvent("virus_infect");
-	public static final SoundEvent worldSeedTeleport = makeSoundEvent("world_seed_teleport");
+    private static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister
+            .create(ForgeRegistries.SOUND_EVENTS, "botania");
 
-	//flowers
-	public static final SoundEvent agricarnation = makeSoundEvent("agricarnation");
-	public static final SoundEvent arcaneRoseDisenchant = makeSoundEvent("arcane_rose_disenchant");
-	public static final SoundEvent endoflame = makeSoundEvent("endoflame");
-	public static final SoundEvent entropinnyumAngry = makeSoundEvent("entropinnyum_angry");
-	public static final SoundEvent entropinnyumHappy = makeSoundEvent("entropinnyum_happy");
-	public static final SoundEvent labellia = makeSoundEvent("labellia");
-	public static final SoundEvent narslimmusEatBig = makeSoundEvent("narslimmus_eat_big");
-	public static final SoundEvent narslimmusEatSmall = makeSoundEvent("narslimmus_eat_small");
-	public static final SoundEvent orechid = makeSoundEvent("orechid");
-	public static final SoundEvent shulkMeNot = makeSoundEvent("shulk_me_not");
-	public static final SoundEvent thermalily = makeSoundEvent("thermalily");
-	public static final SoundEvent tigerseyePacify = makeSoundEvent("tigerseye_pacify");
+    private BotaniaSounds() {}
 
-	//entities
-	public static final SoundEvent babylonAttack = makeSoundEvent("babylon_attack");
-	public static final SoundEvent babylonSpawn = makeSoundEvent("babylon_spawn");
-	public static final SoundEvent gaiaDeath = makeSoundEvent("gaia_death");
-	public static final SoundEvent gaiaSummon = makeSoundEvent("gaia_summon");
-	public static final SoundEvent gaiaTeleport = makeSoundEvent("gaia_teleport");
-	public static final SoundEvent gaiaTrap = makeSoundEvent("gaia_trap");
+    public static void register(IEventBus bus) {
+        SOUNDS.register(bus);
+    }
 
-	//misc
-	public static final SoundEvent ding = makeSoundEvent("ding");
-	public static final SoundEvent doit = makeSoundEvent("doit");
+    private static RegistryObject<SoundEvent> make(String id) {
+        return SOUNDS.register(id, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation("botania", id)));
+    }
 
-	//music
-	public static final SoundEvent gaiaMusic1 = makeSoundEvent("music.gaia1");
-	public static final SoundEvent gaiaMusic2 = makeSoundEvent("music.gaia2");
-	public static final SoundEvent way = makeSoundEvent("way");
-
-	private static SoundEvent makeSoundEvent(String name) {
-		SoundEvent event = SoundEvent.createVariableRangeEvent(prefix(name));
-		EVENTS.add(event);
-		return event;
-	}
-
-	public static void init(BiConsumer<SoundEvent, ResourceLocation> r) {
-		for (SoundEvent event : EVENTS) {
-			r.accept(event, event.getLocation());
-		}
-	}
-
-	private BotaniaSounds() {}
+    public static final RegistryObject<SoundEvent> altarCraft = make("altar_craft");
+    public static final RegistryObject<SoundEvent> bellows = make("bellows");
+    public static final RegistryObject<SoundEvent> drum = make("drum");
+    public static final RegistryObject<SoundEvent> enchanterEnchant = make("enchanter_enchant");
+    public static final RegistryObject<SoundEvent> enchanterFade = make("enchanter_fade");
+    public static final RegistryObject<SoundEvent> enchanterForm = make("enchanter_form");
+    public static final RegistryObject<SoundEvent> hornDoot = make("horn_doot");
+    public static final RegistryObject<SoundEvent> incensePlateIgnite = make("incense_plate_ignite");
+    public static final RegistryObject<SoundEvent> lightRelay = make("light_relay");
+    public static final RegistryObject<SoundEvent> manaPoolCraft = make("mana_pool_craft");
+    public static final RegistryObject<SoundEvent> potionCreate = make("potion_create");
+    public static final RegistryObject<SoundEvent> redStringInterceptorClick = make("red_string_interceptor_click");
+    public static final RegistryObject<SoundEvent> runeAltarCraft = make("rune_altar_craft");
+    public static final RegistryObject<SoundEvent> runeAltarStart = make("rune_altar_start");
+    public static final RegistryObject<SoundEvent> prismAddLens = make("prism_add_lens");
+    public static final RegistryObject<SoundEvent> prismRemoveLens = make("prism_remove_lens");
+    public static final RegistryObject<SoundEvent> spreaderAddLens = make("spreader_add_lens");
+    public static final RegistryObject<SoundEvent> spreaderRemoveLens = make("spreader_remove_lens");
+    public static final RegistryObject<SoundEvent> spreaderCover = make("spreader_cover");
+    public static final RegistryObject<SoundEvent> spreaderUncover = make("spreader_uncover");
+    public static final RegistryObject<SoundEvent> spreaderScaffold = make("spreader_scaffold");
+    public static final RegistryObject<SoundEvent> spreaderUnScaffold = make("spreader_un_scaffold");
+    public static final RegistryObject<SoundEvent> spreaderFire = make("spreader_fire");
+    public static final RegistryObject<SoundEvent> terrasteelCraft = make("terrasteel_craft");
+    public static final RegistryObject<SoundEvent> airRod = make("air_rod");
+    public static final RegistryObject<SoundEvent> astrolabeConfigure = make("astrolabe_configure");
+    public static final RegistryObject<SoundEvent> bifrostRod = make("bifrost_rod");
+    public static final RegistryObject<SoundEvent> blackHoleTalismanConfigure = make("black_hole_talisman_configure");
+    public static final RegistryObject<SoundEvent> blackLotus = make("black_lotus");
+    public static final RegistryObject<SoundEvent> dash = make("dash");
+    public static final RegistryObject<SoundEvent> diceOfFate = make("dice_of_fate");
+    public static final RegistryObject<SoundEvent> divaCharm = make("diva_charm");
+    public static final RegistryObject<SoundEvent> divinationRod = make("divination_rod");
+    public static final RegistryObject<SoundEvent> enderAirThrow = make("ender_air_throw");
+    public static final RegistryObject<SoundEvent> equipBauble = make("equip_bauble");
+    public static final RegistryObject<SoundEvent> equipElementium = make("equip_elementium");
+    public static final RegistryObject<SoundEvent> equipManasteel = make("equip_manasteel");
+    public static final RegistryObject<SoundEvent> equipManaweave = make("equip_manaweave");
+    public static final RegistryObject<SoundEvent> equipTerrasteel = make("equip_terrasteel");
+    public static final RegistryObject<SoundEvent> fireRod = make("fire_rod");
+    public static final RegistryObject<SoundEvent> flareChakramThrow = make("flare_chakram_throw");
+    public static final RegistryObject<SoundEvent> flugelEyeBind = make("flugel_eye_bind");
+    public static final RegistryObject<SoundEvent> flugelEyeTeleport = make("flugel_eye_teleport");
+    public static final RegistryObject<SoundEvent> holyCloak = make("holy_cloak");
+    public static final RegistryObject<SoundEvent> laputaStart = make("laputa_start");
+    public static final RegistryObject<SoundEvent> lexiconOpen = make("lexicon_open");
+    public static final RegistryObject<SoundEvent> lexiconPage = make("lexicon_page");
+    public static final RegistryObject<SoundEvent> manaBlaster = make("mana_blaster");
+    public static final RegistryObject<SoundEvent> manaBlasterCycle = make("mana_blaster_cycle");
+    public static final RegistryObject<SoundEvent> manaBlasterMisfire = make("mana_blaster_misfire");
+    public static final RegistryObject<SoundEvent> missile = make("missile");
+    public static final RegistryObject<SoundEvent> missileFunny = make("missile_funny");
+    public static final RegistryObject<SoundEvent> pinkinator = make("pinkinator");
+    public static final RegistryObject<SoundEvent> smeltRod = make("smelt_rod");
+    public static final RegistryObject<SoundEvent> smeltRod2 = make("smelt_rod_extra_no_subtitle");
+    public static final RegistryObject<SoundEvent> smeltRodSimmer = make("smelt_rod_simmer");
+    public static final RegistryObject<SoundEvent> starcaller = make("starcaller");
+    public static final RegistryObject<SoundEvent> temperanceStoneConfigure = make("temperance_stone_configure");
+    public static final RegistryObject<SoundEvent> manufactoryHaloConfigure = make("manufactory_halo_configure");
+    public static final RegistryObject<SoundEvent> terraBlade = make("terrablade");
+    public static final RegistryObject<SoundEvent> terraPickMode = make("terra_pick_mode");
+    public static final RegistryObject<SoundEvent> terraformRod = make("terraform_rod");
+    public static final RegistryObject<SoundEvent> thornChakramThrow = make("thorn_chakram_throw");
+    public static final RegistryObject<SoundEvent> unholyCloak = make("unholy_cloak");
+    public static final RegistryObject<SoundEvent> vineBallThrow = make("vine_ball_throw");
+    public static final RegistryObject<SoundEvent> virusInfect = make("virus_infect");
+    public static final RegistryObject<SoundEvent> worldSeedTeleport = make("world_seed_teleport");
+    public static final RegistryObject<SoundEvent> agricarnation = make("agricarnation");
+    public static final RegistryObject<SoundEvent> arcaneRoseDisenchant = make("arcane_rose_disenchant");
+    public static final RegistryObject<SoundEvent> endoflame = make("endoflame");
+    public static final RegistryObject<SoundEvent> entropinnyumAngry = make("entropinnyum_angry");
+    public static final RegistryObject<SoundEvent> entropinnyumHappy = make("entropinnyum_happy");
+    public static final RegistryObject<SoundEvent> labellia = make("labellia");
+    public static final RegistryObject<SoundEvent> narslimmusEatBig = make("narslimmus_eat_big");
+    public static final RegistryObject<SoundEvent> narslimmusEatSmall = make("narslimmus_eat_small");
+    public static final RegistryObject<SoundEvent> orechid = make("orechid");
+    public static final RegistryObject<SoundEvent> shulkMeNot = make("shulk_me_not");
+    public static final RegistryObject<SoundEvent> thermalily = make("thermalily");
+    public static final RegistryObject<SoundEvent> tigerseyePacify = make("tigerseye_pacify");
+    public static final RegistryObject<SoundEvent> babylonAttack = make("babylon_attack");
+    public static final RegistryObject<SoundEvent> babylonSpawn = make("babylon_spawn");
+    public static final RegistryObject<SoundEvent> gaiaDeath = make("gaia_death");
+    public static final RegistryObject<SoundEvent> gaiaSummon = make("gaia_summon");
+    public static final RegistryObject<SoundEvent> gaiaTeleport = make("gaia_teleport");
+    public static final RegistryObject<SoundEvent> gaiaTrap = make("gaia_trap");
+    public static final RegistryObject<SoundEvent> ding = make("ding");
+    public static final RegistryObject<SoundEvent> doit = make("doit");
+    public static final RegistryObject<SoundEvent> gaiaMusic1 = make("music.gaia1");
+    public static final RegistryObject<SoundEvent> gaiaMusic2 = make("music.gaia2");
+    public static final RegistryObject<SoundEvent> way = make("way");
 }

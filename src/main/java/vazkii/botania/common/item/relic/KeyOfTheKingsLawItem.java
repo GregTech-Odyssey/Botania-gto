@@ -1,13 +1,6 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.common.item.relic;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -20,116 +13,103 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import org.jetbrains.annotations.NotNull;
-
-import vazkii.botania.api.item.Relic;
-import vazkii.botania.api.mana.ManaItemHandler;
 import vazkii.botania.common.entity.BabylonWeaponEntity;
-import vazkii.botania.common.handler.BotaniaSounds;
-import vazkii.botania.common.helper.ItemNBTHelper;
-import vazkii.botania.common.helper.VecHelper;
 
-import static vazkii.botania.common.lib.ResourceLocationHelper.prefix;
-
+/**
+ * 王者之匙：持续使用会环绕玩家生成巴比伦武器，松手后武器齐射。
+ */
 public class KeyOfTheKingsLawItem extends RelicItem {
 
-	private static final String TAG_WEAPONS_SPAWNED = "weaponsSpawned";
-	private static final String TAG_CHARGING = "charging";
+    private static final String TAG_WEAPONS_SPAWNED = "weaponsSpawned";
+    private static final String TAG_CHARGING = "charging";
 
-	public static final int WEAPON_TYPES = 12;
+    public static final int WEAPON_TYPES = 12;
 
-	public KeyOfTheKingsLawItem(Properties props) {
-		super(props);
-	}
+    public KeyOfTheKingsLawItem(Properties properties) {
+        super(properties);
+    }
 
-	@NotNull
-	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, @NotNull InteractionHand hand) {
-		ItemStack stack = player.getItemInHand(hand);
-		setCharging(stack, true);
-		return ItemUtils.startUsingInstantly(world, player, hand);
-	}
+    @NotNull
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        setCharging(stack, true);
+        return ItemUtils.startUsingInstantly(level, player, hand);
+    }
 
-	@Override
-	public void releaseUsing(ItemStack stack, Level world, LivingEntity living, int time) {
-		int spawned = getWeaponsSpawned(stack);
-		if (spawned == 20) {
-			setCharging(stack, false);
-			setWeaponsSpawned(stack, 0);
-		}
-	}
+    @Override
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity living, int time) {
+        if (getWeaponsSpawned(stack) == 20) {
+            setCharging(stack, false);
+            setWeaponsSpawned(stack, 0);
+        }
+    }
 
-	@Override
-	public void onUseTick(Level world, LivingEntity living, ItemStack stack, int count) {
-		int spawned = getWeaponsSpawned(stack);
+    @Override
+    public void onUseTick(@NotNull Level level, @NotNull LivingEntity living, @NotNull ItemStack stack, int count) {
+        int spawned = getWeaponsSpawned(stack);
+        if (count == getUseDuration(stack) || spawned >= 20 || level.isClientSide) {
+            return;
+        }
+        Vec3 look = living.getLookAngle().multiply(1, 0, 1);
+        double playerRot = Math.toRadians(living.getYRot() + 90);
+        if (look.x == 0 && look.z == 0) {
+            look = new Vec3(Math.cos(playerRot), 0, Math.sin(playerRot));
+        }
+        look = look.normalize().scale(-2);
 
-		if (count != getUseDuration(stack) && spawned < 20 && !world.isClientSide && (!(living instanceof Player player) || ManaItemHandler.instance().requestManaExact(stack, player, 150, true))) {
-			Vec3 look = living.getLookAngle().multiply(1, 0, 1);
+        int div = spawned / 5;
+        int mod = spawned % 5;
+        Vec3 center = living.getBoundingBox().getCenter();
+        Vec3 pl = look.add(center).add(0, 1.6, div * 0.1);
 
-			double playerRot = Math.toRadians(living.getYRot() + 90);
-			if (look.x == 0 && look.z == 0) {
-				look = new Vec3(Math.cos(playerRot), 0, Math.sin(playerRot));
-			}
+        var rand = level.random;
+        Vec3 axis = look.normalize().cross(new Vec3(-1, 0, -1)).normalize();
+        double rot = mod * Math.PI / 4 - Math.PI / 2;
+        Vec3 axis1 = axis.scale(div * 3.5 + 5).yRot((float) rot);
+        if (axis1.y < 0) {
+            axis1 = axis1.multiply(1, -1, 1);
+        }
+        Vec3 end = pl.add(axis1);
 
-			look = look.normalize().scale(-2);
+        BabylonWeaponEntity weapon = new BabylonWeaponEntity(living, level);
+        weapon.setPos(end.x, end.y, end.z);
+        weapon.setYRot(living.getYRot());
+        weapon.setVariety(rand.nextInt(WEAPON_TYPES));
+        weapon.setDelay(spawned);
+        weapon.setRotation(Mth.wrapDegrees(-living.getYRot() + 180));
+        level.addFreshEntity(weapon);
+        setWeaponsSpawned(stack, spawned + 1);
+    }
 
-			int div = spawned / 5;
-			int mod = spawned % 5;
+    @NotNull
+    @Override
+    public UseAnim getUseAnimation(@NotNull ItemStack stack) {
+        return UseAnim.BOW;
+    }
 
-			Vec3 pl = look.add(VecHelper.fromEntityCenter(living)).add(0, 1.6, div * 0.1);
+    @Override
+    public int getUseDuration(@NotNull ItemStack stack) {
+        return 72000;
+    }
 
-			var rand = world.random;
-			Vec3 axis = look.normalize().cross(new Vec3(-1, 0, -1)).normalize();
+    private static CompoundTag tag(ItemStack stack) {
+        return stack.getOrCreateTag();
+    }
 
-			double rot = mod * Math.PI / 4 - Math.PI / 2;
+    public static boolean isCharging(ItemStack stack) {
+        return tag(stack).getBoolean(TAG_CHARGING);
+    }
 
-			Vec3 axis1 = VecHelper.rotate(axis.scale(div * 3.5 + 5), rot, look);
-			if (axis1.y < 0) {
-				axis1 = axis1.multiply(1, -1, 1);
-			}
+    public static int getWeaponsSpawned(ItemStack stack) {
+        return tag(stack).getInt(TAG_WEAPONS_SPAWNED);
+    }
 
-			Vec3 end = pl.add(axis1);
+    public static void setCharging(ItemStack stack, boolean charging) {
+        tag(stack).putBoolean(TAG_CHARGING, charging);
+    }
 
-			BabylonWeaponEntity weapon = new BabylonWeaponEntity(living, world);
-			weapon.setPos(end.x, end.y, end.z);
-			weapon.setYRot(living.getYRot());
-			weapon.setVariety(rand.nextInt(WEAPON_TYPES));
-			weapon.setDelay(spawned);
-			weapon.setRotation(Mth.wrapDegrees(-living.getYRot() + 180));
-
-			world.addFreshEntity(weapon);
-			weapon.playSound(BotaniaSounds.babylonSpawn, 1F, 1F + world.random.nextFloat() * 3F);
-			setWeaponsSpawned(stack, spawned + 1);
-		}
-	}
-
-	@NotNull
-	@Override
-	public UseAnim getUseAnimation(ItemStack stack) {
-		return UseAnim.BOW;
-	}
-
-	@Override
-	public int getUseDuration(ItemStack stack) {
-		return 72000;
-	}
-
-	public static boolean isCharging(ItemStack stack) {
-		return ItemNBTHelper.getBoolean(stack, TAG_CHARGING, false);
-	}
-
-	public static int getWeaponsSpawned(ItemStack stack) {
-		return ItemNBTHelper.getInt(stack, TAG_WEAPONS_SPAWNED, 0);
-	}
-
-	public static void setCharging(ItemStack stack, boolean charging) {
-		ItemNBTHelper.setBoolean(stack, TAG_CHARGING, charging);
-	}
-
-	public static void setWeaponsSpawned(ItemStack stack, int count) {
-		ItemNBTHelper.setInt(stack, TAG_WEAPONS_SPAWNED, count);
-	}
-
-	public static Relic makeRelic(ItemStack stack) {
-		return new RelicImpl(stack, prefix("challenge/king_key"));
-	}
+    public static void setWeaponsSpawned(ItemStack stack, int count) {
+        tag(stack).putInt(TAG_WEAPONS_SPAWNED, count);
+    }
 }

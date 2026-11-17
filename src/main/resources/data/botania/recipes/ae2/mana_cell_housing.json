@@ -7,11 +7,7 @@
   ],
   "type": "minecraft:crafting_shaped",
   "category": "misc",
-  "pattern": [
-    "QSQ",
-    "S S",
-    "III"
-  ],
+  "pattern": ["QSQ", "S S", "III"],
   "key": {
     "Q": {
       "item": "ae2:quartz_glass"

@@ -1,124 +1,71 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.client.render.block_entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-
 import vazkii.botania.client.core.handler.ClientTickHandler;
-import vazkii.botania.client.core.helper.RenderHelper;
-import vazkii.botania.client.lib.ResourcesLib;
 import vazkii.botania.client.model.BotaniaModelLayers;
-import vazkii.botania.common.block.block_entity.corporea.CorporeaIndexBlockEntity;
-import vazkii.botania.common.helper.VecHelper;
+import vazkii.botania.common.block.block_entity.BotaniaBlockEntity;
 
-public class CorporeaIndexBlockEntityRenderer implements BlockEntityRenderer<CorporeaIndexBlockEntity> {
-	private static final RenderType LAYER = RenderType.entityCutoutNoCull(new ResourceLocation(ResourcesLib.MODEL_CORPOREA_INDEX));
-	private static final float ANGLE = (float) Math.sin(Math.toRadians(45));
-	private final ModelPart ring;
-	private final ModelPart cube;
+/** 多媒体索引的环与核心渲染，物品栏中同样复用（{@code index} 为 null）。 */
+public class CorporeaIndexBlockEntityRenderer implements BlockEntityRenderer<BotaniaBlockEntity> {
 
-	public CorporeaIndexBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
-		ModelPart root = ctx.bakeLayer(BotaniaModelLayers.CORPOREA_INDEX);
-		this.ring = root.getChild("ring");
-		this.cube = root.getChild("cube");
-	}
+    private static final RenderType LAYER = RenderType.entityCutoutNoCull(
+            new ResourceLocation("botania", "textures/model/corporea_index.png"));
+    private static final float ANGLE = (float) Math.sin(Math.toRadians(45));
 
-	public static MeshDefinition createMesh() {
-		var mesh = new MeshDefinition();
-		var root = mesh.getRoot();
-		root.addOrReplaceChild("ring", CubeListBuilder.create()
-				.addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F),
-				PartPose.ZERO);
-		root.addOrReplaceChild("cube", CubeListBuilder.create().texOffs(32, 0)
-				.addBox(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F),
-				PartPose.ZERO);
-		return mesh;
-	}
+    private final ModelPart ring;
+    private final ModelPart cube;
 
-	@Override
-	public boolean shouldRenderOffScreen(@NotNull CorporeaIndexBlockEntity blockEntity) {
-		return true;
-	}
+    public CorporeaIndexBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
+        ModelPart root = ctx.bakeLayer(BotaniaModelLayers.CORPOREA_INDEX);
+        this.ring = root.getChild("ring");
+        this.cube = root.getChild("cube");
+    }
 
-	@Override
-	public void render(@Nullable CorporeaIndexBlockEntity index, float partialTicks, PoseStack ms, MultiBufferSource buffers, int light, int overlay) {
-		ms.pushPose();
-		ms.translate(0.5, 0, 0.5);
+    @Override
+    public boolean shouldRenderOffScreen(@NotNull BotaniaBlockEntity blockEntity) {
+        return true;
+    }
 
-		float rotation = (ClientTickHandler.ticksInGame + partialTicks) * 2;
-		float translation;
-		if (index == null) { // Item render
-			ms.scale(1.3f, 1.3f, 1.3f);
-			ms.translate(0, -0.1, 0);
-			translation = 0;
-		} else {
-			translation = (float) ((Math.cos((index.ticksWithCloseby + (index.hasCloseby ? partialTicks : 0)) / 10F) * 0.5 + 0.5) * 0.25);
-		}
+    @Override
+    public void render(@Nullable BotaniaBlockEntity index, float partialTicks, @NotNull PoseStack ms,
+                       @NotNull MultiBufferSource buffers, int light, int overlay) {
+        ms.pushPose();
+        ms.translate(0.5, 0, 0.5);
 
-		VertexConsumer buffer = buffers.getBuffer(LAYER);
-		ms.pushPose();
-		ms.translate(0.0D, -1, 0.0D);
+        float rotation = (ClientTickHandler.ticksInGame + partialTicks) * 2;
+        if (index == null) {
+            ms.scale(1.3f, 1.3f, 1.3f);
+            ms.translate(0, -0.1, 0);
+        }
 
-		ms.mulPose(VecHelper.rotateY(rotation));
-		ms.translate(0.0D, 1.5F + translation / 2.0F, 0.0D);
-		ms.mulPose(new Quaternionf().rotateAxis(VecHelper.toRadians(60.0F), ANGLE, 0.0F, ANGLE));
-		this.ring.render(ms, buffer, light, overlay);
-		ms.scale(0.875F, 0.875F, 0.875F);
-		ms.mulPose(new Quaternionf().rotateAxis(VecHelper.toRadians(60.0F), ANGLE, 0.0F, ANGLE));
-		ms.mulPose(VecHelper.rotateY(rotation));
-		this.ring.render(ms, buffer, light, overlay);
-		ms.scale(0.875F, 0.875F, 0.875F);
-		ms.mulPose(new Quaternionf().rotateAxis(VecHelper.toRadians(60.0F), ANGLE, 0.0F, ANGLE));
-		ms.mulPose(VecHelper.rotateY(rotation));
-		this.cube.render(ms, buffer, light, overlay);
-		ms.popPose();
-
-		if (index != null && index.closeby > 0F) {
-			float starScale = 0.02F;
-			float starRadius = (float) CorporeaIndexBlockEntity.RADIUS * index.closeby + (index.closeby == 1F ? 0F : index.hasCloseby ? partialTicks : -partialTicks) * 0.2F;
-			double rads = (index.ticksWithCloseby + partialTicks) * 2 * Math.PI / 180;
-			double starX = Math.cos(rads) * starRadius;
-			double starZ = Math.sin(rads) * starRadius;
-			int color = 0xFF00FF;
-			int seed = index.getBlockPos().getX() ^ index.getBlockPos().getY() ^ index.getBlockPos().getZ();
-
-			ms.translate(starX, 0.3, starZ);
-			RenderHelper.renderStar(ms, buffers, color, starScale, starScale, starScale, seed);
-			ms.translate(-starX * 2, 0, -starZ * 2);
-			RenderHelper.renderStar(ms, buffers, color, starScale, starScale, starScale, seed);
-			ms.translate(starX, 0, starZ);
-
-			rads = -rads;
-			starX = Math.cos(rads) * starRadius;
-			starZ = Math.sin(rads) * starRadius;
-			ms.translate(starX, 0, starZ);
-			RenderHelper.renderStar(ms, buffers, color, starScale, starScale, starScale, seed);
-			ms.translate(-starX * 2, 0, -starZ * 2);
-			RenderHelper.renderStar(ms, buffers, color, starScale, starScale, starScale, seed);
-			ms.translate(starX, 0, starZ);
-		}
-		ms.popPose();
-	}
-
+        VertexConsumer buffer = buffers.getBuffer(LAYER);
+        ms.pushPose();
+        ms.translate(0.0D, -1, 0.0D);
+        ms.mulPose(Axis.YP.rotationDegrees(rotation));
+        ms.translate(0.0D, 1.5F, 0.0D);
+        ms.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(60.0F), ANGLE, 0.0F, ANGLE));
+        this.ring.render(ms, buffer, light, overlay);
+        ms.scale(0.875F, 0.875F, 0.875F);
+        ms.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(60.0F), ANGLE, 0.0F, ANGLE));
+        ms.mulPose(Axis.YP.rotationDegrees(rotation));
+        this.ring.render(ms, buffer, light, overlay);
+        ms.scale(0.875F, 0.875F, 0.875F);
+        ms.mulPose(new Quaternionf().rotateAxis((float) Math.toRadians(60.0F), ANGLE, 0.0F, ANGLE));
+        ms.mulPose(Axis.YP.rotationDegrees(rotation));
+        this.cube.render(ms, buffer, light, overlay);
+        ms.popPose();
+        ms.popPose();
+    }
 }

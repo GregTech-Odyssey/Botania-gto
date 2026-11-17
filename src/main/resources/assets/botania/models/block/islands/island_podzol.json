@@ -2,6 +2,6 @@
   "parent": "botania:block/shapes/miniisland",
   "textures": {
     "top": "block/podzol_top",
-	"side": "block/podzol_side"
+    "side": "block/podzol_side"
   }
 }

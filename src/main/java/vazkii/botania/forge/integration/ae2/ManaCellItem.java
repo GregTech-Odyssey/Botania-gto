@@ -17,48 +17,49 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ManaCellItem extends Item {
-	private final Supplier<? extends ItemLike> component;
-	private final Supplier<? extends ItemLike> housing;
-	private final long capacity;
-	private final double idleDrain;
 
-	public ManaCellItem(Properties props, Supplier<? extends ItemLike> component, Supplier<? extends ItemLike> housing, int kilobytes, double idleDrain) {
-		super(props);
-		this.component = component;
-		this.housing = housing;
-		this.capacity = kilobytes * 1000L * ManaKeyType.AMOUNT_PER_BYTE;
-		this.idleDrain = idleDrain;
-	}
+    private final Supplier<? extends ItemLike> component;
+    private final Supplier<? extends ItemLike> housing;
+    private final long capacity;
+    private final double idleDrain;
 
-	public long getCapacity() {
-		return capacity;
-	}
+    public ManaCellItem(Properties props, Supplier<? extends ItemLike> component, Supplier<? extends ItemLike> housing, int kilobytes, double idleDrain) {
+        super(props);
+        this.component = component;
+        this.housing = housing;
+        this.capacity = kilobytes * 1000L * ManaKeyType.AMOUNT_PER_BYTE;
+        this.idleDrain = idleDrain;
+    }
 
-	public double getIdleDrain() {
-		return idleDrain;
-	}
+    public long getCapacity() {
+        return capacity;
+    }
 
-	@Override
-	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-		var stack = player.getItemInHand(hand);
-		if (!player.isShiftKeyDown()) {
-			return InteractionResultHolder.pass(stack);
-		}
-		if (ManaCellInventory.storedIn(stack) > 0) {
-			return InteractionResultHolder.fail(stack);
-		}
-		if (!level.isClientSide) {
-			stack.shrink(1);
-			var inventory = player.getInventory();
-			inventory.placeItemBackInInventory(new ItemStack(component.get()));
-			inventory.placeItemBackInInventory(new ItemStack(housing.get()));
-		}
-		return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-	}
+    public double getIdleDrain() {
+        return idleDrain;
+    }
 
-	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-		tooltip.add(Component.translatable("botania.ae2.cell_stored", String.format("%,d", ManaCellInventory.storedIn(stack)), String.format("%,d", capacity))
-				.withStyle(ChatFormatting.GRAY));
-	}
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        var stack = player.getItemInHand(hand);
+        if (!player.isShiftKeyDown()) {
+            return InteractionResultHolder.pass(stack);
+        }
+        if (ManaCellInventory.storedIn(stack) > 0) {
+            return InteractionResultHolder.fail(stack);
+        }
+        if (!level.isClientSide) {
+            stack.shrink(1);
+            var inventory = player.getInventory();
+            inventory.placeItemBackInInventory(new ItemStack(component.get()));
+            inventory.placeItemBackInInventory(new ItemStack(housing.get()));
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable("botania.ae2.cell_stored", String.format("%,d", ManaCellInventory.storedIn(stack)), String.format("%,d", capacity))
+                .withStyle(ChatFormatting.GRAY));
+    }
 }

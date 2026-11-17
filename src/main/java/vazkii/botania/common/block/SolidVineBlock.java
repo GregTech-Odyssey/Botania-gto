@@ -1,11 +1,3 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.common.block;
 
 import net.minecraft.core.BlockPos;
@@ -17,25 +9,16 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.jetbrains.annotations.NotNull;
 
-import vazkii.botania.mixin.BlockPropertiesAccessor;
-
+/** 实心藤：外形与藤蔓一致，但有碰撞、不随机刻、不可替换。 */
 public class SolidVineBlock extends VineBlock {
 
-	public SolidVineBlock(Properties builder) {
-		super(unsetVanillaProps(builder));
-	}
+    public SolidVineBlock(Properties properties) {
+        super(properties);
+    }
 
-	private static Properties unsetVanillaProps(Properties props) {
-		// Unset no-collision, random ticking, and replaceability from vanilla vines' properties
-		((BlockPropertiesAccessor) props).botania_setHasCollision(true);
-		((BlockPropertiesAccessor) props).botania_setIsRandomlyTicking(false);
-		((BlockPropertiesAccessor) props).botania_setReplaceable(false);
-		return props;
-	}
-
-	@NotNull
-	@Override
-	public ItemStack getCloneItemStack(@NotNull BlockGetter world, @NotNull BlockPos pos, @NotNull BlockState state) {
-		return new ItemStack(Blocks.VINE);
-	}
+    @NotNull
+    @Override
+    public ItemStack getCloneItemStack(@NotNull BlockGetter world, @NotNull BlockPos pos, @NotNull BlockState state) {
+        return new ItemStack(Blocks.VINE);
+    }
 }

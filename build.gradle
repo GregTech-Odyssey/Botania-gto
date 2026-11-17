@@ -149,8 +149,19 @@ legacyForge {
     }
 }
 
+// Botania 是独立模组，单独构建时需要主仓 GTOLib / GTOCore 的 dev 轨编译产物
+def gtoCompileJars = [
+        file('../build/gtolib/gtolib-protected.jar'),
+        file('../build/gtolib/gtocore-named-library.jar'),
+]
+if (!gtoCompileJars.every { it.isFile() }) {
+    throw new GradleException("缺少 GTOLib/GTOCore 编译产物，先在主仓运行 buildGtolibProtected（产物在 build/gtolib）")
+}
+
 dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    modCompileOnly files(gtoCompileJars)
 
     modImplementation("vazkii.patchouli:Patchouli:${minecraft_version}-84-FORGE")
     modImplementation("com.gto:datasynclib-forge-1.20.1:${datasynclib_version}")

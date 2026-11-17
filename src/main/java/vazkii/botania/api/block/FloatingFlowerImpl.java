@@ -1,11 +1,3 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.api.block;
 
 import net.minecraft.nbt.CompoundTag;
@@ -13,35 +5,36 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
 public class FloatingFlowerImpl implements FloatingFlower {
-	private IslandType type = IslandType.GRASS;
 
-	@Override
-	public ItemStack getDisplayStack() {
-		return ItemStack.EMPTY;
-	}
+    private IslandType type = IslandType.GRASS;
 
-	@Override
-	public IslandType getIslandType() {
-		return type;
-	}
+    @Override
+    public ItemStack getDisplayStack() {
+        return ItemStack.EMPTY;
+    }
 
-	@Override
-	public void setIslandType(IslandType type) {
-		this.type = type;
-	}
+    @Override
+    public IslandType getIslandType() {
+        return type;
+    }
 
-	@Override
-	public Tag writeNBT() {
-		CompoundTag ret = new CompoundTag();
-		ret.putString("islandType", getIslandType().toString());
-		return ret;
-	}
+    @Override
+    public void setIslandType(IslandType type) {
+        this.type = type;
+    }
 
-	@Override
-	public void readNBT(CompoundTag nbt) {
-		IslandType t = IslandType.ofType(nbt.getString("islandType"));
-		if (t != null) {
-			setIslandType(t);
-		}
-	}
+    @Override
+    public Tag writeNBT() {
+        CompoundTag ret = new CompoundTag();
+        ret.putString("islandType", getIslandType().toString());
+        return ret;
+    }
+
+    @Override
+    public void readNBT(CompoundTag nbt) {
+        IslandType t = IslandType.ofType(nbt.getString("islandType"));
+        if (t != null) {
+            setIslandType(t);
+        }
+    }
 }
