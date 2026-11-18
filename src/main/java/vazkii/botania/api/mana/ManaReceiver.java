@@ -3,8 +3,6 @@ package vazkii.botania.api.mana;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-import vazkii.botania.api.mana.spark.SparkAttachable;
-
 /**
  * Any Block or Block Entity with this capability can hold and receive mana from mana bursts.
  */
@@ -81,9 +79,6 @@ public interface ManaReceiver extends ManaEndpoint {
     }
 
     private static long roomOf(ManaReceiver receiver) {
-        if (receiver instanceof SparkAttachable attachable) {
-            return Math.max(0, attachable.getAvailableSpaceForManaLong());
-        }
         if (receiver instanceof ManaPool pool) {
             return Math.max(0, pool.getMaxManaLong() - pool.getCurrentManaLong());
         }

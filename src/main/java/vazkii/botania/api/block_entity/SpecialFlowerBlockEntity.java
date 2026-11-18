@@ -74,14 +74,6 @@ public abstract class SpecialFlowerBlockEntity extends BlockEntity {
         this.isFloating = floating;
     }
 
-    /**
-     * @return Where this flower's effects are centered at. This can differ from the true TE location due to
-     *         red string spoofers.
-     */
-    public final BlockPos getEffectivePos() {
-        return positionOverride != null ? positionOverride : getBlockPos();
-    }
-
     @Override
     public final void load(CompoundTag cmp) {
         super.load(cmp);
