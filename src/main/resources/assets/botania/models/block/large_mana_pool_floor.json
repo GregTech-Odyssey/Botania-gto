@@ -8,16 +8,8 @@
   },
   "elements": [
     {
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        16,
-        4,
-        16
-      ],
+      "from": [0, 0, 0],
+      "to": [16, 4, 16],
       "faces": {
         "down": {
           "texture": "#bottom",

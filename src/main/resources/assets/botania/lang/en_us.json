@@ -1,4 +1,5 @@
 {
+  "block.botania.gaia_wall_head": "Gaia Guardian's Head",
   "_comment0": "Note to translators: DO NOT COPY ENTRIES FROM ENGLISH",
   "_comment1": "I repeat: do NOT copy entries from English!!",
   "_comment2": "Copying English entries will cause them to become outdated when this file changes",
@@ -479,6 +480,7 @@
   "entity.botania.flame_ring": "Flame Ring",
   "entity.botania.vine_ball": "Vine Ball",
   "entity.botania.doppleganger": "Guardian of Gaia",
+  "entity.botania.gaia_3rd": "Guardian of Gaia III",
   "entity.botania.magic_landmine": "Gaia Trap",
   "entity.botania.spark": "Spark",
   "entity.botania.thrown_item": "Thrown Item",
@@ -1539,6 +1541,7 @@
   "item.botania.diva_charm": "Charm of the Diva",
   "item.botania.flight_tiara": "Flügel Tiara",
   "item.botania.ender_dagger": "Soulscribe",
+  "item.botania.ender_dagger.desc": "Collects the souls of slain foes.",
   "item.botania.quartz_dark": "Smokey Quartz",
   "item.botania.quartz_mana": "Mana Quartz",
   "item.botania.quartz_blaze": "Blaze Quartz",
@@ -1671,13 +1674,21 @@
   "item.botania.phantom_ink": "Phantom Ink",
   "item.botania.pool_minecart": "Minecart with Mana Pool",
   "item.botania.pinkinator": "The Pinkinator",
+  "item.botania.pinkinator.desc": "Use it on a wither.",
   "item.botania.infinite_fruit": "The Fruit of Grisaia",
+  "item.botania.infinite_fruit.desc": "A fruit that never runs out.",
   "item.botania.king_key": "Key of the King's Law",
+  "item.botania.king_key.desc": "Charge to summon the King's treasures.",
   "item.botania.flugel_eye": "Eye of the Flügel",
+  "item.botania.flugel_eye.desc": "Soulbound to a world. Grants flight while held.",
   "item.botania.thor_ring": "Ring of Thor",
+  "item.botania.thor_ring.desc": "A ring of thunder and strength.",
   "item.botania.odin_ring": "Ring of Odin",
+  "item.botania.odin_ring.desc": "A ring of life and wisdom.",
   "item.botania.loki_ring": "Ring of Loki",
+  "item.botania.loki_ring.desc": "A ring of tricks and illusions.",
   "item.botania.dice": "Dice of Fate",
+  "item.botania.dice.desc": "Rolls into another relic.",
   "item.botania.keep_ivy": "Resolute Ivy",
   "item.botania.black_hole_talisman": "Black Hole Talisman",
   "item.botania.record_gaia_1": "Scathed Music Disc",
@@ -1695,9 +1706,11 @@
   "item.botania.cacophonium": "Cacophonium",
   "item.botania.slime_bottle": "Slime in a Bottle",
   "item.botania.star_sword": "Starcaller",
+  "item.botania.star_sword.desc": "Calls down falling stars.",
   "item.botania.exchange_rod": "Rod of the Shifting Crust",
   "item.botania.magnet_ring_greater": "Greater Ring of Magnetization",
   "item.botania.thunder_sword": "Thundercaller",
+  "item.botania.thunder_sword.desc": "Calls down lightning.",
   "item.botania.manaweave_cloth": "Manaweave Cloth",
   "item.botania.manaweave_helmet": "Manaweave Cowl",
   "item.botania.manaweave_chestplate": "Manaweave Robe Top",
@@ -2027,7 +2040,6 @@
   "botania.category.alfhomancy.description": "Unlocking advanced botanic knowledge with help from another realm.",
   "botania.category.misc": "Miscellaneous",
   "botania.category.misc.description": "Various useful pieces of information.",
-
 
   "botania.entry.welcome": "Welcome To Botania",
   "botania.tagline.welcome": "Welcome to the Hotel Botania",
@@ -3720,7 +3732,7 @@
   "botania.entry.preventingDecay": "Numerical Mana",
   "botania.tagline.preventingDecay": "Seeing the numbers in mana",
   "botania.page.preventingDecay0": "no",
-  
+
   "botania.subtitle.agricarnation": "Agricarnation glimmers",
   "botania.subtitle.airRod": "Rod of the Skies whooshes",
   "botania.subtitle.altarCraft": "Petal Apothecary twinkles",
@@ -3806,6 +3818,6 @@
   "botania.subtitle.vineBallThrow": "Vine Ball flies",
   "botania.subtitle.virusInfect": "Virus infects",
   "botania.subtitle.worldSeedTeleport": "World Seed teleports",
-  
+
   "botania.subtitle.way": "O-oooooooooo AAAAE-A-A-I-A-U-JO-oooooooooooo AAE-O-A-A-U-U-A-E-eee-ee-eee AAAAE-A-E-I-E-A-JO-ooo-oo-oo-oo EEEEO-A-AAA-AAAA O-oooooooooo AAAAE-A-A-I-A-U-JO-oooooooooooo AAE-O-A-A-U-U-A-E-eee-ee-eee AAAAE-A-E-I-E-A-JO-ooo-oo-oo-oo EEEEO-A-AAA-AAAA O-oooooooooo AAAAE-A-A-I-A-U-JO-oooooooooooo AAE-O-A-A-U-U-A-E-eee-ee-eee AAAAE-A-E-I-E-A-JO-ooo-oo-oo-oo EEEEO-A-AAA-AAAA"
 }

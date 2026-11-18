@@ -1,51 +1,29 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.client.render.entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 import org.jetbrains.annotations.NotNull;
-
-import vazkii.botania.client.core.helper.CoreShaders;
-import vazkii.botania.client.core.proxy.ClientProxy;
-import vazkii.botania.client.lib.ResourcesLib;
-import vazkii.botania.client.model.BotaniaModelLayers;
 import vazkii.botania.client.model.PixieModel;
+import vazkii.botania.client.model.PylonModelLayers;
 import vazkii.botania.common.entity.PixieEntity;
 
+/**
+ * 精灵渲染：普通精灵与盖亚战中的暗精灵共用模型，仅贴图不同。
+ */
 public class PixieRenderer extends MobRenderer<PixieEntity, PixieModel> {
 
-	public PixieRenderer(EntityRendererProvider.Context ctx) {
-		super(ctx, new PixieModel(ctx.bakeLayer(BotaniaModelLayers.PIXIE)), 0.0F);
-	}
+    private static final ResourceLocation TEXTURE = new ResourceLocation("botania", "model/pixie");
+    private static final ResourceLocation TEXTURE_HALLOWEEN = new ResourceLocation("botania", "model/pixie_halloween");
 
-	@Override
-	public void render(PixieEntity mob, float yaw, float partialTicks, PoseStack pos, MultiBufferSource buffers, int light) {
-		ShaderInstance shader = CoreShaders.doppleganger();
-		if (shader != null) {
-			shader.safeGetUniform("BotaniaDisfiguration").set(GaiaGuardianRenderer.DEFAULT_DISFIGURATION);
-			shader.safeGetUniform("BotaniaGrainIntensity").set(GaiaGuardianRenderer.DEFAULT_GRAIN_INTENSITY);
-		}
-		super.render(mob, yaw, partialTicks, pos, buffers, light);
-	}
+    public PixieRenderer(EntityRendererProvider.Context context) {
+        super(context, new PixieModel(context.bakeLayer(PylonModelLayers.PIXIE)), 0.0F);
+    }
 
-	@NotNull
-	@Override
-	public ResourceLocation getTextureLocation(@NotNull PixieEntity entity) {
-		return ClientProxy.dootDoot
-				? new ResourceLocation(ResourcesLib.MODEL_PIXIE_HALLOWEEN)
-				: new ResourceLocation(ResourcesLib.MODEL_PIXIE);
-	}
+    @NotNull
+    @Override
+    public ResourceLocation getTextureLocation(@NotNull PixieEntity entity) {
+        return entity.getPixieType() == 1 ? TEXTURE_HALLOWEEN : TEXTURE;
+    }
 }

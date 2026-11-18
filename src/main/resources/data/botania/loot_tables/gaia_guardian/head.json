@@ -9,9 +9,7 @@
           "predicate": {
             "equipment": {
               "mainhand": {
-                "items": [
-                  "botania:elementium_axe"
-                ]
+                "items": ["botania:elementium_axe"]
               }
             }
           }

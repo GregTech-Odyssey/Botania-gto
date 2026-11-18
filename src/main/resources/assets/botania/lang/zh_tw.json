@@ -148,7 +148,7 @@
   "botaniamisc.monocle.repeater.delay": "%ss",
   "botaniamisc.monocle.comparator.compare": "\u2265",
   "botaniamisc.monocle.comparator.subtract": "-",
-  
+
   "botania.tater_birthday.0": "哇哦，這是給我的嗎？",
   "botania.tater_birthday.1": "今天是我的生日，我現在%d歲了！",
   "botania.tater_birthday.2": "非常感謝！我希望這一年對你來說同樣美好。",
@@ -1988,11 +1988,11 @@
   "botania.category.basics": "基礎知識",
   "botania.category.basics.description": "作為一名初出茅廬的植物學家，該從何處著手，又該以何為目標？",
   "botania.category.mana": "使用瑪那",
-  "botania.category.mana.description": "收集、分配以及管理這一重要資源的方法。",  
+  "botania.category.mana.description": "收集、分配以及管理這一重要資源的方法。",
   "botania.category.functionalFlowers": "功能類植物",
-  "botania.category.functionalFlowers.description": "利用花朵和瑪那達成自動化或簡化各種任務。",  
+  "botania.category.functionalFlowers.description": "利用花朵和瑪那達成自動化或簡化各種任務。",
   "botania.category.generationFlowers": "產能類植物",
-  "botania.category.generationFlowers.description": "通過花朵將資源轉化為瑪那的各種方法。$(p)(如果看起來很複雜，通常值得一試。)",  
+  "botania.category.generationFlowers.description": "通過花朵將資源轉化為瑪那的各種方法。$(p)(如果看起來很複雜，通常值得一試。)",
   "botania.category.devices": "自然裝置",
   "botania.category.devices.description": "簡單而強大的設備，能夠説明達成諸多目標，通常以自動化的方式實現。",
   "botania.category.tools": "神秘工具",
@@ -2006,7 +2006,6 @@
   "botania.category.misc": "雜項",
   "botania.category.misc.description": "其他有用的資訊",
 
-
   "botania.entry.welcome": "歡迎來到植物魔法世界",
   "botania.tagline.welcome": "歡迎光臨植物魔法酒店",
   "botania.page.welcome0": "$(o)歡迎使用植物魔法！首先，我祝賀你做出了正確的決定 - 把一本書和樹苗綁在一起，或者是偶然在什麼儲物箱裡找到了這本巨著。怎樣都可以啦。$(p)$(o)你可以透過頁面下方的箭頭、滑鼠滾輪或鍵盤上的方向鍵來瀏覽這本書。",
@@ -2015,7 +2014,7 @@
   "botania.page.welcome3": "$(o)當你迷失前進的方向時，不妨去看一下本模組的進度和挑戰清單，這兩個清單都可以在本書首頁的左側找到。$(p)$(o)本書排版友好，同時也提供了大量方便瀏覽的功能，所以請在正式開始探究前稍微花點時間來了解這些小東西都能做些什麼。",
   "botania.page.welcome5": "$(o)如果你不知道你該了解些什麼，請在瀏覽時按住SHIFT，將各個章節粗略瀏覽一遍，並對每個東西都有一些簡單的印象。$(p)$(o)「辭典索引」分類對於搜尋很有幫助，因為這個分類集所有條目於大成，本辭典的條目都可以在此找到。",
   "botania.page.welcome6": "$(o)然後這就是整個植物魔法簡介啦！謹此祝你在植物魔法的旅程中玩得開心，就像我製作植物魔法的旅程一樣！$(p)$(o)~Vazkii，植物魔法作者$(p)$(o)要繼續，請按下方的「返回」按鈕。滑鼠右鍵和退格鍵也有一樣的效果哦~",
-  
+
   "botania.entry.gardenOfGlass": "水晶花園",
   "botania.tagline.gardenOfGlass": "你的新挑戰",
   "botania.page.gardenOfGlass0": "在$(2)水晶花園$(0)裡，沒有人會聽見你的尖叫聲。$(p)這是一個單獨的空間。$(p)多麼令人興奮啊！",
@@ -2489,7 +2488,7 @@
   "botania.page.gIntro3": "第一朵$(thing)產能花$(0)的選擇很簡單。作為初出茅廬的植物魔法師，你有兩個選擇：$(item)火紅蓮$(0)和$(item)水繡球$(0)。$(p)前者燃燒$(item)煤炭$(0)以產生瑪那；後者則只消耗$(item)水$(0)產生瑪那。作為免費瑪那的代價，水繡球會在大約三天後枯萎。",
   "botania.page.gIntro4": "將來，若發展出其他$(thing)產能花$(0)，往往使用更複雜的機械才能實現自動化的花會產生更多的$(thing)Mana$(0)。",
   "botania.page.gIntroPotted": "花盆裡的花純粹是裝飾品",
-  
+
   "botania.entry.endoflame": "火紅蓮",
   "botania.tagline.endoflame": "燃燒產能",
   "botania.page.endoflame0": "$(item)火紅蓮$(0)是一種非常原始的$(thing)產能花$(0)，它會吸收掉落在附近的任何可燃物品和方塊（每次一個）並在燃燒期間持續釋放出$(thing)瑪那$(0)。$(p)物品的燃燒時間差不多是它在熔爐中燃燒時間的一半。",
@@ -3202,7 +3201,7 @@
   "botania.entry.corporeaBlock": "多媒體裝飾方塊",
   "botania.page.corporeaBlock0": "一般來說，$(item)活石磚$(0)可以與$(item)多媒體火花$(0)合成為一些裝飾性方塊。而這些方塊除了可用於裝飾外，還有一個獨特的功能。儘管它們自身內部沒有儲存空間，但它們可支援身上的的$(item)多媒體火花$(0)。因此，它們可以作為一種廉價且瞬時的傳輸方案，將你的$(item)多媒體$(0)網路進行長距離擴展。",
   "botania.page.corporeaBlock1": "少媒體",
-  
+
   "botania.entry.corporeaIndex": "多媒體索引",
   "botania.tagline.corporeaIndex": "說話請求網路物品",
   "botania.page.corporeaIndex0": "$(thing)多媒體網路$(0)的強大能力在於可以透過說出物品名發出請求。$(p)$(item)多媒體索引$(0)是一個類似終界水晶的方塊，它屬於放置於其上的$(l:ender/corporea)$(item)多媒體火花$(0)$(/l)所屬的$(thing)多媒體網路$(0)的一部分。$(p)只要靠近它就能啟動。啟動時，它會顯示作用半徑。",
@@ -3615,13 +3614,13 @@
   "botania.page.shinyFlowers1": "一閃一閃",
   "botania.page.shinyFlowers5": "浮空花",
   "botania.page.shinyFlowers2": "就像拉普達（天空之城）但小多了",
-  
+
   "botania.entry.tinyPotato": "小小馬鈴薯",
   "botania.tagline.tinyPotato": "馬鈴薯是我們所有人的朋友",
   "botania.page.tinyPotato0": "這是一個小小馬鈴薯，它相信你，你能做到。$(p)儘管聽起來不太真實，但就是那樣，將一個$(item)馬鈴薯$(0)投入$(item)瑪那$(0)$(item)池$(0)，它就得到了一點活性精華並且感到愉悅。它很活躍，右鍵它還能讓它更活躍！",
   "botania.page.tinyPotato2": "手持物品右鍵小小馬鈴薯還可以讓它變成展示架。$(p)放在小小馬鈴薯底面的物品會在其正面下方顯示。$(p)小小馬鈴薯其實沒那麼心靈手巧，所以物品也可能會放偏。",
   "botania.page.tinyPotato1": "將它放在Kickstarter網站上就奏效了",
-  
+
   "botania.entry.headCreating": "頭顱製造",
   "botania.tagline.headCreating": "製造玩家頭顱顱",
   "botania.page.headCreating0": "一個特別的精靈咒語，配合一些材料和一個$(item)命名牌$(0)就能做出牌子裡所寫者頭的複製品。雖然並不知道這是怎樣的原理，但似乎可以用$(item)符文祭壇$(0)來製作。",
@@ -3668,7 +3667,7 @@
   "botania.page.cacophonium0": "這是個有趣的裝置，$(item)不和諧之音$(0)有著能模仿任何活著的生物聲音的能力，為使其「模仿」一個生物。你需要拿著它右鍵一個生物。然後按住右鍵它就會開始模仿。$(p)為什麼有人會想要做這個，這東西超越了我的倫理觀。",
   "botania.page.cacophonium1": "自行車！不和諧之音",
   "botania.page.cacophonium2": "為了最大化這種不和諧，$(item)不和諧之音$(0)潛行右鍵$(item)音階盒$(0)來使其記錄這種聲音。$(p)你個怪物。",
-  
+
   "botania.entry.pavement": "葡萄牙路面",
   "botania.tagline.pavement": "路面建造學",
   "botania.page.pavement0": "$(item)葡萄牙路面$(0)是一種專為路面設計的精美建築方塊。它有很多種顏色，且都能製成半磚和階梯$(p)對於那些想進行微型方塊以及多方塊建造的藝術家來講，這些方塊肯定是完美的路面。",

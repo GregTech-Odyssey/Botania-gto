@@ -1,139 +1,72 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.client.render.block_entity;
+
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-
 import org.jetbrains.annotations.NotNull;
-import org.joml.Quaternionf;
-
-import vazkii.botania.api.state.BotaniaStateProperties;
-import vazkii.botania.client.core.handler.ClientTickHandler;
-import vazkii.botania.client.core.handler.MiscellaneousModels;
+import org.joml.Matrix4f;
 import vazkii.botania.common.block.block_entity.mana.ManaSpreaderBlockEntity;
-import vazkii.botania.common.block.mana.ManaSpreaderBlock;
-import vazkii.botania.common.helper.VecHelper;
 
-import java.util.Random;
-
+/**
+ * 魔力发射器渲染：在方块中心绘制按储量缩放的发光滑块，颜色按发射器变体。
+ */
 public class ManaSpreaderBlockEntityRenderer implements BlockEntityRenderer<ManaSpreaderBlockEntity> {
 
-	public ManaSpreaderBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+    private static final float MAX_MANA = 1000F;
 
-	@Override
-	public void render(@NotNull ManaSpreaderBlockEntity spreader, float partialTicks, PoseStack ms, MultiBufferSource buffers, int light, int overlay) {
-		ms.pushPose();
+    public ManaSpreaderBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
 
-		ms.translate(0.5F, 0.5, 0.5F);
+    @Override
+    public void render(@NotNull ManaSpreaderBlockEntity spreader, float partialTicks, @NotNull PoseStack ms,
+                       @NotNull MultiBufferSource buffers, int light, int overlay) {
+        float fill = Math.min(1F, spreader.getMana() / MAX_MANA);
+        if (fill <= 0) {
+            return;
+        }
+        float size = 0.08F + 0.14F * fill;
+        int color = colorFor(spreader);
+        float r = ((color >> 16) & 0xFF) / 255F;
+        float g = ((color >> 8) & 0xFF) / 255F;
+        float b = (color & 0xFF) / 255F;
 
-		Quaternionf transform = VecHelper.rotateY(spreader.rotationX + 90F);
-		transform.mul(VecHelper.rotateX(spreader.rotationY));
-		ms.mulPose(transform);
+        ms.pushPose();
+        ms.translate(0.5F, 0.5F, 0.5F);
+        Matrix4f matrix = ms.last().pose();
+        VertexConsumer consumer = buffers.getBuffer(RenderType.lightning());
 
-		ms.translate(-0.5F, -0.5F, -0.5F);
+        float[][] corners = {
+                { -size, -size, -size }, { size, -size, -size }, { size, size, -size }, { -size, size, -size },
+                { -size, -size, size }, { size, -size, size }, { size, size, size }, { -size, size, size }
+        };
+        int[][] faces = {
+                { 0, 1, 2, 3 }, { 5, 4, 7, 6 }, { 4, 0, 3, 7 },
+                { 1, 5, 6, 2 }, { 3, 2, 6, 7 }, { 4, 5, 1, 0 }
+        };
+        for (int[] face : faces) {
+            for (int index : face) {
+                float[] corner = corners[index];
+                consumer.vertex(matrix, corner[0], corner[1], corner[2]).color(r, g, b, 0.7F).endVertex();
+            }
+        }
+        ms.popPose();
+    }
 
-		double time = ClientTickHandler.ticksInGame + partialTicks;
-
-		float r = 1, g = 1, b = 1;
-		if (spreader.getVariant() == ManaSpreaderBlock.Variant.GAIA) {
-			int color = Mth.hsvToRgb((float) ((time * 2 + new Random(spreader.getBlockPos().hashCode()).nextInt(10000)) % 360) / 360F, 0.4F, 0.9F);
-			r = (color >> 16 & 0xFF) / 255F;
-			g = (color >> 8 & 0xFF) / 255F;
-			b = (color & 0xFF) / 255F;
-		}
-
-		VertexConsumer buffer = buffers.getBuffer(ItemBlockRenderTypes.getRenderType(spreader.getBlockState(), false));
-		BakedModel spreaderModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(spreader.getBlockState());
-		Minecraft.getInstance().getBlockRenderer().getModelRenderer()
-				.renderModel(ms.last(), buffer, spreader.getBlockState(),
-						spreaderModel, r, g, b, light, overlay);
-
-		ms.pushPose();
-		ms.translate(0.5, 0.5, 0.5);
-		ms.mulPose(VecHelper.rotateY((float) time % 360));
-		ms.translate(-0.5, -0.5, -0.5);
-		ms.translate(0F, (float) Math.sin(time / 20.0) * 0.05F, 0F);
-		BakedModel core = getCoreModel(spreader);
-		Minecraft.getInstance().getBlockRenderer().getModelRenderer()
-				.renderModel(ms.last(), buffer, spreader.getBlockState(),
-						core, 1, 1, 1, light, overlay);
-		ms.popPose();
-
-		ItemStack stack = spreader.getItemHandler().getItem(0);
-		if (!stack.isEmpty()) {
-			ms.pushPose();
-			ms.translate(0.5F, 0.5F, 0.094F);
-			ms.mulPose(VecHelper.rotateZ(180));
-			ms.mulPose(VecHelper.rotateX(180));
-			// Prevents z-fighting. Otherwise not noticeable.
-			ms.scale(0.997F, 0.997F, 1F);
-			Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.NONE,
-					light, overlay, ms, buffers, spreader.getLevel(), 0);
-			ms.popPose();
-		}
-
-		if (spreader.paddingColor != null) {
-			ms.pushPose();
-			// The padding model is facing up so that the textures are rotated the correct way
-			// It's simpler to do this than mess with rotation and UV in the json model
-			ms.translate(0.5F, 0.5F, 0.5F);
-			ms.mulPose(VecHelper.rotateX(-90));
-			ms.mulPose(VecHelper.rotateY(180));
-			ms.translate(-0.5F, -0.5F, -0.5F);
-			BakedModel paddingModel = getPaddingModel(spreader.paddingColor);
-			Minecraft.getInstance().getBlockRenderer().getModelRenderer()
-					.renderModel(ms.last(), buffer, spreader.getBlockState(),
-							paddingModel, r, g, b, light, overlay);
-			ms.popPose();
-		}
-
-		ms.popPose();
-
-		if (spreader.getBlockState().getValue(BotaniaStateProperties.HAS_SCAFFOLDING)) {
-			BakedModel scaffolding = getScaffoldingModel(spreader);
-			Minecraft.getInstance().getBlockRenderer().getModelRenderer()
-					.renderModel(ms.last(), buffer, spreader.getBlockState(),
-							scaffolding, r, g, b, light, overlay);
-		}
-
-	}
-
-	private BakedModel getCoreModel(ManaSpreaderBlockEntity tile) {
-		return switch (tile.getVariant()) {
-			case GAIA -> MiscellaneousModels.INSTANCE.gaiaSpreaderCore;
-			case REDSTONE -> MiscellaneousModels.INSTANCE.redstoneSpreaderCore;
-			case ELVEN -> MiscellaneousModels.INSTANCE.elvenSpreaderCore;
-			case MANA -> MiscellaneousModels.INSTANCE.manaSpreaderCore;
-		};
-	}
-
-	private BakedModel getPaddingModel(DyeColor color) {
-		return MiscellaneousModels.INSTANCE.spreaderPaddings.get(color);
-	}
-
-	private BakedModel getScaffoldingModel(ManaSpreaderBlockEntity tile) {
-		return switch (tile.getVariant()) {
-			case MANA, REDSTONE -> MiscellaneousModels.INSTANCE.manaSpreaderScaffolding;
-			case ELVEN -> MiscellaneousModels.INSTANCE.elvenSpreaderScaffolding;
-			case GAIA -> MiscellaneousModels.INSTANCE.gaiaSpreaderScaffolding;
-		};
-	}
+    private static int colorFor(ManaSpreaderBlockEntity spreader) {
+        var level = spreader.getLevel();
+        if (level == null) {
+            return 0x40E0D0;
+        }
+        String path = net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                .getKey(spreader.getBlockState().getBlock()).getPath();
+        return switch (path) {
+            case "redstone_spreader" -> 0xFF5050;
+            case "elven_spreader" -> 0xE0FFE0;
+            case "gaia_spreader" -> 0xFF80FF;
+            default -> 0x40E0D0;
+        };
+    }
 }

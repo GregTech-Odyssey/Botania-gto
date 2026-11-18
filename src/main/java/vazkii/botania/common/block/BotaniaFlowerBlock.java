@@ -1,95 +1,67 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.common.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
-import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jetbrains.annotations.NotNull;
+import vazkii.botania.common.BotaniaReplica;
 
-import vazkii.botania.client.fx.SparkleParticleData;
-import vazkii.botania.common.item.material.MysticalPetalItem;
-import vazkii.botania.xplat.BotaniaConfig;
+/**
+ * 植物魔法花的公共方块基类。
+ *
+ * <p>
+ * 神秘花、荧光花以及功能花、产魔花、特殊花的方块都从这里派生：只能放在泥土标签的方块上，
+ * 外形是小花，用骨粉会变成同色的高神秘花。
+ * </p>
+ */
+public class BotaniaFlowerBlock extends BushBlock implements BonemealableBlock {
 
-public class BotaniaFlowerBlock extends FlowerBlock implements BonemealableBlock {
-	public final DyeColor color;
+    private static final VoxelShape SHAPE = box(5, 0, 5, 11, 10, 11);
 
-	protected BotaniaFlowerBlock(DyeColor color, Properties builder) {
-		super(effectForFlower(color), 4, builder);
-		this.color = color;
-	}
+    public final DyeColor color;
 
-	private static MobEffect effectForFlower(DyeColor color) {
-		return switch (color) {
-			case WHITE -> MobEffects.MOVEMENT_SPEED;
-			case ORANGE -> MobEffects.FIRE_RESISTANCE;
-			case MAGENTA -> MobEffects.DIG_SLOWDOWN;
-			case LIGHT_BLUE -> MobEffects.JUMP;
-			case YELLOW -> MobEffects.ABSORPTION;
-			case LIME -> MobEffects.POISON;
-			case PINK -> MobEffects.REGENERATION;
-			case GRAY -> MobEffects.DAMAGE_RESISTANCE;
-			case LIGHT_GRAY -> MobEffects.WEAKNESS;
-			case CYAN -> MobEffects.WATER_BREATHING;
-			case PURPLE -> MobEffects.CONFUSION;
-			case BLUE -> MobEffects.NIGHT_VISION;
-			case BROWN -> MobEffects.WITHER;
-			case GREEN -> MobEffects.HUNGER;
-			case RED -> MobEffects.DAMAGE_BOOST;
-			case BLACK -> MobEffects.BLINDNESS;
-		};
-	}
+    public BotaniaFlowerBlock(DyeColor color, BlockBehaviour.Properties properties) {
+        super(properties);
+        this.color = color;
+    }
 
-	@Override
-	public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource rand) {
-		int hex = MysticalPetalItem.getPetalLikeColor(this.color);
-		int r = (hex & 0xFF0000) >> 16;
-		int g = (hex & 0xFF00) >> 8;
-		int b = hex & 0xFF;
-		Vec3 offset = state.getOffset(world, pos);
-		double x = pos.getX() + offset.x;
-		double y = pos.getY() + offset.y;
-		double z = pos.getZ() + offset.z;
+    @NotNull
+    @Override
+    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,
+                               @NotNull CollisionContext context) {
+        return SHAPE;
+    }
 
-		if (rand.nextDouble() < BotaniaConfig.client().flowerParticleFrequency()) {
-			SparkleParticleData data = SparkleParticleData.sparkle(rand.nextFloat(), r / 255F, g / 255F, b / 255F, 5);
-			world.addParticle(data, x + 0.3 + rand.nextFloat() * 0.5, y + 0.5 + rand.nextFloat() * 0.5, z + 0.3 + rand.nextFloat() * 0.5, 0, 0, 0);
-		}
-	}
+    @Override
+    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state,
+                                         boolean isClient) {
+        return level.getBlockState(pos.above()).isAir();
+    }
 
-	@Override
-	public boolean isValidBonemealTarget(@NotNull LevelReader world, @NotNull BlockPos pos, @NotNull BlockState state, boolean fuckifiknow) {
-		return world.getBlockState(pos.above()).isAir();
-	}
+    @Override
+    public boolean isBonemealSuccess(@NotNull net.minecraft.world.level.Level level, @NotNull RandomSource random,
+                                     @NotNull BlockPos pos, @NotNull BlockState state) {
+        return level.getBlockState(pos.above()).isAir();
+    }
 
-	@Override
-	public boolean isBonemealSuccess(@NotNull Level world, @NotNull RandomSource rand, @NotNull BlockPos pos, @NotNull BlockState state) {
-		return isValidBonemealTarget(world, pos, state, false);
-	}
-
-	@Override
-	public void performBonemeal(@NotNull ServerLevel world, @NotNull RandomSource rand, @NotNull BlockPos pos, @NotNull BlockState state) {
-		Block block = BotaniaBlocks.getDoubleFlower(color);
-		if (block instanceof DoublePlantBlock) {
-			DoublePlantBlock.placeAt(world, block.defaultBlockState(), pos, 3);
-		}
-	}
+    @Override
+    public void performBonemeal(@NotNull ServerLevel level, @NotNull RandomSource random, @NotNull BlockPos pos,
+                                @NotNull BlockState state) {
+        Block doubleFlower = BotaniaReplica.BOTANIA.getBlock(color.getName() + "_double_flower");
+        if (doubleFlower instanceof DoublePlantBlock) {
+            DoublePlantBlock.placeAt(level, doubleFlower.defaultBlockState(), pos, Block.UPDATE_ALL);
+        }
+    }
 }

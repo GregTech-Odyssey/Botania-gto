@@ -1,41 +1,33 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.client.fx;
 
-import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+/**
+ * 复刻内容的粒子类型与客户端工厂。
+ */
+public final class BotaniaParticles {
 
-import static vazkii.botania.common.lib.ResourceLocationHelper.prefix;
+    private static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister
+            .create(ForgeRegistries.PARTICLE_TYPES, "botania");
 
-public class BotaniaParticles {
-	public static final ParticleType<WispParticleData> WISP = new WispParticleType();
-	public static final ParticleType<SparkleParticleData> SPARKLE = new SparkleParticleType();
+    public static final RegistryObject<ParticleType<WispParticleData>> WISP = PARTICLES
+            .register("wisp", WispParticleType::new);
+    public static final RegistryObject<ParticleType<SparkleParticleData>> SPARKLE = PARTICLES
+            .register("sparkle", SparkleParticleType::new);
 
-	public static void registerParticles(BiConsumer<ParticleType<?>, ResourceLocation> r) {
-		r.accept(WISP, prefix("wisp"));
-		r.accept(SPARKLE, prefix("sparkle"));
-	}
+    private BotaniaParticles() {}
 
-	public static class FactoryHandler {
-		public interface Consumer {
-			<T extends ParticleOptions> void register(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> constructor);
-		}
+    public static void register(IEventBus bus) {
+        PARTICLES.register(bus);
+    }
 
-		public static void registerFactories(Consumer consumer) {
-			consumer.register(BotaniaParticles.WISP, WispParticleType.Factory::new);
-			consumer.register(BotaniaParticles.SPARKLE, SparkleParticleType.Factory::new);
-		}
-	}
+    public static void registerProviders(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(SPARKLE.get(), SparkleParticleType.Factory::new);
+        event.registerSpriteSet(WISP.get(), WispParticleType.Factory::new);
+    }
 }

@@ -1,58 +1,56 @@
 package vazkii.botania.client.model.armor;
 
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 
 import org.jetbrains.annotations.Nullable;
+import vazkii.botania.common.item.BotaniaArmorMaterials;
 
-import vazkii.botania.client.model.BotaniaModelLayers;
-import vazkii.botania.common.item.equipment.armor.elementium.ElementiumArmorItem;
-import vazkii.botania.common.item.equipment.armor.manasteel.ManasteelArmorItem;
-import vazkii.botania.common.item.equipment.armor.manaweave.ManaweaveArmorItem;
-import vazkii.botania.common.item.equipment.armor.terrasteel.TerrasteelArmorItem;
-
-import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
-public class ArmorModels {
-	private static Map<EquipmentSlot, ArmorModel> manasteel = Collections.emptyMap();
-	private static Map<EquipmentSlot, ArmorModel> manaweave = Collections.emptyMap();
-	private static Map<EquipmentSlot, ArmorModel> elementium = Collections.emptyMap();
-	private static Map<EquipmentSlot, ArmorModel> terrasteel = Collections.emptyMap();
+/**
+ * 已烘焙的盔甲模型，按材质名与装备槽索引。
+ *
+ * <p>
+ * 原模组按物品类型区分四套盔甲；复刻盔甲共用同一个物品类，因此按材质名匹配。
+ * </p>
+ */
+public final class ArmorModels {
 
-	private static Map<EquipmentSlot, ArmorModel> make(EntityRendererProvider.Context ctx, ModelLayerLocation inner, ModelLayerLocation outer) {
-		Map<EquipmentSlot, ArmorModel> ret = new EnumMap<>(EquipmentSlot.class);
-		for (var slot : EquipmentSlot.values()) {
-			var mesh = ctx.bakeLayer(slot == EquipmentSlot.LEGS ? inner : outer);
-			ret.put(slot, new ArmorModel(mesh, slot));
-		}
-		return ret;
-	}
+    private static final Map<String, Map<EquipmentSlot, ArmorModel>> MODELS = new HashMap<>();
 
-	public static void init(EntityRendererProvider.Context ctx) {
-		manasteel = make(ctx, BotaniaModelLayers.MANASTEEL_INNER_ARMOR, BotaniaModelLayers.MANASTEEL_OUTER_ARMOR);
-		manaweave = make(ctx, BotaniaModelLayers.MANAWEAVE_INNER_ARMOR, BotaniaModelLayers.MANAWEAVE_OUTER_ARMOR);
-		elementium = make(ctx, BotaniaModelLayers.ELEMENTIUM_INNER_ARMOR, BotaniaModelLayers.ELEMENTIUM_OUTER_ARMOR);
-		terrasteel = make(ctx, BotaniaModelLayers.TERRASTEEL_INNER_ARMOR, BotaniaModelLayers.TERRASTEEL_OUTER_ARMOR);
-	}
+    private ArmorModels() {}
 
-	@Nullable
-	public static ArmorModel get(ItemStack stack) {
-		Item item = stack.getItem();
-		if (item instanceof ManaweaveArmorItem armor) {
-			return manaweave.get(armor.getEquipmentSlot());
-		} else if (item instanceof ElementiumArmorItem armor) {
-			return elementium.get(armor.getEquipmentSlot());
-		} else if (item instanceof TerrasteelArmorItem armor) {
-			return terrasteel.get(armor.getEquipmentSlot());
-		} else if (item instanceof ManasteelArmorItem armor) { // manasteel must be last because the other types extend from it
-			return manasteel.get(armor.getEquipmentSlot());
-		}
+    public static void init(EntityRendererProvider.Context context) {
+        MODELS.clear();
+        put(context, BotaniaArmorMaterials.MANASTEEL.getName(), ArmorModelLayers.MANASTEEL_INNER, ArmorModelLayers.MANASTEEL_OUTER);
+        put(context, BotaniaArmorMaterials.ELEMENTIUM.getName(), ArmorModelLayers.ELEMENTIUM_INNER, ArmorModelLayers.ELEMENTIUM_OUTER);
+        put(context, BotaniaArmorMaterials.TERRASTEEL.getName(), ArmorModelLayers.TERRASTEEL_INNER, ArmorModelLayers.TERRASTEEL_OUTER);
+        put(context, BotaniaArmorMaterials.MANAWEAVE.getName(), ArmorModelLayers.MANAWEAVE_INNER, ArmorModelLayers.MANAWEAVE_OUTER);
+    }
 
-		return null;
-	}
+    private static void put(EntityRendererProvider.Context context, String name, ModelLayerLocation inner,
+                            ModelLayerLocation outer) {
+        Map<EquipmentSlot, ArmorModel> bySlot = new EnumMap<>(EquipmentSlot.class);
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ModelPart part = context.bakeLayer(slot == EquipmentSlot.LEGS ? inner : outer);
+            bySlot.put(slot, new ArmorModel(part, slot));
+        }
+        MODELS.put(name, bySlot);
+    }
+
+    @Nullable
+    public static ArmorModel get(ItemStack stack) {
+        if (!(stack.getItem() instanceof ArmorItem armor)) {
+            return null;
+        }
+        Map<EquipmentSlot, ArmorModel> bySlot = MODELS.get(armor.getMaterial().getName());
+        return bySlot == null ? null : bySlot.get(armor.getEquipmentSlot());
+    }
 }

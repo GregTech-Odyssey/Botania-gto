@@ -8,49 +8,50 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
-
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.AEKeyType;
 
+import java.util.List;
+
 public final class ManaKey extends AEKey {
-	public static final ManaKey KEY = new ManaKey();
 
-	private ManaKey() {}
+    public static final ManaKey KEY = new ManaKey();
 
-	@Override
-	public AEKeyType<ManaKey> getType() {
-		return ManaKeyType.TYPE;
-	}
+    private ManaKey() {}
 
-	@Override
-	public AEKey dropSecondary() {
-		return this;
-	}
+    @Override
+    public AEKeyType<ManaKey> getType() {
+        return ManaKeyType.TYPE;
+    }
 
-	@Override
-	public CompoundTag toTag() {
-		return new CompoundTag();
-	}
+    @Override
+    public AEKey dropSecondary() {
+        return this;
+    }
 
-	@Override
-	public Object getPrimaryKey() {
-		return this;
-	}
+    @Override
+    public CompoundTag toTag() {
+        return new CompoundTag();
+    }
 
-	@Override
-	public ResourceLocation getId() {
-		return ManaKeyType.ID;
-	}
+    @Override
+    public Object getPrimaryKey() {
+        return this;
+    }
 
-	@Override
-	public void writeToPacket(FriendlyByteBuf data) {}
+    @Override
+    public ResourceLocation getId() {
+        return ManaKeyType.ID;
+    }
 
-	@Override
-	protected Component computeDisplayName() {
-		return Component.translatable(ManaKeyType.NAME_KEY);
-	}
+    @Override
+    public void writeToPacket(FriendlyByteBuf data) {}
 
-	@Override
-	public void addDrops(long amount, List<ItemStack> drops, Level level, BlockPos pos) {}
+    @Override
+    protected Component computeDisplayName() {
+        return Component.translatable(ManaKeyType.NAME_KEY);
+    }
+
+    @Override
+    public void addDrops(long amount, List<ItemStack> drops, Level level, BlockPos pos) {}
 }

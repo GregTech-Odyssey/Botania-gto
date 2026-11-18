@@ -1,4 +1,5 @@
 {
+  "block.botania.gaia_wall_head": "盖亚守护者的头",
   "_comment0": "Note to translators: DO NOT COPY ENTRIES FROM ENGLISH",
   "_comment1": "I repeat: do NOT copy entries from English!!",
   "_comment2": "Any entry in this lang file should be in zh_CN, or *should not be here at all*",
@@ -153,7 +154,7 @@
   "botaniamisc.monocle.repeater.delay": "%ss",
   "botaniamisc.monocle.comparator.compare": "\u2265",
   "botaniamisc.monocle.comparator.subtract": "-",
-  
+
   "botania.tater_birthday.0": "哇哦，这是给我的吗？",
   "botania.tater_birthday.1": "今天是我的生日，我现在%d岁了！",
   "botania.tater_birthday.2": "非常感谢！我希望这一年对你来说同样美好。",
@@ -472,6 +473,7 @@
   "entity.botania.flame_ring": "火焰圈",
   "entity.botania.vine_ball": "藤蔓球",
   "entity.botania.doppleganger": "盖亚守护者",
+  "entity.botania.gaia_3rd": "盖亚守护者 III",
   "entity.botania.magic_landmine": "盖亚陷阱",
   "entity.botania.spark": "火花",
   "entity.botania.thrown_item": "投掷的物品",
@@ -1532,6 +1534,7 @@
   "item.botania.diva_charm": "女王之魅",
   "item.botania.flight_tiara": "天翼族之冠",
   "item.botania.ender_dagger": "灵魂匕首",
+  "item.botania.ender_dagger.desc": "收集被击杀者的灵魂。",
   "item.botania.quartz_dark": "烟熏石英",
   "item.botania.quartz_mana": "魔力石英",
   "item.botania.quartz_blaze": "烈焰石英",
@@ -1664,13 +1667,21 @@
   "item.botania.phantom_ink": "幻影墨水",
   "item.botania.pool_minecart": "魔力池矿车",
   "item.botania.pinkinator": "粉色手炮",
+  "item.botania.pinkinator.desc": "对凋灵使用。",
   "item.botania.infinite_fruit": "禁忌之果",
+  "item.botania.infinite_fruit.desc": "永远吃不完的果实。",
   "item.botania.king_key": "王之宝钥",
+  "item.botania.king_key.desc": "蓄力召唤王之财宝。",
   "item.botania.flugel_eye": "天翼族之眼",
+  "item.botania.flugel_eye.desc": "与该世界绑定，持有时可飞行。",
   "item.botania.thor_ring": "托尔之戒",
+  "item.botania.thor_ring.desc": "雷霆与力量之戒。",
   "item.botania.odin_ring": "奥丁之戒",
+  "item.botania.odin_ring.desc": "生命与智慧之戒。",
   "item.botania.loki_ring": "洛基之戒",
+  "item.botania.loki_ring.desc": "诡计与幻象之戒。",
   "item.botania.dice": "命运骰子",
+  "item.botania.dice.desc": "会变成另一件遗物。",
   "item.botania.keep_ivy": "坚毅之藤",
   "item.botania.black_hole_talisman": "黑洞护符",
   "item.botania.record_gaia_1": "破损的唱片",
@@ -1688,9 +1699,11 @@
   "item.botania.cacophonium": "不和谐之音",
   "item.botania.slime_bottle": "史莱姆罐子",
   "item.botania.star_sword": "召星者",
+  "item.botania.star_sword.desc": "挥剑召唤落星。",
   "item.botania.exchange_rod": "移壳杆",
   "item.botania.magnet_ring_greater": "高级磁化指环",
   "item.botania.thunder_sword": "召雷者",
+  "item.botania.thunder_sword.desc": "挥剑召唤落雷。",
   "item.botania.manaweave_cloth": "魔源布匹",
   "item.botania.manaweave_helmet": "魔源头蓬",
   "item.botania.manaweave_chestplate": "魔源长袍",
@@ -2003,11 +2016,11 @@
   "botania.category.basics": "基础知识与机制",
   "botania.category.basics.description": "作为一名初出茅庐的植物学家，该从何处着手，又该以何为目标？",
   "botania.category.mana": "使用魔力",
-  "botania.category.mana.description": "收集、分配以及管理这一重要资源的方法。",  
+  "botania.category.mana.description": "收集、分配以及管理这一重要资源的方法。",
   "botania.category.functionalFlowers": "功能类植物",
-  "botania.category.functionalFlowers.description": "利用花朵和魔力达成自动化或简化各种任务。",  
+  "botania.category.functionalFlowers.description": "利用花朵和魔力达成自动化或简化各种任务。",
   "botania.category.generationFlowers": "产能类植物",
-  "botania.category.generationFlowers.description": "通过花朵将资源转化为魔力的各种方法。$(p)(如果看起来很复杂，通常值得一试。)",  
+  "botania.category.generationFlowers.description": "通过花朵将资源转化为魔力的各种方法。$(p)(如果看起来很复杂，通常值得一试。)",
   "botania.category.devices": "自然装置",
   "botania.category.devices.description": "简单而强大的设备，能够帮助达成诸多目标，通常以自动化的方式实现。",
   "botania.category.tools": "神秘工具",
@@ -2021,7 +2034,6 @@
   "botania.category.misc": "杂项",
   "botania.category.misc.description": "其他有用的信息",
 
-
   "botania.entry.welcome": "欢迎来到植物魔法世界",
   "botania.tagline.welcome": "欢迎光临植物魔法酒店",
   "botania.page.welcome0": "$(o)欢迎使用植物魔法！首先，我祝贺你做出了正确的决定 - 把一本书和树苗绑在一起，或者是偶然在什么箱子里找到了这本巨著。怎样都可以啦。$(p)$(o)你可以通过页面下方的箭头、 鼠标滚轮或键盘上的方向键来浏览这本书。",
@@ -2030,7 +2042,7 @@
   "botania.page.welcome3": "$(o)当你迷失前进的方向时，不妨去看下本Mod的进度和挑战列表，这两个列表都可以在本书首页的左侧找到。$(p)$(o)本书排版友好，同时也提供了大量方便浏览的功能，所以请在正式开始探究前稍微花点时间来了解这些小玩意儿都能做些什么。",
   "botania.page.welcome5": "$(o)如果你不知道你该了解些什么，请在浏览时按住SHIFT，将各个章节粗略浏览一遍，并对每个东西都有一些简单的印象。$(p)$(o)“辞典索引”分类对于搜索很有帮助，因为这个分类集所有条目于大成，本辞典的条目都可以在此找到。",
   "botania.page.welcome6": "$(o)然后这就是整个植物魔法简介啦！谨此祝你在植物魔法的旅程中玩得开心，就像我制作植物魔法的旅程一样！$(p)$(o)~Vazkii，植物魔法作者$(p)$(o)要继续，请点击下方的“返回”按钮。鼠标右键和退格键也有一样的效果哦~",
-  
+
   "botania.entry.gardenOfGlass": "水晶花园",
   "botania.tagline.gardenOfGlass": "你的新挑战",
   "botania.page.gardenOfGlass0": "在$(2)水晶花园$(0)里，没有人会听见你的尖叫声。$(p)这是一个单独的空间。$(p)多么令人兴奋啊！",
@@ -2516,7 +2528,7 @@
   "botania.page.gIntro3": "第一朵$(thing)产能花$(0)的选择很简单。作为初出茅庐的植物魔法师，你有两个选择：$(item)火红莲$(0)和$(item)水绣球$(0)。$(p)前者燃烧$(item)煤炭$(0)以产生魔力；后者则只消耗$(item)水$(0)产生魔力。作为免费魔力的代价，水绣球会在大约三天后枯萎。",
   "botania.page.gIntro4": "将来，若发展出其他$(thing)产能花$(0)，往往使用更复杂的机械才能实现自动化的花会产生更多的$(thing)Mana$(0)。",
   "botania.page.gIntroPotted": "花盆里的花纯粹是装饰品",
-  
+
   "botania.entry.endoflame": "火红莲",
   "botania.tagline.endoflame": "燃烧产能",
   "botania.page.endoflame0": "$(item)火红莲$(0)是一种非常原始的$(thing)产能花$(0)，它会吸收掉落在附近的任何可燃物品和方块（每次一个）并在燃烧期间持续释放出$(thing)魔力$(0)。$(p)物品的燃烧时间差不多是它在熔炉中燃烧时间的一半。",
@@ -3229,7 +3241,7 @@
   "botania.entry.corporeaBlock": "多媒体装饰方块",
   "botania.page.corporeaBlock0": "一般来说，$(item)活石砖$(0)可以与$(item)多媒体火花$(0)合成为一些装饰性方块。而这些方块除了可用于装饰外，还有一个独特的特性。尽管它们自身内部没有存储空间，但它们可支持身上的的$(item)多媒体火花$(0)。因此，它们可以作为一种廉价且瞬时的传输方案，将你的$(item)多媒体$(0)网络进行长距离扩展。",
   "botania.page.corporeaBlock1": "少媒体",
-  
+
   "botania.entry.corporeaIndex": "多媒体索引",
   "botania.tagline.corporeaIndex": "说话请求网络物品",
   "botania.page.corporeaIndex0": "$(thing)多媒体网络$(0)的强大能力在于可以通过说出物品名发出请求。$(p)$(item)多媒体索引$(0)是一个类似末影水晶的方块，它属于放置于其上的$(l:ender/corporea)$(item)多媒体火花$(0)$(/l)所属的$(thing)多媒体网络$(0)的一部分。$(p)只要靠近它就能激活。激活时，它会显示作用半径。",
@@ -3642,13 +3654,13 @@
   "botania.page.shinyFlowers1": "一闪一闪",
   "botania.page.shinyFlowers5": "浮空花",
   "botania.page.shinyFlowers2": "就像拉普达（天空之城）但小多了",
-  
+
   "botania.entry.tinyPotato": "小土豆",
   "botania.tagline.tinyPotato": "土豆是我们所有人的朋友",
   "botania.page.tinyPotato0": "这是一个小土豆，它相信你，你能做到。$(p)尽管听起来不太真实，但就是那样，将一个$(item)马铃薯$(0)投入$(item)魔力$(0)$(item)池$(0)，它就得到了一点活性精华并且感到愉悦。它很活跃，右击它还能让它更活跃！",
   "botania.page.tinyPotato2": "手持物品右击小土豆还可以让它变成展示架。$(p)放在小土豆底面的物品会在其正面下方显示。$(p)小土豆其实没那么心灵手巧，所以物品也可能会放偏。",
   "botania.page.tinyPotato1": "将它放在Kickstarter网站上就起效了",
-  
+
   "botania.entry.headCreating": "头颅制造",
   "botania.tagline.headCreating": "制造玩家的头颅",
   "botania.page.headCreating0": "一个特别的精灵咒语，配合一些材料和一个$(item)命名牌$(0)就能做出牌子里所写者头的复制品。虽然并不知道这是怎样的原理，但似乎可以用$(item)符文祭坛$(0)来制作。",
@@ -3695,7 +3707,7 @@
   "botania.page.cacophonium0": "这是个有趣的设备，$(item)不和谐之音$(0)有着能模仿任何活着的生物声音的能力，为使其“模仿”一个生物。你需要拿着它右击一个生物。然后按住右键它就会开始模仿。$(p)为什么有人会想要做这个，这玩意超越了我的伦理观。",
   "botania.page.cacophonium1": "自行车！不和谐之音",
   "botania.page.cacophonium2": "为了最大化这种不和谐，$(item)不和谐之音$(0)潜行右击$(item)音符盒$(0)来使其记录这种声音。$(p)你个怪物。",
-  
+
   "botania.entry.pavement": "葡萄牙路面",
   "botania.tagline.pavement": "路面建造学",
   "botania.page.pavement0": "$(item)葡萄牙路面$(0)是一种专为路面设计的精美建筑方块。它有很多种颜色，且都能制成半砖和楼梯$(p)对于那些想进行微型方块以及多方块建造的艺术家来讲，这些方块肯定是完美的路面。",

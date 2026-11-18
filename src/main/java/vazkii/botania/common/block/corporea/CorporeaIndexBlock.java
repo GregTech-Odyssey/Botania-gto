@@ -1,62 +1,45 @@
-/*
- * This class is distributed as part of the Botania Mod.
- * Get the Source Code in github:
- * https://github.com/Vazkii/Botania
- *
- * Botania is Open Source and distributed under the
- * Botania License: http://botaniamod.net/license.php
- */
 package vazkii.botania.common.block.corporea;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import vazkii.botania.common.block.BotaniaWaterloggedBlock;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntities;
-import vazkii.botania.common.block.block_entity.corporea.BaseCorporeaBlockEntity;
-import vazkii.botania.common.block.block_entity.corporea.CorporeaIndexBlockEntity;
+import vazkii.botania.common.block.block_entity.BotaniaBlockEntity;
 
-public class CorporeaIndexBlock extends BotaniaWaterloggedBlock implements EntityBlock {
-	private static final VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);
+/** 多媒体索引：方块模型为空，由方块实体渲染器绘制旋转的环与核心。 */
+public class CorporeaIndexBlock extends Block implements EntityBlock {
 
-	public CorporeaIndexBlock(BlockBehaviour.Properties builder) {
-		super(builder);
-	}
+    private static final VoxelShape SHAPE = box(2, 2, 2, 14, 14, 14);
 
-	@NotNull
-	@Override
-	public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-		return SHAPE;
-	}
+    public CorporeaIndexBlock(BlockBehaviour.Properties properties) {
+        super(properties);
+    }
 
-	@NotNull
-	@Override
-	public RenderShape getRenderShape(BlockState state) {
-		return RenderShape.ENTITYBLOCK_ANIMATED;
-	}
+    @NotNull
+    @Override
+    public VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos,
+                               @NotNull CollisionContext context) {
+        return SHAPE;
+    }
 
-	@NotNull
-	@Override
-	public BaseCorporeaBlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-		return new CorporeaIndexBlockEntity(pos, state);
-	}
+    @NotNull
+    @Override
+    public RenderShape getRenderShape(@NotNull BlockState state) {
+        return RenderShape.ENTITYBLOCK_ANIMATED;
+    }
 
-	@Nullable
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return createTickerHelper(type, BotaniaBlockEntities.CORPOREA_INDEX, CorporeaIndexBlockEntity::commonTick);
-	}
+    @NotNull
+    @Override
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+        return new BotaniaBlockEntity(BotaniaBlockEntities.CORPOREA_INDEX.get(), pos, state);
+    }
 }
