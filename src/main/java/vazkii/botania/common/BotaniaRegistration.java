@@ -7,17 +7,29 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 import com.gto.registrate.util.entry.RegistryEntry;
 
+import vazkii.botania.client.fx.BotaniaParticles;
 import vazkii.botania.common.alfheim.Alfheim;
 import vazkii.botania.common.alfheim.AlfheimAccess;
+import vazkii.botania.common.alfheim.AlfheimPortalHandler;
 import vazkii.botania.common.block.block_entity.BotaniaBlockEntities;
 import vazkii.botania.common.entity.BotaniaEntities;
+import vazkii.botania.common.handler.BotaniaSounds;
+import vazkii.botania.common.handler.ExtraBotanySounds;
+import vazkii.botania.common.item.FlowerPouchItem;
+import vazkii.botania.common.rune.RuneRitualRecipes;
+import vazkii.botania.common.worldgen.BotaniaWorldgen;
 import vazkii.botania.common.worldgen.MythicBotanyWorldgen;
+import vazkii.botania.forge.integration.ae2.BotaniaAE2;
 
 /**
  * 植物魔法复刻内容的注册器。
@@ -54,36 +66,36 @@ public final class BotaniaRegistration {
         MythicBotanyItems.init();
         ExtraBotanyBlocks.init();
         ExtraBotanyItems.init();
-        vazkii.botania.client.fx.BotaniaParticles.register(bus);
-        vazkii.botania.forge.integration.ae2.BotaniaAE2.init(bus);
-        vazkii.botania.common.handler.BotaniaSounds.register(bus);
-        vazkii.botania.common.handler.ExtraBotanySounds.register(bus);
+        BotaniaParticles.register(bus);
+        BotaniaAE2.init(bus);
+        BotaniaSounds.register(bus);
+        ExtraBotanySounds.register(bus);
         BotaniaBlockEntities.init();
         BotaniaMenus.register(bus);
-        vazkii.botania.common.rune.RuneRitualRecipes.register(bus);
+        RuneRitualRecipes.register(bus);
         BotaniaEntities.init();
         BOTANIA.registerEventListeners(bus);
         GTORegistration.MYTHICBOTANY.registerEventListeners(bus);
         GTORegistration.EXTRABOTANY.registerEventListeners(bus);
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS
-                .addListener((net.minecraftforge.event.TickEvent.ServerTickEvent event) -> {
-                    if (event.phase == net.minecraftforge.event.TickEvent.Phase.END) {
-                        vazkii.botania.common.alfheim.AlfheimPortalHandler.endTick();
+        MinecraftForge.EVENT_BUS
+                .addListener((TickEvent.ServerTickEvent event) -> {
+                    if (event.phase == TickEvent.Phase.END) {
+                        AlfheimPortalHandler.endTick();
                     }
                 });
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS
-                .addListener((net.minecraftforge.event.TickEvent.PlayerTickEvent event) -> {
-                    if (event.phase == net.minecraftforge.event.TickEvent.Phase.END && event.player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && serverPlayer.tickCount % 20 == 0) {
+        MinecraftForge.EVENT_BUS
+                .addListener((TickEvent.PlayerTickEvent event) -> {
+                    if (event.phase == TickEvent.Phase.END && event.player instanceof ServerPlayer serverPlayer && serverPlayer.tickCount % 20 == 0) {
                         if (!Alfheim.isAlfheim(serverPlayer.level()) || !serverPlayer.isAlive()) return;
                         if (AlfheimAccess.canEnter(serverPlayer)) return;
                         serverPlayer.kill();
                     }
                 });
         bus.addListener(MythicBotanyWorldgen::register);
-        bus.addListener(vazkii.botania.common.worldgen.BotaniaWorldgen::register);
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS
-                .addListener((net.minecraftforge.event.entity.player.EntityItemPickupEvent event) -> {
-                    if (vazkii.botania.common.item.FlowerPouchItem.onPickupItem(event.getItem(), event.getEntity())) {
+        bus.addListener(BotaniaWorldgen::register);
+        MinecraftForge.EVENT_BUS
+                .addListener((EntityItemPickupEvent event) -> {
+                    if (FlowerPouchItem.onPickupItem(event.getItem(), event.getEntity())) {
                         event.setCanceled(true);
                     }
                 });
