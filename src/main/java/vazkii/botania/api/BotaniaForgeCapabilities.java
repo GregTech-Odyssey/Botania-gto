@@ -11,5 +11,6 @@ public final class BotaniaForgeCapabilities {
 
     public static final Capability<ManaItem> MANA_ITEM = CapabilityManager.get(new CapabilityToken<>() {});
     public static final Capability<ManaReceiver> MANA_RECEIVER = CapabilityManager.get(new CapabilityToken<>() {});
+
     private BotaniaForgeCapabilities() {}
 }

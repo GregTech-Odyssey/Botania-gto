@@ -40,10 +40,6 @@ public final class BotaniaBlockEntities {
             .validBlocks(BotaniaBlocks.CORPOREA_INDEX)
             .register();
 
-    public static final BlockEntityEntry<vazkii.botania.common.block.block_entity.mana.ManaSpreaderBlockEntity> MANA_SPREADER = BOTANIA.<vazkii.botania.common.block.block_entity.mana.ManaSpreaderBlockEntity>blockEntity("mana_spreader", vazkii.botania.common.block.block_entity.mana.ManaSpreaderBlockEntity::new)
-            .validBlocks(BotaniaBlocks.MANA_SPREADER, BotaniaBlocks.REDSTONE_SPREADER, BotaniaBlocks.ELVEN_SPREADER, BotaniaBlocks.GAIA_SPREADER)
-            .register();
-
     public static final BlockEntityEntry<AlfheimPortalBlockEntity> ALF_PORTAL = BOTANIA
             .<AlfheimPortalBlockEntity>blockEntity("alf_portal", AlfheimPortalBlockEntity::new)
             .validBlocks(BotaniaBlocks.ALFHEIM_PORTAL)

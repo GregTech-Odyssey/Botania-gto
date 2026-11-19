@@ -100,7 +100,7 @@ public final class BotaniaReplica {
 
     /** 魔力发射器：右键沿视线发射魔力弹。 */
     public BlockEntry<Block> spreader(String id, String cn, String en) {
-        return register(id, cn, en, new ManaSpreaderBlock(propsFor(id).noOcclusion()));
+        return register(id, cn, en, new Block(propsFor(id).noOcclusion()));
     }
 
     /** 符文祭坛：投入材料后吸收魔力产出符文。 */

@@ -44,7 +44,6 @@ public final class BotaniaClientSetup {
         event.registerBlockEntityRenderer(BotaniaBlockEntities.PYLON.get(), PylonBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BotaniaBlockEntities.RETURN_PORTAL.get(), RenderReturnPortal::new);
         event.registerBlockEntityRenderer(BotaniaBlockEntities.ALF_PORTAL.get(), AlfheimPortalBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BotaniaBlockEntities.MANA_SPREADER.get(), ManaSpreaderBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BotaniaBlockEntities.MANA_POOL.get(), ManaPoolBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BotaniaBlockEntities.CORPOREA_INDEX.get(), CorporeaIndexBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BotaniaBlockEntities.LARGE_MANA_POOL.get(), LargeManaPoolBlockEntityRenderer::new);

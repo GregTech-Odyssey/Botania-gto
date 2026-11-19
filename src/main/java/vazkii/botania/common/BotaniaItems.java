@@ -169,8 +169,7 @@ public final class BotaniaItems {
 
     public static final ItemEntry<Item> TEMPERANCE_STONE = BotaniaReplica.BOTANIA.item("temperance_stone", "节制之石", "Stone of Temperance");
 
-    public static final ItemEntry<Item> VINE_BALL = BotaniaReplica.BOTANIA.item("vine_ball", "藤蔓球", "Vine Ball",
-            vazkii.botania.common.item.VineBallItem::new);
+    public static final ItemEntry<Item> VINE_BALL = BotaniaReplica.BOTANIA.item("vine_ball", "藤蔓球", "Vine Ball", Item::new);
 
     public static final ItemEntry<Item> WATER_BOWL = BotaniaReplica.BOTANIA.item("water_bowl", "一碗水", "Bowl of Water");
 
@@ -382,11 +381,9 @@ public final class BotaniaItems {
 
     public static final ItemEntry<Item> CRYSTAL_BOW = BotaniaReplica.BOTANIA.bow("crystal_bow", "水晶弓", "Crystal Bow");
 
-    public static final ItemEntry<Item> THORN_CHAKRAM = BotaniaReplica.BOTANIA.item("thorn_chakram", "荆棘飞轮", "Thorn Chakram",
-            vazkii.botania.common.item.ThornChakramItem::new);
+    public static final ItemEntry<Item> THORN_CHAKRAM = BotaniaReplica.BOTANIA.item("thorn_chakram", "荆棘飞轮", "Thorn Chakram", Item::new);
 
-    public static final ItemEntry<Item> FLARE_CHAKRAM = BotaniaReplica.BOTANIA.item("flare_chakram", "闪耀飞轮", "Flare Chakram",
-            vazkii.botania.common.item.ThornChakramItem::new);
+    public static final ItemEntry<Item> FLARE_CHAKRAM = BotaniaReplica.BOTANIA.item("flare_chakram", "闪耀飞轮", "Flare Chakram", Item::new);
 
     public static final ItemEntry<Item> SLINGSHOT = BotaniaReplica.BOTANIA.item("slingshot", "活木弹弓", "Livingwood Slingshot");
 

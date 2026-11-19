@@ -3,6 +3,7 @@ package vazkii.botania.common.worldgen;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerType;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
@@ -18,9 +19,9 @@ import net.minecraftforge.registries.RegisterEvent;
 public final class MythicBotanyWorldgen {
 
     public static final Feature<AbandonedApothecaryConfiguration> ABANDONED_APOTHECARIES = new AbandonedApothecaryFeature();
-    public static final Feature<net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration> MANA_CRYSTALS = new ManaCrystalFeature();
-    public static final Feature<net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration> MOTIF_FLOWERS = new MotifFlowerFeature();
-    public static final Feature<net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration> WHEAT_FIELDS = new WheatFeature();
+    public static final Feature<NoneFeatureConfiguration> MANA_CRYSTALS = new ManaCrystalFeature();
+    public static final Feature<NoneFeatureConfiguration> MOTIF_FLOWERS = new MotifFlowerFeature();
+    public static final Feature<NoneFeatureConfiguration> WHEAT_FIELDS = new WheatFeature();
 
     public static final FoliagePlacerType<RandomFoliagePlacer> RANDOM_FOLIAGE = new FoliagePlacerType<>(RandomFoliagePlacer.CODEC);
     public static final TrunkPlacerType<ShatteredTrunkPlacer> SHATTERED_TRUNK = new TrunkPlacerType<>(ShatteredTrunkPlacer.CODEC);

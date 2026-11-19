@@ -7,6 +7,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegisterEvent;
 
+import appeng.api.behaviors.*;
+import appeng.api.client.StorageCellModels;
 import appeng.api.stacks.AEKeyType;
 import appeng.api.storage.StorageCells;
 
@@ -36,28 +38,28 @@ public final class BotaniaAE2 {
     private static void setup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             StorageCells.addCellHandler(ManaCellHandler.INSTANCE);
-            appeng.api.behaviors.ExternalStorageStrategy.register(ManaKeyType.TYPE, ManaStorageStrategies::external);
-            appeng.api.behaviors.StackImportStrategy.register(ManaKeyType.TYPE, ManaStorageStrategies::importer);
-            appeng.api.behaviors.StackExportStrategy.register(ManaKeyType.TYPE, ManaStorageStrategies::exporter);
-            appeng.api.behaviors.ContainerItemStrategy.register(ManaKeyType.TYPE, ManaKey.class,
+            ExternalStorageStrategy.register(ManaKeyType.TYPE, ManaStorageStrategies::external);
+            StackImportStrategy.register(ManaKeyType.TYPE, ManaStorageStrategies::importer);
+            StackExportStrategy.register(ManaKeyType.TYPE, ManaStorageStrategies::exporter);
+            ContainerItemStrategy.register(ManaKeyType.TYPE, ManaKey.class,
                     new ManaContainerItemStrategy());
-            appeng.api.behaviors.GenericSlotCapacities.register(ManaKeyType.TYPE, 1_000_000L);
-            appeng.api.client.StorageCellModels.registerModel(
+            GenericSlotCapacities.register(ManaKeyType.TYPE, 1_000_000L);
+            StorageCellModels.registerModel(
                     vazkii.botania.common.BotaniaItems.MANA_STORAGE_CELL_1K.get(),
                     new ResourceLocation("botania", "block/drive/mana_cell_1k"));
-            appeng.api.client.StorageCellModels.registerModel(
+            StorageCellModels.registerModel(
                     vazkii.botania.common.BotaniaItems.MANA_STORAGE_CELL_4K.get(),
                     new ResourceLocation("botania", "block/drive/mana_cell_4k"));
-            appeng.api.client.StorageCellModels.registerModel(
+            StorageCellModels.registerModel(
                     vazkii.botania.common.BotaniaItems.MANA_STORAGE_CELL_16K.get(),
                     new ResourceLocation("botania", "block/drive/mana_cell_16k"));
-            appeng.api.client.StorageCellModels.registerModel(
+            StorageCellModels.registerModel(
                     vazkii.botania.common.BotaniaItems.MANA_STORAGE_CELL_64K.get(),
                     new ResourceLocation("botania", "block/drive/mana_cell_64k"));
-            appeng.api.client.StorageCellModels.registerModel(
+            StorageCellModels.registerModel(
                     vazkii.botania.common.BotaniaItems.MANA_STORAGE_CELL_256K.get(),
                     new ResourceLocation("botania", "block/drive/mana_cell_256k"));
-            appeng.api.client.StorageCellModels.registerModel(
+            StorageCellModels.registerModel(
                     vazkii.botania.common.BotaniaItems.CREATIVE_MANA_CELL.get(),
                     new ResourceLocation("botania", "block/drive/creative_mana_cell"));
         });

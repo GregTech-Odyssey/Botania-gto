@@ -7,6 +7,7 @@ import appeng.api.storage.cells.ISaveProvider;
 import appeng.api.storage.cells.StorageCell;
 
 import org.jetbrains.annotations.Nullable;
+import vazkii.botania.common.BotaniaItems;
 
 final class ManaCellHandler implements ICellHandler {
 
@@ -16,7 +17,7 @@ final class ManaCellHandler implements ICellHandler {
 
     @Override
     public boolean isCell(ItemStack is) {
-        return is.getItem() instanceof ManaCellItem || is.is(vazkii.botania.common.BotaniaItems.CREATIVE_MANA_CELL.get());
+        return is.getItem() instanceof ManaCellItem || is.is(BotaniaItems.CREATIVE_MANA_CELL.get());
     }
 
     @Nullable
@@ -25,6 +26,6 @@ final class ManaCellHandler implements ICellHandler {
         if (is.getItem() instanceof ManaCellItem cell) {
             return new ManaCellInventory(is, cell, host);
         }
-        return is.is(vazkii.botania.common.BotaniaItems.CREATIVE_MANA_CELL.get()) ? new CreativeManaCellInventory(is) : null;
+        return is.is(BotaniaItems.CREATIVE_MANA_CELL.get()) ? new CreativeManaCellInventory(is) : null;
     }
 }
