@@ -20,8 +20,8 @@ public final class MythicBotanyBlocks {
     /** 原神话植物学「精灵钢块」（原版有特殊行为），此处仅注册基础方块。 */
     public static final BlockEntry<Block> MB_ALFSTEEL_BLOCK = BotaniaReplica.MYTHICBOTANY.block("alfsteel_block", "精灵钢块", "Block of Alfsteel");
 
-    /** 原神话植物学「Block of Raw Elementium」（原版有特殊行为），此处仅注册基础方块。 */
-    public static final BlockEntry<Block> MB_RAW_ELEMENTIUM_BLOCK = BotaniaReplica.MYTHICBOTANY.block("raw_elementium_block", "Block of Raw Elementium", "Block of Raw Elementium");
+    /** 原神话植物学「粗源质钢块」（原版有特殊行为），此处仅注册基础方块。 */
+    public static final BlockEntry<Block> MB_RAW_ELEMENTIUM_BLOCK = BotaniaReplica.MYTHICBOTANY.block("raw_elementium_block", "粗源质钢块", "Block of Raw Elementium");
 
     // ==================== 木材与构件 ====================
 
@@ -53,11 +53,11 @@ public final class MythicBotanyBlocks {
     /** 原神话植物学「悬浮烈焰花」（原版有特殊行为），此处仅注册基础方块。 */
     public static final BlockEntry<Block> MB_EXOBLAZE_FLOATING = BotaniaReplica.MYTHICBOTANY.floatingFlower("exoblaze_floating", "悬浮烈焰花", "Floating Exoblaze");
 
-    /** 原神话植物学「Feysythia」（原版有特殊行为），此处仅注册基础方块。 */
-    public static final BlockEntry<Block> MB_FEYSYTHIA = BotaniaReplica.MYTHICBOTANY.flower("feysythia", "Feysythia", "Feysythia");
+    /** 原神话植物学「魔精连翘」（原版有特殊行为），此处仅注册基础方块。 */
+    public static final BlockEntry<Block> MB_FEYSYTHIA = BotaniaReplica.MYTHICBOTANY.flower("feysythia", "魔精连翘", "Feysythia");
 
-    /** 原神话植物学「Floating Feysythia」（原版有特殊行为），此处仅注册基础方块。 */
-    public static final BlockEntry<Block> MB_FEYSYTHIA_FLOATING = BotaniaReplica.MYTHICBOTANY.floatingFlower("feysythia_floating", "Floating Feysythia", "Floating Feysythia");
+    /** 原神话植物学「悬浮魔精连翘」（原版有特殊行为），此处仅注册基础方块。 */
+    public static final BlockEntry<Block> MB_FEYSYTHIA_FLOATING = BotaniaReplica.MYTHICBOTANY.floatingFlower("feysythia_floating", "悬浮魔精连翘", "Floating Feysythia");
 
     /** 原神话植物学「鹿食草」（原版有特殊行为），此处仅注册基础方块。 */
     public static final BlockEntry<Block> MB_HELLEBORE = BotaniaReplica.MYTHICBOTANY.flower("hellebore", "鹿食草", "Hellebore");
@@ -65,11 +65,11 @@ public final class MythicBotanyBlocks {
     /** 原神话植物学「悬浮鹿食草」（原版有特殊行为），此处仅注册基础方块。 */
     public static final BlockEntry<Block> MB_HELLEBORE_FLOATING = BotaniaReplica.MYTHICBOTANY.floatingFlower("hellebore_floating", "悬浮鹿食草", "Floating Hellebore");
 
-    /** 原神话植物学「Petrunia」（原版有特殊行为），此处仅注册基础方块。 */
-    public static final BlockEntry<Block> MB_PETRUNIA = BotaniaReplica.MYTHICBOTANY.flower("petrunia", "Petrunia", "Petrunia");
+    /** 原神话植物学「符文牵牛花」（原版有特殊行为），此处仅注册基础方块。 */
+    public static final BlockEntry<Block> MB_PETRUNIA = BotaniaReplica.MYTHICBOTANY.flower("petrunia", "符文牵牛花", "Petrunia");
 
-    /** 原神话植物学「Floating Petrunia」（原版有特殊行为），此处仅注册基础方块。 */
-    public static final BlockEntry<Block> MB_PETRUNIA_FLOATING = BotaniaReplica.MYTHICBOTANY.floatingFlower("petrunia_floating", "Floating Petrunia", "Floating Petrunia");
+    /** 原神话植物学「悬浮符文牵牛花」（原版有特殊行为），此处仅注册基础方块。 */
+    public static final BlockEntry<Block> MB_PETRUNIA_FLOATING = BotaniaReplica.MYTHICBOTANY.floatingFlower("petrunia_floating", "悬浮符文牵牛花", "Floating Petrunia");
 
     /** 原神话植物学「雨德花」（原版有特殊行为），此处仅注册基础方块。 */
     public static final BlockEntry<Block> MB_RAINDELETIA = BotaniaReplica.MYTHICBOTANY.flower("raindeletia", "雨德花", "Raindeletia");
@@ -97,8 +97,8 @@ public final class MythicBotanyBlocks {
     /** 原神话植物学「妙尔尼尔」（原版有特殊行为），此处仅注册基础方块。 */
     public static final BlockEntry<Block> MB_MJOELLNIR = BotaniaReplica.MYTHICBOTANY.relicNoOcclusion("mjoellnir", "妙尔尼尔", "Mjöllnir");
 
-    /** 原神话植物学「Alfheim Return Portal」（原版有特殊行为），此处仅注册基础方块。 */
-    public static final BlockEntry<Block> MB_RETURN_PORTAL = BotaniaReplica.MYTHICBOTANY.returnPortal("return_portal", "Alfheim Return Portal", "Alfheim Return Portal");
+    /** 原神话植物学「阿尔夫海姆返回门」（原版有特殊行为），此处仅注册基础方块。 */
+    public static final BlockEntry<Block> MB_RETURN_PORTAL = BotaniaReplica.MYTHICBOTANY.returnPortal("return_portal", "阿尔夫海姆返回门", "Alfheim Return Portal");
 
     /** 原神话植物学「世界树的枝干」（原版有特殊行为），此处仅注册基础方块。 */
     public static final BlockEntry<Block> MB_YGGDRASIL_BRANCH = BotaniaReplica.MYTHICBOTANY.facingNoOcclusion("yggdrasil_branch", "世界树的枝干", "Branch of Yggdrasil");
